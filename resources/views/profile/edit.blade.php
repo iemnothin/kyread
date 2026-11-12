@@ -1,223 +1,99 @@
 @extends('layouts.app')
 
-@section('editprofile')
-    <div class="container">
-        <div class="row gutters">
-            @if (session()->has('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button class="btn-close" data-bs-dismiss="alert" type="button" aria-label="Close"></button>
+@section('title', 'Edit Profil')
+
+@section('content')
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <div class="card card-soft text-center">
+                <div class="card-body py-4">
+                    <img class="avatar-lg mb-3" src="{{ $user->avatar_url }}" alt="">
+                    <h1 class="h5 fw-bold mb-0">{{ $user->name }}</h1>
+                    <small class="text-secondary d-block">{{ '@'.$user->username }}</small>
+                    <small class="text-secondary">{{ $user->email }}</small>
+                    <p class="small mt-3 mb-0">{{ $user->about ?: 'Belum ada bio singkat.' }}</p>
                 </div>
-            @endif
-            <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
-                <div class="card edit-profile">
-                    <div class="card-body">
-                        <div class="account-settings mt-4">
-                            <div class="user-profile">
-                                <div class="user-avatar img-fluid">
-                                    <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="">
-                                </div>
-                                <h5 class="user-name">
-                                    @if (auth()->user()->fullname === null)
-                                        {{ auth()->user()->username }}
-                                    @else
-                                        {{ auth()->user()->fullname }}
-                                    @endif
-                                </h5>
-                                <h6 class="user-email">{{ auth()->user()->email }}</h6>
+            </div>
+            <div class="list-group mt-3 small">
+                <a class="list-group-item list-group-item-action" href="{{ route('orders.index') }}"><i class="bi bi-receipt me-2"></i>Pesanan Saya</a>
+                <a class="list-group-item list-group-item-action" href="{{ route('seller.dashboard') }}"><i class="bi bi-shop me-2"></i>{{ $user->store ? 'Toko Saya' : 'Buka Toko' }}</a>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <form class="card card-soft mb-4" action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                @csrf @method('PUT')
+                <div class="card-body">
+                    <h2 class="h6 fw-bold text-ky mb-3">Data Diri</h2>
+                    <div class="row g-3">
+                        @foreach ([
+                            ['name', 'Nama lengkap', 'text'], ['nickname', 'Nama panggilan', 'text'],
+                            ['username', 'Username', 'text'], ['email', 'Email', 'email'],
+                            ['phone', 'No. HP', 'text'], ['about', 'Bio singkat', 'text'],
+                        ] as [$field, $label, $type])
+                            <div class="col-md-6">
+                                <label class="form-label small" for="{{ $field }}">{{ $label }}</label>
+                                <input class="form-control @error($field) is-invalid @enderror" id="{{ $field }}" name="{{ $field }}" type="{{ $type }}" value="{{ old($field, $user->$field) }}">
+                                @error($field)<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            <div class="about">
-                                <h5>About</h5>
-                                @if (auth()->user()->about === null)
-                                    Fill in your shortest bio.
-                                @else
-                                    {{ auth()->user()->about }}
-                                @endif
-                            </div>
+                        @endforeach
+                        <div class="col-md-6">
+                            <label class="form-label small" for="avatar">Foto profil (maks. 1 MB)</label>
+                            <input class="form-control @error('avatar') is-invalid @enderror" id="avatar" name="avatar" type="file" accept="image/*">
+                            @error('avatar')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
-                </div>
-                <div class="d-block text-center mt-3">
-                    <form action="{{ route('profile.delete', auth()->user()->id) }}" method="POST">
-                        @method('DELETE')
-                        @csrf
-                        Want to remove your account?
-                        <button class="btn btn-danger fw-bold text-light mt-2" id="delete" type="submit"
-                            onclick="return confirm('Are you sure to remove your account?')">{{ __('REMOVE') }}</button>
-                    </form>
-                </div>
-            </div>
-            <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
-                <div class="card edit-profile">
-                    <div class="card-body mt-4">
-                        <form action="{{ route('profile.update', auth()->user()->id) }}" method="POST">
-                            @csrf
 
-                            @method('PUT')
-                            <div class="row gutters g-3">
-                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                    <h6 class="mb-2 text-primary">Personal Details</h6>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-2">
-                                    <div class="form-group">
-                                        <label for="fullName">Full name</label>
-                                        <input class="form-control @error('fullname') is-invalid @enderror" id="fullName"
-                                            name="fullname" type="text"
-                                            value="{{ old('fullname' . $user->fullname, auth()->user()->fullname) }}"
-                                            placeholder="Enter your full name">
-                                        @error('fullname')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-2">
-                                    <div class="form-group">
-                                        <label for="nickName">Nick name</label>
-                                        <input class="form-control @error('nickname') is-invalid @enderror" id="fullName"
-                                            name="nickname" type="text"
-                                            value="{{ old('nickname' . $user->nickname, auth()->user()->nickname) }}"
-                                            placeholder="Enter your nick name">
-                                        @error('nickname')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-3">
-                                    <div class="form-group">
-                                        <label for="userName">Username</label>
-                                        <input class="form-control @error('username') is-invalid @enderror" id="fullName"
-                                            name="username" type="text"
-                                            value="{{ old('username' . $user->username, auth()->user()->username) }}"
-                                            placeholder="Enter username">
-                                        @error('username')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-3">
-                                    <div class="form-group">
-                                        <label for="eMail">Email</label>
-                                        <input class="form-control @error('email') is-invalid @enderror" id="eMail"
-                                            name="email" type="email"
-                                            value="{{ old('email' . $user->email, auth()->user()->email) }}"
-                                            placeholder="Enter your email">
-                                        @error('email')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-3">
-                                    <div class="form-group">
-                                        <label for="phone">Phone</label>
-                                        <input class="form-control @error('phone') is-invalid @enderror" id="website"
-                                            name="phone" type="text"
-                                            value="{{ old('phone' . $user->phone, auth()->user()->phone) }}"
-                                            placeholder="Enter phone number">
-                                        @error('phone')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-3">
-                                    <div class="form-group">
-                                        <label for="about">About</label>
-                                        <input class="form-control" id="phone" name="about" type="text"
-                                            value="{{ old('about' . $user->about, auth()->user()->about) }}"
-                                            placeholder="Describe your self">
-                                    </div>
-                                </div>
+                    <h2 class="h6 fw-bold text-ky mt-4 mb-3">Alamat Utama</h2>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small" for="street">Alamat lengkap <small class="text-secondary">(jalan/gang, no. rumah, kelurahan, kecamatan)</small></label>
+                            <input class="form-control @error('street') is-invalid @enderror" id="street" name="street" type="text" value="{{ old('street', $user->street) }}">
+                            @error('street')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        @foreach ([['city', 'Kota/Kabupaten', 'col-md-5'], ['province', 'Provinsi', 'col-md-4'], ['zipcode', 'Kode pos', 'col-md-3']] as [$field, $label, $col])
+                            <div class="{{ $col }}">
+                                <label class="form-label small" for="{{ $field }}">{{ $label }}</label>
+                                <input class="form-control @error($field) is-invalid @enderror" id="{{ $field }}" name="{{ $field }}" type="text" value="{{ old($field, $user->$field) }}">
+                                @error($field)<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-
-                            <div class="row gutters">
-                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mt-2">
-                                    <h6 class="mt-3 mb-2 text-primary">Address</h6>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-2">
-                                    <div class="form-group">
-                                        <label for="Street">Street</label> <br>
-                                        <small class="text-primary">(Contoh: nama jalan/gang no.rumah (jika ada), kelurahan,
-                                            kecamatan)</small>
-                                        <input class="form-control @error('street') is-invalid @enderror" id="Street"
-                                            name="street" type="name"
-                                            value="{{ old('street' . $user->street, auth()->user()->street) }}"
-                                            placeholder="Enter Street">
-                                        @error('street')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-2">
-                                    <div class="form-group">
-                                        <label for="ciTy">City</label> <br>
-                                        <small class="text-primary">(Contoh: Kota Depok)</small>
-                                        <input class="form-control @error('city') is-invalid @enderror" id="ciTy"
-                                            name="city" type="name"
-                                            value="{{ old('city' . $user->city, auth()->user()->city) }}"
-                                            placeholder="Enter City">
-                                        @error('city')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-3">
-                                    <div class="form-group">
-                                        <label for="sTate">Province</label> <br>
-                                        <small class="text-primary">(Contoh: Jawa Barat)</small>
-                                        <input class="form-control @error('province') is-invalid @enderror" id="province"
-                                            name="province" type="text"
-                                            value="{{ old('province' . $user->province, auth()->user()->province) }}"
-                                            placeholder="Enter Province">
-                                        @error('province')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mt-3">
-                                    <div class="form-group">
-                                        <label for="zIp">Zip Code</label> <br>
-                                        <small class="text-primary">(Contoh: 16444)</small>
-                                        <input class="form-control @error('zipcode') is-invalid @enderror" id="zIp"
-                                            name="zipcode" type="text"
-                                            value="{{ old('zipcode' . $user->zipcode, auth()->user()->zipcode) }}"
-                                            placeholder="Zip Code">
-                                        @error('zipcode')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row gutters">
-                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mt-3">
-                                    <div class="text-end">
-                                        <button class="btn btn-secondary fw-bold text-primary" id="reset"
-                                            type="reset">{{ 'RESET' }}</button>
-                                        <button class="btn btn-primary fw-bold text-light" id="submit"
-                                            type="submit">{{ __('SAVE') }}</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                        @endforeach
+                    </div>
+                    <div class="text-end mt-4">
+                        <button class="btn btn-ky px-4" type="submit">Simpan Perubahan</button>
                     </div>
                 </div>
-            </div>
+            </form>
+
+            <form class="card card-soft mb-4" action="{{ route('profile.password') }}" method="POST">
+                @csrf @method('PUT')
+                <div class="card-body">
+                    <h2 class="h6 fw-bold text-ky mb-3">Ganti Password</h2>
+                    <div class="row g-3">
+                        @foreach ([['current_password', 'Password saat ini'], ['password', 'Password baru'], ['password_confirmation', 'Ulangi password baru']] as [$field, $label])
+                            <div class="col-md-4">
+                                <label class="form-label small" for="pw-{{ $field }}">{{ $label }}</label>
+                                <input class="form-control @error($field, 'password') is-invalid @enderror" id="pw-{{ $field }}" name="{{ $field }}" type="password">
+                                @error($field, 'password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="text-end mt-3"><button class="btn btn-outline-ky" type="submit">Ganti Password</button></div>
+                </div>
+            </form>
+
+            <form class="card card-soft border border-danger-subtle" action="{{ route('profile.destroy') }}" method="POST" data-confirm="Akun dan seluruh datamu (termasuk toko) akan dihapus permanen. Lanjutkan?">
+                @csrf @method('DELETE')
+                <div class="card-body">
+                    <h2 class="h6 fw-bold text-danger">Hapus Akun</h2>
+                    <p class="small text-secondary">Tindakan ini permanen. Masukkan password untuk konfirmasi.</p>
+                    <div class="d-flex gap-2" style="max-width: 420px">
+                        <input class="form-control @error('password', 'deletion') is-invalid @enderror" name="password" type="password" placeholder="Password" aria-label="Password">
+                        <button class="btn btn-danger text-nowrap" type="submit">Hapus Akun</button>
+                    </div>
+                    @error('password', 'deletion')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                </div>
+            </form>
         </div>
     </div>
 @endsection

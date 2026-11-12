@@ -1,64 +1,83 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PosController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Seller;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Storefront (publik)
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
+Route::get('/', HomeController::class)->name('home');
+Route::get('/books', [CatalogController::class, 'index'])->name('books.index');
+Route::get('/books/{product}', [CatalogController::class, 'show'])->name('books.show');
+Route::get('/store/{store}', [CatalogController::class, 'store'])->name('stores.show');
+Route::view('/help', 'pages.help')->name('help');
 
-// Route::get('/home', function () {
-//     return view('home');
-// });
+/*
+|--------------------------------------------------------------------------
+| Autentikasi
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+});
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-Route::get('/home', [HomeController::class, 'index'])->middleware('auth')->name('home');
+/*
+|--------------------------------------------------------------------------
+| Pembeli (wajib login)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-//Profile Routes
-Route::get('/edit-profile', [UserController::class, 'edit'])->name('profile');
-Route::put('/update-profile/{user}', [UserController::class, 'update'])->name('profile.update');
-Route::delete('/delete-profile/{user}', [UserController::class, 'destroy'])->name('profile.delete');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/{product}', [CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/items/{item}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/items/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-Route::get('/cart', [CartController::class, 'index']);
+    Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
-//Authentication Routes
-///Login
-Route::get('/', [LoginController::class, 'index'])->name('login')->middleware('guest');
-Route::post('/login', [LoginController::class, 'authenticate']);
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/complete', [OrderController::class, 'complete'])->name('orders.complete');
+    Route::post('/orders/{order}/review', [OrderController::class, 'review'])->name('orders.review');
+});
 
-///register
-Route::get('/register', [RegisterController::class, 'index'])->name('register')->middleware('guest');
-Route::post('/register', [RegisterController::class, 'store']);
+/*
+|--------------------------------------------------------------------------
+| kyreadSeller (panel penjual)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/open-store', [Seller\StoreController::class, 'create'])->name('store.create');
+    Route::post('/open-store', [Seller\StoreController::class, 'store'])->name('store.store');
 
-///logout
-Route::post('/logout', [LoginController::class, 'logout']);
-
-//POS Pages Routes
-Route::get('/dashboard', [PosController::class, 'dashboard']);
-Route::get('/add-product', [PosController::class, 'addproduct']);
-Route::post('/add-product', [PosController::class, 'storeproduct']);
-Route::resource('/products', PosController::class);
-Route::get('/faq', [PosController::class, 'faq']);
-Route::get('/contact', [PosController::class, 'contact']);
-Route::get('/store-profile', [PosController::class, 'storeprofile']);
-Route::get('/transaction', [PosController::class, 'transaction']);
-Route::get('/feature-locked', [PosController::class, 'locked']);
-
-//POS Access Routes
-// Route::get('/shop-register', [PosController::class, 'createRegister']);
-// Route::post('/shop-register', [PosController::class, 'store']);
-// Route::get('/shop-login', [PosController::class, 'createLogin']);
-// Route::post('/shop-login', [PosController::class, 'authenticate']);
-// Route::post('/shop-logout', [PosController::class, 'shoplogout']);
+    Route::middleware('seller')->group(function () {
+        Route::get('/', Seller\DashboardController::class)->name('dashboard');
+        Route::resource('products', Seller\ProductController::class)->except('show');
+        Route::get('/orders', [Seller\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [Seller\OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}', [Seller\OrderController::class, 'update'])->name('orders.update');
+        Route::get('/store', [Seller\StoreController::class, 'edit'])->name('store.edit');
+        Route::put('/store', [Seller\StoreController::class, 'update'])->name('store.update');
+        Route::view('/faq', 'seller.faq')->name('faq');
+    });
+});

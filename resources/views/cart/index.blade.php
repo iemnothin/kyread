@@ -1,233 +1,83 @@
 @extends('layouts.app')
 
-@section('cart')
-    <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col">
-                <div class="card">
-                    <div class="card-body p-4">
+@section('title', 'Keranjang')
 
-                        <div class="row">
+@section('content')
+    <h1 class="h4 fw-bold mb-3">Keranjang Belanja</h1>
 
-                            <div class="col-lg-7">
-                                <h5 class="mb-3"><a class="text-body" href="/home"><i
-                                            class="fas fa-long-arrow-alt-left me-2"></i>Continue shopping</a></h5>
-                                <hr>
-
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <div>
-                                        <p class="mb-1">Shopping cart</p>
-                                        <p class="mb-0">You have 4 items in your cart</p>
-                                    </div>
-                                    <div>
-                                        <p class="mb-0"><span class="text-muted">Sort by:</span> <a class="text-body"
-                                                href="#!">price <i class="fas fa-angle-down mt-1"></i></a></p>
-                                    </div>
-                                </div>
-
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div class="d-flex flex-row align-items-center">
-                                                <div>
-                                                    <img class="img-fluid rounded-3"
-                                                        src="{{ asset('img/recommendations/Cantik Itu Luka.jpg') }}"
-                                                        alt="Shopping item" style="width: 65px;">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5>Cantik Itu Luka</h5>
-                                                    <p class="small mb-0">a Novel by Eka Kurniawan</p>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex flex-row align-items-center">
-                                                <div style="width: 50px;">
-                                                    <h5 class="fw-normal mb-0">2</h5>
-                                                </div>
-                                                <div style="width: 80px;">
-                                                    <h5 class="mb-0">$900</h5>
-                                                </div>
-                                                <a href="#!" style="color: #cecece;"><i
-                                                        class="fas fa-trash-alt"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div class="d-flex flex-row align-items-center">
-                                                <div>
-                                                    <img class="img-fluid rounded-3"
-                                                        src="{{ asset('img/recommendations/Twenty Four Eyes.jpg') }}"
-                                                        alt="Shopping item" style="width: 65px;">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5>Twenty Four Eyes </h5>
-                                                    <p class="small mb-0">a Novel by Sakae Tsuboi</p>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex flex-row align-items-center">
-                                                <div style="width: 50px;">
-                                                    <h5 class="fw-normal mb-0">2</h5>
-                                                </div>
-                                                <div style="width: 80px;">
-                                                    <h5 class="mb-0">$900</h5>
-                                                </div>
-                                                <a href="#!" style="color: #cecece;"><i
-                                                        class="fas fa-trash-alt"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div class="d-flex flex-row align-items-center">
-                                                <div>
-                                                    <img class="img-fluid rounded-3"
-                                                        src="{{ asset('img/recommendations/Fur Immer Dein Ian.jpg') }}"
-                                                        alt="Shopping item" style="width: 65px;">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5>Fur Immer Dein Ian</h5>
-                                                    <p class="small mb-0">a Novel by Valerie</p>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex flex-row align-items-center">
-                                                <div style="width: 50px;">
-                                                    <h5 class="fw-normal mb-0">1</h5>
-                                                </div>
-                                                <div style="width: 80px;">
-                                                    <h5 class="mb-0">$1199</h5>
-                                                </div>
-                                                <a href="#!" style="color: #cecece;"><i
-                                                        class="fas fa-trash-alt"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="card mb-3 mb-lg-0">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div class="d-flex flex-row align-items-center">
-                                                <div>
-                                                    <img class="img-fluid rounded-3"
-                                                        src="{{ asset('img/recommendations/Terpikat.jpg') }}"
-                                                        alt="Shopping item" style="width: 65px;">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5>Terpikat</h5>
-                                                    <p class="small mb-0">a Novel by Ghefira Zakhira</p>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex flex-row align-items-center">
-                                                <div style="width: 50px;">
-                                                    <h5 class="fw-normal mb-0">1</h5>
-                                                </div>
-                                                <div style="width: 80px;">
-                                                    <h5 class="mb-0">$1799</h5>
-                                                </div>
-                                                <a href="#!" style="color: #cecece;"><i
-                                                        class="fas fa-trash-alt"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="col-lg-5">
-
-                                <div class="card text-white rounded-3" style="background-color:rgb(67, 170, 255)">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                            <h5 class="mb-0">Card details</h5>
-                                            <img class="img-fluid rounded-3"
-                                                src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Avatar"
-                                                style="width: 45px;">
-                                        </div>
-
-                                        <p class="small mb-2">Card type</p>
-                                        <a class="text-white" type="submit" href="#!"><i
-                                                class="fab fa-cc-mastercard fa-2x me-2"></i></a>
-                                        <a class="text-white" type="submit" href="#!"><i
-                                                class="fab fa-cc-visa fa-2x me-2"></i></a>
-                                        <a class="text-white" type="submit" href="#!"><i
-                                                class="fab fa-cc-amex fa-2x me-2"></i></a>
-                                        <a class="text-white" type="submit" href="#!"><i
-                                                class="fab fa-cc-paypal fa-2x"></i></a>
-
-                                        <form class="mt-4">
-                                            <div class="form-outline form-white mb-4">
-                                                <input class="form-control form-control-lg" id="typeName" type="text"
-                                                    siez="17" placeholder="Cardholder's Name" />
-                                                <label class="form-label" for="typeName">Cardholder's Name</label>
-                                            </div>
-
-                                            <div class="form-outline form-white mb-4">
-                                                <input class="form-control form-control-lg" id="typeText" type="text"
-                                                    siez="17" placeholder="1234 5678 9012 3457" minlength="19"
-                                                    maxlength="19" />
-                                                <label class="form-label" for="typeText">Card Number</label>
-                                            </div>
-
-                                            <div class="row mb-4">
-                                                <div class="col-md-6">
-                                                    <div class="form-outline form-white">
-                                                        <input class="form-control form-control-lg" id="typeExp"
-                                                            id="exp" type="text" placeholder="MM/YYYY"
-                                                            size="7" minlength="7" maxlength="7" />
-                                                        <label class="form-label" for="typeExp">Expiration</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-outline form-white">
-                                                        <input class="form-control form-control-lg" id="typeText"
-                                                            type="password" placeholder="&#9679;&#9679;&#9679;"
-                                                            size="1" minlength="3" maxlength="3" />
-                                                        <label class="form-label" for="typeText">Cvv</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </form>
-
-                                        <hr class="my-4">
-
-                                        <div class="d-flex justify-content-between">
-                                            <p class="mb-2">Subtotal</p>
-                                            <p class="mb-2">$4798.00</p>
-                                        </div>
-
-                                        <div class="d-flex justify-content-between">
-                                            <p class="mb-2">Shipping</p>
-                                            <p class="mb-2">$20.00</p>
-                                        </div>
-
-                                        <div class="d-flex justify-content-between mb-4">
-                                            <p class="mb-2">Total(Incl. taxes)</p>
-                                            <p class="mb-2">$4818.00</p>
-                                        </div>
-
-                                        <button class="btn btn-dark btn-block btn-lg" type="button">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span>$4818.00</span>
-                                                <span>Checkout <i class="fas fa-long-arrow-alt-right ms-2"></i></span>
-                                            </div>
-                                        </button>
-
-                                    </div>
-                                </div>
-
-                            </div>
-
+    @if ($groups->isEmpty())
+        <div class="card card-soft text-center py-5">
+            <div class="card-body">
+                <i class="bi bi-bag display-4 text-ky"></i>
+                <h2 class="h5 mt-3">Keranjangmu masih kosong</h2>
+                <p class="text-secondary">Yuk, cari buku favoritmu sekarang.</p>
+                <a class="btn btn-ky px-4" href="{{ route('books.index') }}">Mulai Belanja</a>
+            </div>
+        </div>
+    @else
+        <div class="row g-4">
+            <div class="col-lg-8">
+                @foreach ($groups as $group)
+                    <div class="card card-soft mb-3">
+                        <div class="card-header bg-white border-0 pt-3">
+                            <a class="fw-semibold text-decoration-none text-body" href="{{ route('stores.show', $group['store']) }}">
+                                <i class="bi bi-shop text-ky me-1"></i>{{ $group['store']->name }}
+                            </a>
+                            <small class="text-secondary ms-2">{{ $group['store']->city }}</small>
                         </div>
+                        <ul class="list-group list-group-flush">
+                            @foreach ($group['items'] as $item)
+                                @php($product = $item->product)
+                                <li class="list-group-item py-3">
+                                    <div class="d-flex gap-3">
+                                        <a href="{{ route('books.show', $product) }}"><img class="thumb-sm" src="{{ $product->image_url }}" alt=""></a>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <a class="fw-semibold text-body text-decoration-none d-block text-truncate" href="{{ route('books.show', $product) }}">{{ $product->title }}</a>
+                                            <small class="text-secondary d-block">{{ $product->author }}</small>
+                                            <div class="fw-bold text-ky">@rupiah($product->price)</div>
+                                            @if (! $product->is_active || $product->stock === 0)
+                                                <small class="text-danger">Tidak tersedia, hapus untuk melanjutkan.</small>
+                                            @elseif ($item->quantity > $product->stock)
+                                                <small class="text-danger">Stok tinggal {{ $product->stock }}.</small>
+                                            @endif
+                                        </div>
+                                        <div class="d-flex flex-column align-items-end gap-2">
+                                            <form class="d-flex" action="{{ route('cart.update', $item) }}" method="POST">
+                                                @csrf @method('PATCH')
+                                                <input class="form-control form-control-sm text-center" name="quantity" type="number" value="{{ $item->quantity }}"
+                                                    min="1" max="{{ max(1, $product->stock) }}" style="width: 72px" onchange="this.form.submit()" aria-label="Jumlah">
+                                            </form>
+                                            <form action="{{ route('cart.destroy', $item) }}" method="POST">
+                                                @csrf @method('DELETE')
+                                                <button class="btn btn-link btn-sm text-danger p-0" type="submit"><i class="bi bi-trash"></i> Hapus</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endforeach
+            </div>
 
+            <div class="col-lg-4">
+                <div class="card card-soft sticky-lg-top" style="top: 90px">
+                    <div class="card-body">
+                        <h2 class="h6 fw-bold mb-3">Ringkasan Belanja</h2>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Total harga ({{ $count }} buku)</span>
+                            <span>@rupiah($total)</span>
+                        </div>
+                        <p class="small text-secondary">Ongkos kirim dihitung saat checkout.</p>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+                            <span>Subtotal</span><span class="text-ky">@rupiah($total)</span>
+                        </div>
+                        <a class="btn btn-ky w-100 py-2" href="{{ route('checkout.create') }}">Checkout</a>
+                        <a class="btn btn-link w-100 mt-1" href="{{ route('books.index') }}">Lanjut belanja</a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 @endsection

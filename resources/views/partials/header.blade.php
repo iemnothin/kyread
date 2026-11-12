@@ -1,209 +1,74 @@
-<header>
-    <nav class="header-nav navbar navbar-expand-lg bg-body-tertiary">
-        {{-- <div class="container">
-            <div class="container-fluid">
-                <div class="row d-flex align-items-center justify-content-between gap-3">
-                    <div class="col">
-                        <a class="logo navbar-brand" href="/home">
-                            <img src="pos/assets/img/brand.svg" alt="">
-                            <span>{{ config('app.name') }}</span>
-                        </a>
-                    </div>
-                    <div class="col col-lg-6">
-                        <div class="input-group rounded">
-                            <input class="form-control rounded" type="search" aria-label="Search"
-                                aria-describedby="search-addon" placeholder="Search" />
-                            <span class="input-group-text border-0" id="search-addon">
-                                <i class="fas fa-search"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col mx-auto">
-                        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-                            type="button" aria-controls="navbarNavDropdown" aria-expanded="false"
-                            aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                            <ul class="navbar-nav">
-                                <li class="nav-item me-2 nav-icon">
-                                    <a class="nav-link" href="/shop-register"><i class="fa-solid fa-store fa-lg"
-                                            style="color: #43aaff;"></i></a>
-                                </li>
-                                <li class="nav-item me-2 nav-icon me-auto">
-                                    <a class="nav-link cart" href="/cart"><i
-                                            class="fa-solid fa-cart-shopping fa-lg"></i></a>
-                                </li>
+<header class="site-header sticky-top">
+    <nav class="navbar navbar-expand-lg py-2">
+        <div class="container">
+            <a class="navbar-brand ky-brand" href="{{ route('home') }}">
+                <img src="{{ asset('pos/assets/img/brand.svg') }}" alt="">
+                <span>{{ config('app.name') }}</span>
+            </a>
 
-                                <div class="vr border-2"></div>
-                                <li class="nav-item dropdown mx-auto">
-                                    <a class="nav-link nav-profile d-flex align-items-center pe-0"
-                                        data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
-                                        <img class="rounded-circle"
-                                            src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Profile">
-                                        <span class="d-none d-md-block ps-2 user-name fw-bold" for="profile-btn"
-                                            style="font-size: 16px">{{ auth()->user()->username }}</span>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end"
-                                        aria-labelledby="navbarDropdownMenuLink">
-                                        <div class="container d-flex justify-content-center">
-                                            <div class="card profile-area shadow-none">
-                                                <div class="top-container mt-3">
-                                                    <img class="img-fluid profile-image"
-                                                        src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                                        width="50">
-                                                    <div class="row ms-2 mb-2">
-                                                        <h5 class="col name">
-                                                            @if (auth()->user()->nickname === null)
-                                                                {{ auth()->user()->username }}
-                                                            @else
-                                                                {{ auth()->user()->nickname }}
-                                                            @endif
-                                                        </h5>
-                                                    </div>
-                                                </div>
-                                                <div class="middle-container d-flex align-items-center mt-3 p-2">
-                                                    <div class="dollar-div px-3">
-                                                        <div class="rounded-circle bg-light px-3 py-2"><i
-                                                                class="fa-solid fa-rupiah-sign"
-                                                                style="color: #43aaff;"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex flex-column text-start ms-2">
-                                                        <span class="current-balance">Current Balance</span>
-                                                        <span class="amount"><span
-                                                                class="dollar-sign">Rp</span>188511563</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <li>
-                                            <form action="/edit-profile" method="GET">
-                                                @csrf
-                                                <button class="dropdown-item" type="submit"><i
-                                                        class="fa-solid fa-pen-to-square fa-lg me-3"
-                                                        style="color: #43aaff;"></i>Edit
-                                                    Profile</button>
-                                            </form>
-                                        </li>
-                                        <li>
-                                            <form action="/logout" method="POST">
-                                                @csrf
-                                                <button class="dropdown-item" type="submit" onclick="logout()"><i
-                                                        class="fa-solid fa-right-from-bracket fa-lg me-3 mb-3"
-                                                        style="color: #43aaff;"></i>Logout</button>
-                                            </form>
-                                        </li>
-                                    </ul>
+            <div class="d-flex align-items-center gap-3 d-lg-none">
+                @auth
+                    <a class="header-icon" href="{{ route('cart.index') }}" aria-label="Keranjang">
+                        <i class="bi bi-bag"></i>
+                        @if ($cartCount > 0)
+                            <span class="badge rounded-pill bg-danger">{{ $cartCount }}</span>
+                        @endif
+                    </a>
+                @endauth
+                <button class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#mainNav" type="button"
+                    aria-controls="mainNav" aria-expanded="false" aria-label="Menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <form class="search-box d-flex flex-grow-1 mx-lg-4 my-3 my-lg-0" action="{{ route('books.index') }}" method="GET" role="search">
+                    <input class="form-control" name="q" type="search" value="{{ request('q') }}"
+                        placeholder="Cari judul, penulis, atau penerbit…" aria-label="Cari buku">
+                    <button class="btn btn-ky px-3" type="submit" aria-label="Cari"><i class="bi bi-search"></i></button>
+                </form>
+
+                <ul class="navbar-nav align-items-lg-center gap-lg-3 ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('books.*') ? 'fw-semibold text-ky' : '' }}" href="{{ route('books.index') }}">Katalog</a>
+                    </li>
+                    @auth
+                        <li class="nav-item d-none d-lg-block">
+                            <a class="header-icon" href="{{ route('cart.index') }}" title="Keranjang">
+                                <i class="bi bi-bag"></i>
+                                @if ($cartCount > 0)
+                                    <span class="badge rounded-pill bg-danger">{{ $cartCount }}</span>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="nav-item d-none d-lg-block">
+                            <a class="header-icon" href="{{ route('seller.dashboard') }}" title="kyreadSeller">
+                                <i class="bi bi-shop-window"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                                <img class="rounded-circle" src="{{ auth()->user()->avatar_url }}" alt="" width="32" height="32" style="object-fit: cover">
+                                <span class="fw-semibold">{{ auth()->user()->display_name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                <li><a class="dropdown-item" href="{{ route('orders.index') }}"><i class="bi bi-receipt me-2 text-ky"></i>Pesanan Saya</a></li>
+                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-person-gear me-2 text-ky"></i>Edit Profil</a></li>
+                                <li><a class="dropdown-item" href="{{ route('seller.dashboard') }}"><i class="bi bi-shop me-2 text-ky"></i>{{ auth()->user()->store ? 'Toko Saya' : 'Buka Toko' }}</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button class="dropdown-item text-danger" type="submit"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button>
+                                    </form>
                                 </li>
                             </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-        <div class="container">
-            <div class="container-fluid">
-                <div class="row d-flex align-items-center justify-content-between ">
-                    <!-- Left elements -->
-                    <div class="col-md-4 d-flex justify-content-center justify-content-md-start mb-3 mb-md-0">
-                        <a class="ms-md-2 logo navbar-brand" href="/home">
-                            <img src="pos/assets/img/brand.svg" height="35" />
-                            <span>{{ config('app.name') }}</span>
-                        </a>
-                    </div>
-                    <!-- Left elements -->
-
-                    <!-- Center elements -->
-                    <div class="col-md-4">
-                        <form class="d-flex input-group w-auto my-auto mb-3 mb-md-0">
-                            <input class="form-control rounded" type="search" aria-label="Search"
-                                aria-describedby="search-addon" placeholder="Search" />
-                            <span class="input-group-text border-0" id="search-addon">
-                                <i class="fas fa-search"></i>
-                            </span>
-                        </form>
-                    </div>
-                    <!-- Center elements -->
-
-                    <!-- Right elements -->
-                    <div class="col-md-4 d-flex justify-content-center justify-content-md-end align-items-center">
-                        <div class="d-flex">
-                            <!-- Cart -->
-                            <a class="nav-link cart me-3" href="/cart">
-                                <span><i class="bi bi-bag-fill fs-5"></i></span>
-                                <span class="badge rounded-pill badge-notification bg-danger">1</span>
-                            </a>
-
-                            <!-- Dashboard -->
-                            <a class="nav-link cart me-3 fs-5" href="/dashboard">
-                                <span><i class="bi bi-shop-window"></i></span>
-                            </a>
-
-                            <!-- User -->
-                            <div class="dropdown">
-                                <a class="text-reset dropdown-toggle d-flex align-items-center hidden-arrow"
-                                    id="navbarDropdownMenuLink" data-mdb-toggle="dropdown" href="#" role="button"
-                                    aria-expanded="false">
-                                    <img class="rounded-circle" src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                        alt="" height="32" loading="lazy" />
-                                    <span class="d-none d-md-block ps-2 user-name fw-bold" for="profile-btn"
-                                        style="font-size: 16px">{{ auth()->user()->username }}</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                                    <div class="container d-flex justify-content-center">
-                                        <div class="card profile-area shadow-none">
-                                            <div class="top-container mt-3">
-                                                <img class="img-fluid profile-image"
-                                                    src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                                    width="50">
-                                                <div class="row ms-2 mb-2">
-                                                    <h5 class="col name">
-                                                        @if (auth()->user()->nickname === null)
-                                                            {{ auth()->user()->username }}
-                                                        @else
-                                                            {{ auth()->user()->nickname }}
-                                                        @endif
-                                                    </h5>
-                                                </div>
-                                            </div>
-                                            <div class="middle-container d-flex align-items-center mt-3 p-2">
-                                                <div class="dollar-div px-3">
-                                                    <div class="rounded-circle bg-light px-3 py-2"><i
-                                                            class="fa-solid fa-rupiah-sign" style="color: #43aaff;"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex flex-column text-start ms-2">
-                                                    <span class="current-balance">Current Balance</span>
-                                                    <span class="amount"><span
-                                                            class="dollar-sign">Rp</span>188511563</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <li>
-                                        <form action="/edit-profile" method="GET">
-                                            @csrf
-                                            <button class="dropdown-item" type="submit"><i
-                                                    class="fa-solid fa-pen-to-square fa-lg me-3"
-                                                    style="color: #43aaff;"></i>Edit
-                                                Profile</button>
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <form action="/logout" method="POST">
-                                            @csrf
-                                            <button class="dropdown-item" type="submit" onclick="logout()"><i
-                                                    class="fa-solid fa-right-from-bracket fa-lg me-3 mb-3"
-                                                    style="color: #43aaff;"></i>Logout</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Right elements -->
-                </div>
+                        </li>
+                    @else
+                        <li class="nav-item"><a class="btn btn-outline-ky btn-sm px-3" href="{{ route('login') }}">Masuk</a></li>
+                        <li class="nav-item mt-2 mt-lg-0"><a class="btn btn-ky btn-sm px-3" href="{{ route('register') }}">Daftar</a></li>
+                    @endauth
+                </ul>
             </div>
         </div>
     </nav>

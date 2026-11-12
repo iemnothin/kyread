@@ -1,76 +1,111 @@
-<table align="center" style="border: none">
- <tr>
-    <td>
-        <p align="center"><a href="https://github.com/kyriten/kyread"><img src="https://raw.githubusercontent.com/kyriten/kyread/master/kyread-logo.svg" width="400" alt="kyread Logo"></a></p>         </td>
-    <td>
-        <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-        <p align="center">
-            <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-            <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-            <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-            <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-        </p>
-     </td>
- </tr>
-</table>
+<p align="center"><img src="kyread-logo.svg" width="320" alt="kyread logo"></p>
 
+<h3 align="center">kyread: toko buku online multi-penjual</h3>
 
+Pembeli bisa mencari buku, memasukkan ke keranjang, checkout dengan pilihan kurir dan metode pembayaran, lalu melacak pesanan sampai selesai dan memberi ulasan. Siapa pun bisa membuka toko di **kyreadSeller** untuk mengelola katalog buku dan memproses pesanan.
 
-## APP SPECIFICATIONS
+## Spesifikasi
 
-A mini e-marketplace for bookstore. So here are the specifications of the application:
-<ol>
-<li>App Name: kyread</li>
-<li>DB Name: db_kyread</li>
-<li>PHP Version: 8.2.0</li>
-<li>Laravel Version: 10.13.0</li>
-<li>Bootstrap Version: 5.3.0</li>
-<li>MDB Version: 6.3.1</li>
-<li>Dashboard Template: <a href="https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/">NiceAdmin by Bootstrapmade (Last updated: May 30, 2023)</a></li>
-</ol>
+| | |
+|---|---|
+| Framework | Laravel **13.x** |
+| PHP | **^8.3** (memakai enum, typed class constants, readonly property) |
+| Database | MySQL 8 (`db_kyread`); test memakai SQLite in-memory |
+| UI toko | Bootstrap 5.3 + Bootstrap Icons, font Barlow |
+| UI penjual | [NiceAdmin](https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/) + ApexCharts |
 
-## FEATURES
-<ol>
-<li>User Authentication</li>
-<li>Edit User Profile</li>
-<li>Add Product</li>
-<li>Show Product</li>
-<li>Edit and Update Product</li>
-<li>Delete Product</li>
-<li>Convenient Use</li>
-</ol>
+## Fitur
 
-### Next Task
-<ol>
-<li>Image CRUD</li>
-<li>[kyreadSeller] Add Field: category, sale_date, delivery_method, update_stock</li>
-<li>[kyreadSeller] Add Transaction</li>
-</ol>
+**Pembeli**
+- Beranda dinamis: promo, kategori, buku terlaris, dan buku terbaru
+- Katalog dengan pencarian (judul/penulis/penerbit), filter kategori & rentang harga, urutan, paginasi
+- Halaman detail buku (rating, ulasan, buku serupa) dan halaman toko
+- Keranjang per toko, dengan validasi stok
+- Checkout: alamat (bisa disimpan ke profil), 6 kurir dengan ongkir berbasis berat, 6 metode pembayaran
+- Keranjang dari beberapa toko otomatis dipecah menjadi satu pesanan per toko
+- Riwayat pesanan dengan filter status, timeline status, simulasi bayar, batal, terima pesanan
+- Ulasan & rating untuk pesanan yang sudah selesai
+- Profil: data diri, foto, alamat utama, ganti password, hapus akun
+- Login bisa memakai email **atau** username
 
-## LOCAL INSTALLATION
-  Do this for access this project at your computer:
+**Penjual (kyreadSeller)**
+- Buka toko langsung dari akun yang sama
+- Dashboard: pendapatan, jumlah pesanan, buku terjual, grafik penjualan 14 hari, buku terlaris, stok menipis
+- CRUD buku: sampul, kategori, penulis, penerbit, ISBN, halaman, tahun, harga, berat, stok, aktif/nonaktif
+- Kelola pesanan: proses → kirim (wajib nomor resi) → selesai, atau tolak/batalkan
+- Profil toko (nama, kota, logo, deskripsi)
 
-### 1. Add vendor <br>
-Just run this command in your project without tick(') symbol: 
-<br>
-'composer install'
+**Aturan bisnis**
+- Stok dikunci (`lockForUpdate`) saat checkout supaya tidak terjadi overselling
+- Pesanan yang dibatalkan otomatis mengembalikan stok
+- Pesanan yang belum dibayar lebih dari 24 jam dibatalkan otomatis (`php artisan orders:expire`, dijadwalkan tiap jam)
+- Penjual tidak bisa membeli buku dari tokonya sendiri. Akses pesanan dan buku dibatasi lewat Policy.
+- Judul, harga, dan sampul disalin ke `order_items`, jadi riwayat tetap utuh walaupun bukunya dihapus
 
-### 2. Add .env file
-<ol>
-<li>Download the standard env.example file from the Laravel source code.</li>
-<li>Rename it to .env and edit it.</li>
-<li>Just set up correct DB credentials, etc.</li>
-<li>Don't forget to run the php artisan key:generate command.</li>
-<li>It will generate an application (encryption) key and add it to the .env file.</li>
-</ol>
+> Pembayaran masih **disimulasikan** (tombol "Saya Sudah Bayar"), belum terhubung ke payment gateway.
 
-### 3. Create Database
-Create database name 'db_kyread' it's possible to custom with yours, but equate it to the db that in the .env file. 
+## Instalasi Lokal
 
-### 4. Migrate
-Don't forget to migrate your database.
+```bash
+git clone https://github.com/iemnothin/kyread.git
+cd kyread
+composer install
+cp .env.example .env          # sesuaikan DB_USERNAME / DB_PASSWORD
+php artisan key:generate
 
+# buat database lebih dulu, misalnya:
+# mysql -uroot -e "CREATE DATABASE db_kyread CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 
-## 
+php artisan migrate --seed
+php artisan storage:link
+php artisan serve
+```
 
-<p align="center"> The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).</p>
+Buka http://localhost:8000.
+
+Supaya pembatalan otomatis berjalan, jalankan scheduler: `php artisan schedule:work` (development) atau cron `* * * * * php artisan schedule:run`.
+
+### Akun demo (password: `password`)
+
+| Peran | Email | Username |
+|---|---|---|
+| Pembeli (punya riwayat pesanan) | buyer@kyread.test | `pembeli` |
+| Penjual: Kyread Official Store | seller@kyread.test | `kyreadofficial` |
+| Penjual: Pojok Baca Bandung | seller2@kyread.test | `pojokbaca` |
+
+Seeder mengisi 8 kategori, 25 buku, dan 18 pesanan contoh dalam 14 hari terakhir, sehingga dashboard langsung terisi. Data buku hanya contoh. Penulis yang tidak diketahui ditulis "Tim Penulis".
+
+## Deploy Staging
+
+Staging: **https://kyread-staging.skyvora.id** (VPS, Nginx + PHP-FPM 8.5 + MySQL 8.4).
+
+```bash
+deploy/scripts/deploy.sh      # butuh alias SSH "skyvora" dan working tree yang bersih
+```
+
+Script mengunggah `git archive HEAD`, lalu menjalankan `deploy/scripts/setup-server.sh` di server. Script itu menyiapkan database & `.env` (hanya sekali), `composer install`, migrasi, cache, cron scheduler, serta Nginx + SSL certbot (hanya sekali). Rilis disimpan di `/var/www/kyread-staging/releases/<rev>` dengan symlink `current`. Untuk rollback, arahkan `current` ke rilis sebelumnya lalu jalankan `systemctl reload php8.5-fpm`. Data demo hanya di-seed saat database masih kosong.
+
+## Testing
+
+```bash
+php artisan test
+```
+
+Feature test mencakup storefront, autentikasi, siklus pesanan lengkap (keranjang → checkout → bayar → proses → kirim → selesai → ulasan), pemecahan pesanan per toko, stok tidak cukup, pembatalan & pengembalian stok, kedaluwarsa pesanan, serta otorisasi penjual.
+
+## Struktur Utama
+
+```
+app/
+├── Enums/            OrderStatus, Courier (tarif & ongkir), PaymentMethod
+├── Http/Controllers/ Storefront: Home, Catalog, Cart, Checkout, Order, Profile, Auth
+│   └── Seller/       Dashboard, Product, Order, Store
+├── Http/Middleware/  EnsureUserHasStore (alias "seller")
+├── Models/           User, Store, Category, Product, CartItem, Order, OrderItem, Review
+├── Policies/         ProductPolicy, OrderPolicy
+└── Services/         CheckoutService (buat pesanan + kunci stok), OrderService (transisi status)
+```
+
+## Lisensi
+
+[MIT](LICENSE)

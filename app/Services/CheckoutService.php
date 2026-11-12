@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Services;
+
+use App\Enums\Courier;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
+use App\Models\CartItem;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Store;
+use App\Models\User;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+class CheckoutService
+{
+    /**
+     * Ringkasan keranjang yang dikelompokkan per toko (dipakai halaman cart & checkout).
+     *
+     * @return Collection<int, array{store: Store, items: Collection<int, CartItem>, subtotal: int, weight: int}>
+     */
+    public function groupedCart(User $user): Collection
+    {
+        return $user->cartItems()
+            ->with('product.store', 'product.category')
+            ->get()
+            ->groupBy('product.store_id')
+            ->map(fn (Collection $items) => [
+                'store' => $items->first()->product->store,
+                'items' => $items,
+                'subtotal' => $items->sum(fn (CartItem $i) => $i->quantity * $i->product->price),
+                'weight' => $items->sum(fn (CartItem $i) => $i->quantity * $i->product->weight),
+            ])
+            ->values();
+    }
+
+    /**
+     * Membuat satu pesanan per toko dari isi keranjang, mengurangi stok, lalu mengosongkan keranjang.
+     *
+     * @param  array{recipient_name: string, recipient_phone: string, street: string, city: string, province: string, zipcode: string, courier: string, payment_method: string, notes?: ?string}  $data
+     * @return Collection<int, Order>
+     */
+    public function placeOrder(User $user, array $data): Collection
+    {
+        $courier = Courier::from($data['courier']);
+        $payment = PaymentMethod::from($data['payment_method']);
+
+        return DB::transaction(function () use ($user, $data, $courier, $payment) {
+            $cart = $user->cartItems()->get();
+
+            if ($cart->isEmpty()) {
+                throw ValidationException::withMessages(['cart' => 'Keranjang belanja kamu masih kosong.']);
+            }
+
+            // Kunci baris produk agar stok tidak balapan dengan checkout lain.
+            $products = Product::whereKey($cart->pluck('product_id'))->lockForUpdate()->get()->keyBy('id');
+            $ownStoreId = $user->store?->id;
+
+            foreach ($cart as $item) {
+                $product = $products->get($item->product_id);
+
+                if (! $product || ! $product->is_active) {
+                    throw ValidationException::withMessages(['cart' => 'Ada buku di keranjang yang sudah tidak dijual.']);
+                }
+                if ($product->store_id === $ownStoreId) {
+                    throw ValidationException::withMessages(['cart' => "Kamu tidak bisa membeli buku dari tokomu sendiri ({$product->title})."]);
+                }
+                if ($product->stock < $item->quantity) {
+                    throw ValidationException::withMessages(['cart' => "Stok \"{$product->title}\" tinggal {$product->stock}."]);
+                }
+            }
+
+            $orders = $cart
+                ->groupBy(fn (CartItem $item) => $products[$item->product_id]->store_id)
+                ->map(function (Collection $items, int $storeId) use ($user, $data, $courier, $payment, $products) {
+                    $subtotal = $items->sum(fn (CartItem $i) => $i->quantity * $products[$i->product_id]->price);
+                    $weight = $items->sum(fn (CartItem $i) => $i->quantity * $products[$i->product_id]->weight);
+                    $shipping = $courier->costFor($weight);
+
+                    $order = Order::create([
+                        'code' => Order::generateCode(),
+                        'user_id' => $user->id,
+                        'store_id' => $storeId,
+                        'status' => OrderStatus::Pending,
+                        'recipient_name' => $data['recipient_name'],
+                        'recipient_phone' => $data['recipient_phone'],
+                        'street' => $data['street'],
+                        'city' => $data['city'],
+                        'province' => $data['province'],
+                        'zipcode' => $data['zipcode'],
+                        'courier' => $courier,
+                        'payment_method' => $payment,
+                        'subtotal' => $subtotal,
+                        'shipping_cost' => $shipping,
+                        'total' => $subtotal + $shipping,
+                        'notes' => $data['notes'] ?? null,
+                    ]);
+
+                    foreach ($items as $item) {
+                        $product = $products[$item->product_id];
+
+                        $order->items()->create([
+                            'product_id' => $product->id,
+                            'title' => $product->title,
+                            'image' => $product->image,
+                            'price' => $product->price,
+                            'quantity' => $item->quantity,
+                            'subtotal' => $product->price * $item->quantity,
+                        ]);
+
+                        $product->decrement('stock', $item->quantity);
+                        $product->increment('sold_count', $item->quantity);
+                    }
+
+                    return $order;
+                })
+                ->values();
+
+            $user->cartItems()->delete();
+
+            return $orders;
+        });
+    }
+}
