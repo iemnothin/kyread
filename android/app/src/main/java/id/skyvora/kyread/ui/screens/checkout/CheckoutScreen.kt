@@ -102,17 +102,22 @@ class CheckoutViewModel(private val repo: KyreadRepository) : ViewModel() {
 
     val discount: Long get() = voucher?.discount ?: 0
 
+    /** Kode dinormalisasi seperti di server: huruf besar tanpa spasi. */
+    private fun normalized(code: String) = code.uppercase().filter { !it.isWhitespace() }
+
+    // Teks tidak diubah saat diketik: mengubahnya di onValueChange mengacaukan komposisi IME (huruf hilang).
     fun onVoucherInput(value: String) {
-        voucherInput = value.uppercase().filter { !it.isWhitespace() }.take(20)
+        voucherInput = value.take(24)
         voucherError = null
-        if (voucher != null && voucher?.code != voucherInput) voucher = null
+        if (voucher != null && voucher?.code != normalized(voucherInput)) voucher = null
     }
 
     fun applyVoucher() = viewModelScope.launch {
-        if (voucherInput.isBlank()) return@launch
+        val code = normalized(voucherInput)
+        if (code.isBlank()) return@launch
         checkingVoucher = true
         voucherError = null
-        runCatching { repo.checkVoucher(voucherInput) }
+        runCatching { repo.checkVoucher(code) }
             .onSuccess { voucher = it; voucherInput = it.code }
             .onFailure { voucher = null; voucherError = it.message }
         checkingVoucher = false
