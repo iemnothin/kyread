@@ -5,7 +5,7 @@
 @section('content')
     <h1 class="h4 fw-bold mb-3">Checkout</h1>
 
-    <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form">
+    <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form" data-subtotal="{{ $groups->sum('subtotal') }}">
         @csrf
         <div class="row g-4">
             <div class="col-lg-8">
@@ -56,7 +56,7 @@
                             @endforeach
                             <div class="d-flex justify-content-between small text-secondary border-top pt-2">
                                 <span>Berat total {{ number_format($group['weight'] / 1000, 2, ',', '.') }} kg</span>
-                                <span>Ongkir: <b class="text-body shipping-cost" data-weight="{{ $group['weight'] }}">-</b></span>
+                                <span>Ongkir: <b class="text-body" data-shipping-weight="{{ $group['weight'] }}">-</b></span>
                             </div>
                         </div>
                     </div>
@@ -119,9 +119,9 @@
                     <div class="card-body">
                         <h2 class="h6 fw-bold mb-3">Ringkasan Pembayaran</h2>
                         <div class="d-flex justify-content-between mb-2"><span class="text-secondary">Total harga</span><span id="sum-subtotal" data-value="{{ $groups->sum('subtotal') }}">@rupiah($groups->sum('subtotal'))</span></div>
-                        <div class="d-flex justify-content-between mb-2"><span class="text-secondary">Ongkos kirim</span><span id="sum-shipping">-</span></div>
+                        <div class="d-flex justify-content-between mb-2"><span class="text-secondary">Ongkos kirim</span><span data-sum="shipping">-</span></div>
                         <hr>
-                        <div class="d-flex justify-content-between fw-bold fs-5 mb-3"><span>Total tagihan</span><span class="text-ky" id="sum-total">-</span></div>
+                        <div class="d-flex justify-content-between fw-bold fs-5 mb-3"><span>Total tagihan</span><span class="text-ky" data-sum="total">-</span></div>
                         <button class="btn btn-ky w-100 py-2" type="submit">Buat Pesanan</button>
                         <p class="small text-secondary mt-2 mb-0">Selesaikan pembayaran dalam 24 jam atau pesanan otomatis dibatalkan.</p>
                     </div>
@@ -130,31 +130,3 @@
         </div>
     </form>
 @endsection
-
-@push('scripts')
-    <script>
-        // Hitung ulang ongkir di sisi klien (rumus sama dengan App\Enums\Courier::costFor).
-        (() => {
-            const rupiah = (n) => 'Rp ' + n.toLocaleString('id-ID');
-            const form = document.getElementById('checkout-form');
-            const subtotal = Number(document.getElementById('sum-subtotal').dataset.value);
-
-            function recalc() {
-                const courier = form.querySelector('input[name=courier]:checked');
-                if (!courier) return;
-                const rate = Number(courier.dataset.rate);
-                let shipping = 0;
-                document.querySelectorAll('.shipping-cost').forEach((el) => {
-                    const kg = Math.max(1, Math.ceil(Number(el.dataset.weight) / 1000));
-                    el.textContent = rupiah(kg * rate);
-                    shipping += kg * rate;
-                });
-                document.getElementById('sum-shipping').textContent = rupiah(shipping);
-                document.getElementById('sum-total').textContent = rupiah(subtotal + shipping);
-            }
-
-            form.addEventListener('change', (e) => e.target.name === 'courier' && recalc());
-            recalc();
-        })();
-    </script>
-@endpush

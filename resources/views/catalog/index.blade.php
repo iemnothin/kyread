@@ -60,7 +60,7 @@
                         <input name="{{ $key }}" type="hidden" value="{{ $value }}">
                     @endforeach
                     <label class="small text-secondary text-nowrap" for="sort">Urutkan</label>
-                    <select class="form-select form-select-sm" id="sort" name="sort" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm" id="sort" name="sort" data-autosubmit>
                         @foreach (['newest' => 'Terbaru', 'bestseller' => 'Terlaris', 'price_asc' => 'Harga terendah', 'price_desc' => 'Harga tertinggi', 'title' => 'Judul A-Z'] as $value => $label)
                             <option value="{{ $value }}" @selected(($filters['sort'] ?? 'newest') === $value)>{{ $label }}</option>
                         @endforeach

@@ -52,7 +52,9 @@ class OrderController extends Controller
     public function cancel(Order $order): RedirectResponse
     {
         Gate::authorize('view', $order);
-        abort_unless($order->status === OrderStatus::Pending, 422, 'Pesanan yang sudah dibayar hanya bisa dibatalkan oleh penjual.');
+        if ($order->status !== OrderStatus::Pending) {
+            return back()->with('error', 'Pesanan yang sudah dibayar hanya bisa dibatalkan oleh penjual.');
+        }
 
         $this->orders->transition($order, OrderStatus::Cancelled);
 
@@ -71,7 +73,9 @@ class OrderController extends Controller
     public function review(Request $request, Order $order): RedirectResponse
     {
         Gate::authorize('view', $order);
-        abort_unless($order->status === OrderStatus::Completed, 422, 'Ulasan hanya bisa diberikan untuk pesanan yang selesai.');
+        if ($order->status !== OrderStatus::Completed) {
+            return back()->with('error', 'Ulasan hanya bisa diberikan untuk pesanan yang sudah selesai.');
+        }
 
         $data = $request->validate([
             'product_id' => ['required', Rule::in($order->items->pluck('product_id')->filter())],

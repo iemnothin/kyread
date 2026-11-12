@@ -19,7 +19,7 @@
                     <div class="card-body text-center">
                         <h5 class="card-title text-start">Sampul Buku</h5>
                         <img class="img-fluid rounded shadow-sm mb-3" id="imgPreview" src="{{ $product->image_url }}" alt="" style="max-height: 320px">
-                        <input class="form-control @error('image') is-invalid @enderror" id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp">
+                        <input class="form-control @error('image') is-invalid @enderror" id="image" name="image" type="file" data-preview="#imgPreview" accept="image/png,image/jpeg,image/webp">
                         @error('image')<div class="invalid-feedback text-start">{{ $message }}</div>@enderror
                         <small class="text-muted d-block mt-2">JPG/PNG/WEBP, maks. 2 MB. Rasio 3:4 disarankan.</small>
                         @if ($editing && $product->image)
@@ -117,12 +117,3 @@
         </div>
     </form>
 @endsection
-
-@push('scripts')
-    <script>
-        document.getElementById('image').addEventListener('change', (e) => {
-            const [file] = e.target.files;
-            if (file) document.getElementById('imgPreview').src = URL.createObjectURL(file);
-        });
-    </script>
-@endpush

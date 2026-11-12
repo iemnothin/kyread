@@ -25,8 +25,14 @@ fi
 echo "==> Mengemas $REV"
 git archive --format=tar.gz -o "$TMP/release.tgz" HEAD
 
+echo "==> Build aset Vite"
+# Pasang dependensi hanya bila belum ada (npm ci menghapus node_modules, gagal di Windows bila dev server berjalan).
+{ [ -d node_modules ] || npm ci --no-audit --no-fund --silent; } && npx vite build >/dev/null
+tar -czf "$TMP/build.tgz" -C public build
+
 echo "==> Mengunggah ke $HOST"
 scp -q "$TMP/release.tgz" "$HOST:/tmp/kyread-staging-release.tgz"
+scp -q "$TMP/build.tgz" "$HOST:/tmp/kyread-staging-build.tgz"
 
 echo "==> Mengaktifkan rilis"
 ssh "$HOST" REV="$REV" bash -s <<'REMOTE'
@@ -34,6 +40,7 @@ set -euo pipefail
 BASE=/var/www/kyread-staging
 mkdir -p "$BASE/releases/$REV"
 tar -xzf /tmp/kyread-staging-release.tgz -C "$BASE/releases/$REV" && rm -f /tmp/kyread-staging-release.tgz
+tar -xzf /tmp/kyread-staging-build.tgz -C "$BASE/releases/$REV/public" && rm -f /tmp/kyread-staging-build.tgz
 echo "$REV" > "$BASE/releases/$REV/REVISION"
 ln -sfn "$BASE/releases/$REV" "$BASE/current"
 

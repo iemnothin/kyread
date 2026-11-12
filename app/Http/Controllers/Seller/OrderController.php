@@ -50,7 +50,9 @@ class OrderController extends Controller
         ]);
 
         $to = OrderStatus::from($data['status']);
-        abort_if($to === OrderStatus::Cancelled && $order->status === OrderStatus::Pending, 422, 'Pesanan belum dibayar akan dibatalkan otomatis.');
+        if ($to === OrderStatus::Cancelled && $order->status === OrderStatus::Pending) {
+            return back()->with('error', 'Pesanan yang belum dibayar akan dibatalkan otomatis setelah 24 jam.');
+        }
 
         $service->transition($order, $to, $data['tracking_number'] ?? null);
 

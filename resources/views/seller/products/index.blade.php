@@ -9,13 +9,13 @@
             <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
                 <form class="d-flex flex-wrap gap-2" action="{{ route('seller.products.index') }}" method="GET">
                     <input class="form-control form-control-sm" name="q" type="search" value="{{ request('q') }}" placeholder="Judul / penulis" style="width: 200px">
-                    <select class="form-select form-select-sm" name="category" style="width: auto" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm" name="category" style="width: auto" data-autosubmit>
                         <option value="">Semua kategori</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ $category->name }}</option>
                         @endforeach
                     </select>
-                    <select class="form-select form-select-sm" name="sort" style="width: auto" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm" name="sort" style="width: auto" data-autosubmit>
                         @foreach (['newest' => 'Terbaru', 'bestseller' => 'Terlaris', 'title' => 'Judul A-Z', 'price_asc' => 'Harga ↑', 'price_desc' => 'Harga ↓'] as $v => $l)
                             <option value="{{ $v }}" @selected(request('sort', 'newest') === $v)>{{ $l }}</option>
                         @endforeach

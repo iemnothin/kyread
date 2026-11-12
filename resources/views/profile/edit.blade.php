@@ -7,7 +7,7 @@
         <div class="col-lg-3">
             <div class="card card-soft text-center">
                 <div class="card-body py-4">
-                    <img class="avatar-lg mb-3" src="{{ $user->avatar_url }}" alt="">
+                    <img class="avatar-lg mb-3" id="avatarPreview" src="{{ $user->avatar_url }}" alt="">
                     <h1 class="h5 fw-bold mb-0">{{ $user->name }}</h1>
                     <small class="text-secondary d-block">{{ '@'.$user->username }}</small>
                     <small class="text-secondary">{{ $user->email }}</small>
@@ -39,7 +39,7 @@
                         @endforeach
                         <div class="col-md-6">
                             <label class="form-label small" for="avatar">Foto profil (maks. 1 MB)</label>
-                            <input class="form-control @error('avatar') is-invalid @enderror" id="avatar" name="avatar" type="file" accept="image/*">
+                            <input class="form-control @error('avatar') is-invalid @enderror" id="avatar" name="avatar" type="file" data-preview="#avatarPreview" accept="image/*">
                             @error('avatar')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
@@ -68,9 +68,10 @@
             <form class="card card-soft mb-4" action="{{ route('profile.password') }}" method="POST">
                 @csrf @method('PUT')
                 <div class="card-body">
-                    <h2 class="h6 fw-bold text-ky mb-3">Ganti Password</h2>
+                    <h2 class="h6 fw-bold text-ky mb-3">{{ $user->password ? 'Ganti Password' : 'Buat Password' }}</h2>
+                    @unless ($user->password)<p class="small text-secondary">Kamu masuk dengan Google. Buat password agar bisa masuk juga dengan email/username.</p>@endunless
                     <div class="row g-3">
-                        @foreach ([['current_password', 'Password saat ini'], ['password', 'Password baru'], ['password_confirmation', 'Ulangi password baru']] as [$field, $label])
+                        @foreach (array_filter([$user->password ? ['current_password', 'Password saat ini'] : null, ['password', 'Password baru'], ['password_confirmation', 'Ulangi password baru']]) as [$field, $label])
                             <div class="col-md-4">
                                 <label class="form-label small" for="pw-{{ $field }}">{{ $label }}</label>
                                 <input class="form-control @error($field, 'password') is-invalid @enderror" id="pw-{{ $field }}" name="{{ $field }}" type="password">
@@ -78,7 +79,7 @@
                             </div>
                         @endforeach
                     </div>
-                    <div class="text-end mt-3"><button class="btn btn-outline-ky" type="submit">Ganti Password</button></div>
+                    <div class="text-end mt-3"><button class="btn btn-outline-ky" type="submit">{{ $user->password ? 'Ganti Password' : 'Buat Password' }}</button></div>
                 </div>
             </form>
 
@@ -88,7 +89,7 @@
                     <h2 class="h6 fw-bold text-danger">Hapus Akun</h2>
                     <p class="small text-secondary">Tindakan ini permanen. Masukkan password untuk konfirmasi.</p>
                     <div class="d-flex gap-2" style="max-width: 420px">
-                        <input class="form-control @error('password', 'deletion') is-invalid @enderror" name="password" type="password" placeholder="Password" aria-label="Password">
+                        @if ($user->password)<input class="form-control @error('password', 'deletion') is-invalid @enderror" name="password" type="password" placeholder="Password" aria-label="Password">@endif
                         <button class="btn btn-danger text-nowrap" type="submit">Hapus Akun</button>
                     </div>
                     @error('password', 'deletion')<div class="text-danger small mt-1">{{ $message }}</div>@enderror

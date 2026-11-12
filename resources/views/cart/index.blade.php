@@ -45,7 +45,7 @@
                                             <form class="d-flex" action="{{ route('cart.update', $item) }}" method="POST">
                                                 @csrf @method('PATCH')
                                                 <input class="form-control form-control-sm text-center" name="quantity" type="number" value="{{ $item->quantity }}"
-                                                    min="1" max="{{ max(1, $product->stock) }}" style="width: 72px" onchange="this.form.submit()" aria-label="Jumlah">
+                                                    min="1" max="{{ max(1, $product->stock) }}" style="width: 72px" data-autosubmit aria-label="Jumlah">
                                             </form>
                                             <form action="{{ route('cart.destroy', $item) }}" method="POST">
                                                 @csrf @method('DELETE')

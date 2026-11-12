@@ -8,13 +8,8 @@
     <title>@hasSection('title')@yield('title') · @endif{{ config('app.name') }} — Toko Buku Online</title>
     <meta name="description" content="@yield('description', 'kyread: toko buku online. Novel, komik, biografi, dan banyak lagi dengan pengiriman ke seluruh Indonesia.')">
 
-    <link href="{{ asset('pos/assets/img/brand.svg') }}" rel="icon">
-    <link href="https://fonts.googleapis.com" rel="preconnect">
-    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('pos/assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    @include('partials.meta')
+    @vite('resources/js/app.js')
     @stack('styles')
 </head>
 
@@ -29,15 +24,14 @@
     </main>
 
     @include('partials.footer')
+    @include('partials.image-search-modal')
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Konfirmasi untuk aksi berisiko: <form data-confirm="Yakin?">
-        document.addEventListener('submit', (e) => {
-            const msg = e.target.dataset.confirm;
-            if (msg && !confirm(msg)) e.preventDefault();
-        });
-    </script>
+    @if ($aiEnabled && ! request()->routeIs('assistant'))
+        <a class="btn btn-ky rounded-pill shadow assistant-fab" href="{{ route('assistant') }}" title="Tanya Kyra, asisten buku AI">
+            <i class="bi bi-stars me-1"></i><span class="d-none d-sm-inline">Tanya Kyra</span>
+        </a>
+    @endif
+
     @stack('scripts')
 </body>
 

@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\AssistantController;
+use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
@@ -21,6 +24,12 @@ Route::get('/books/{product}', [CatalogController::class, 'show'])->name('books.
 Route::get('/store/{store}', [CatalogController::class, 'store'])->name('stores.show');
 Route::view('/help', 'pages.help')->name('help');
 
+// Saran kata, cari dengan gambar, dan asisten AI (JSON, dipanggil dari JS halaman).
+Route::get('/search/suggest', [SearchController::class, 'suggest'])->middleware('throttle:120,1')->name('search.suggest');
+Route::post('/search/image', [SearchController::class, 'image'])->middleware('throttle:10,1')->name('search.image');
+Route::view('/assistant', 'assistant.index')->name('assistant');
+Route::post('/assistant', AssistantController::class)->middleware('throttle:20,1')->name('assistant.ask');
+
 /*
 |--------------------------------------------------------------------------
 | Autentikasi
@@ -31,6 +40,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+    Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('auth.google');
+    Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 

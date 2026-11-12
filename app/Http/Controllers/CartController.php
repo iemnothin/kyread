@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Services\CartService;
 use App\Services\CheckoutService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class CartController extends Controller
 {
+    public function __construct(private readonly CartService $cart) {}
+
     public function index(Request $request, CheckoutService $checkout): View
     {
         $groups = $checkout->groupedCart($request->user());
@@ -25,18 +29,12 @@ class CartController extends Controller
     public function store(Request $request, Product $product): RedirectResponse
     {
         $data = $request->validate(['quantity' => ['nullable', 'integer', 'min:1']]);
-        $user = $request->user();
 
-        if (! $product->is_active || ! $product->isInStock()) {
-            return back()->with('error', 'Maaf, buku ini sedang tidak tersedia.');
+        try {
+            $this->cart->add($request->user(), $product, (int) ($data['quantity'] ?? 1));
+        } catch (ValidationException $e) {
+            return back()->with('error', $e->validator->errors()->first());
         }
-        if ($product->store_id === $user->store?->id) {
-            return back()->with('error', 'Kamu tidak bisa membeli buku dari tokomu sendiri.');
-        }
-
-        $item = $user->cartItems()->firstOrNew(['product_id' => $product->id]);
-        $item->quantity = min($product->stock, ($item->quantity ?? 0) + ($data['quantity'] ?? 1));
-        $item->save();
 
         if ($request->boolean('buy_now')) {
             return redirect()->route('checkout.create');
@@ -50,14 +48,9 @@ class CartController extends Controller
         abort_unless($item->user_id === $request->user()->id, 403);
 
         $data = $request->validate(['quantity' => ['required', 'integer', 'min:1']]);
-        $item->update(['quantity' => min($data['quantity'], $item->product->stock)]);
+        $adjusted = $this->cart->update($item, (int) $data['quantity']);
 
-        return back()->with(
-            $data['quantity'] > $item->product->stock ? 'error' : 'success',
-            $data['quantity'] > $item->product->stock
-                ? "Jumlah disesuaikan dengan stok tersedia ({$item->product->stock})."
-                : 'Keranjang diperbarui.'
-        );
+        return back()->with($adjusted ? 'error' : 'success', $adjusted ?? 'Keranjang diperbarui.');
     }
 
     public function destroy(Request $request, CartItem $item): RedirectResponse

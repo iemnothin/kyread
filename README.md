@@ -11,8 +11,12 @@ Pembeli bisa mencari buku, memasukkan ke keranjang, checkout dengan pilihan kuri
 | Framework | Laravel **13.x** |
 | PHP | **^8.3** (memakai enum, typed class constants, readonly property) |
 | Database | MySQL 8 (`db_kyread`); test memakai SQLite in-memory |
-| UI toko | Bootstrap 5.3 + Bootstrap Icons, font Barlow |
+| Aset front-end | **Vite** (Bootstrap 5.3, Bootstrap Icons, ApexCharts, font Barlow dari npm, tanpa CDN) |
+| UI toko | Bootstrap 5.3 + Bootstrap Icons |
 | UI penjual | [NiceAdmin](https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/) + ApexCharts |
+| API | REST `/api/v1`, token Laravel Sanctum |
+| AI | Claude API (`anthropic-ai/sdk`), model `claude-opus-5-5` |
+| Android | Kotlin + Jetpack Compose (folder [`android/`](android/README.md)) |
 
 ## Fitur
 
@@ -26,7 +30,11 @@ Pembeli bisa mencari buku, memasukkan ke keranjang, checkout dengan pilihan kuri
 - Riwayat pesanan dengan filter status, timeline status, simulasi bayar, batal, terima pesanan
 - Ulasan & rating untuk pesanan yang sudah selesai
 - Profil: data diri, foto, alamat utama, ganti password, hapus akun
-- Login bisa memakai email **atau** username
+- Login bisa memakai email **atau** username, atau **Daftar/Masuk dengan Google**
+- **Saran kata** di kolom pencarian yang diperbarui setiap huruf diketik (judul, penulis, kategori)
+- **Cari dengan gambar**: foto sampul buku → AI mengenali judul/penulis → dicocokkan dengan katalog
+- **Tanya Kyra**: asisten AI yang merekomendasikan buku dari katalog dan menjawab pertanyaan belanja
+- Pesan validasi & halaman error (403/404/419/429/500/503) berbahasa Indonesia
 
 **Penjual (kyreadSeller)**
 - Buka toko langsung dari akun yang sama
@@ -58,8 +66,18 @@ php artisan key:generate
 
 php artisan migrate --seed
 php artisan storage:link
+npm install && npm run build  # atau `npm run dev` saat pengembangan
 php artisan serve
 ```
+
+### Fitur opsional (isi di `.env`)
+
+| Fitur | Variabel | Catatan |
+|---|---|---|
+| Masuk dengan Google | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Buat OAuth client **Web application** di Google Cloud Console dengan redirect URI `{APP_URL}/auth/google/callback`. Client ID yang sama dipakai aplikasi Android (`googleWebClientId`). |
+| Cari dengan gambar & Tanya Kyra | `ANTHROPIC_API_KEY` | Kunci hanya disimpan di server; web dan Android memanggil endpoint kyread. |
+
+Kalau variabel kosong, tombol dan menu fitur tersebut otomatis disembunyikan.
 
 Buka http://localhost:8000.
 

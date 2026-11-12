@@ -31,7 +31,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Penjualan <span>| 14 hari terakhir</span></h5>
-                    <div id="salesChart"></div>
+                    <div id="salesChart" data-chart='@json($chart)'></div>
                 </div>
             </div>
 
@@ -94,22 +94,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const data = @json($chart);
-            new ApexCharts(document.querySelector('#salesChart'), {
-                chart: { type: 'area', height: 300, toolbar: { show: false }, fontFamily: 'Nunito, sans-serif' },
-                series: [{ name: 'Penjualan', data: data.map(d => d.total) }],
-                xaxis: { categories: data.map(d => d.date) },
-                yaxis: { labels: { formatter: v => 'Rp ' + Math.round(v / 1000) + 'rb' } },
-                tooltip: { y: { formatter: v => 'Rp ' + v.toLocaleString('id-ID') } },
-                colors: ['#43aaff'],
-                dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 2 },
-                fill: { type: 'gradient', gradient: { opacityFrom: .35, opacityTo: .05 } },
-            }).render();
-        });
-    </script>
-@endpush

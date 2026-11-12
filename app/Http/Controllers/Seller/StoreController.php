@@ -24,7 +24,9 @@ class StoreController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_if($request->user()->store, 409, 'Kamu sudah punya toko.');
+        if ($request->user()->store) {
+            return redirect()->route('seller.dashboard')->with('info', 'Kamu sudah punya toko.');
+        }
 
         $data = $this->validated($request);
         $data['slug'] = $this->uniqueSlug($data['name']);

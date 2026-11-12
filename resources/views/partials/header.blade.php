@@ -2,7 +2,7 @@
     <nav class="navbar navbar-expand-lg py-2">
         <div class="container">
             <a class="navbar-brand ky-brand" href="{{ route('home') }}">
-                <img src="{{ asset('pos/assets/img/brand.svg') }}" alt="">
+                <img src="{{ asset('img/brand.svg') }}" alt="">
                 <span>{{ config('app.name') }}</span>
             </a>
 
@@ -22,16 +22,31 @@
             </div>
 
             <div class="collapse navbar-collapse" id="mainNav">
-                <form class="search-box d-flex flex-grow-1 mx-lg-4 my-3 my-lg-0" action="{{ route('books.index') }}" method="GET" role="search">
-                    <input class="form-control" name="q" type="search" value="{{ request('q') }}"
-                        placeholder="Cari judul, penulis, atau penerbit…" aria-label="Cari buku">
+                <form class="search-box d-flex flex-grow-1 mx-lg-4 my-3 my-lg-0 position-relative" action="{{ route('books.index') }}" method="GET" role="search"
+                    data-suggest-url="{{ route('search.suggest') }}">
+                    <input class="form-control" name="q" type="search" value="{{ request('q') }}" autocomplete="off"
+                        placeholder="Cari judul, penulis, atau penerbit…" aria-label="Cari buku" role="combobox"
+                        aria-autocomplete="list" aria-expanded="false" aria-controls="searchSuggestions">
+                    @if ($aiEnabled)
+                        <button class="btn btn-light border px-3 rounded-0" type="button" data-image-search title="Cari dengan foto sampul" aria-label="Cari dengan gambar">
+                            <i class="bi bi-camera"></i>
+                        </button>
+                    @endif
                     <button class="btn btn-ky px-3" type="submit" aria-label="Cari"><i class="bi bi-search"></i></button>
+                    <ul class="dropdown-menu w-100 shadow-sm border-0 search-suggestions" id="searchSuggestions" role="listbox"></ul>
                 </form>
 
                 <ul class="navbar-nav align-items-lg-center gap-lg-3 ms-auto">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('books.*') ? 'fw-semibold text-ky' : '' }}" href="{{ route('books.index') }}">Katalog</a>
                     </li>
+                    @if ($aiEnabled)
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('assistant') ? 'fw-semibold text-ky' : '' }}" href="{{ route('assistant') }}">
+                                <i class="bi bi-stars text-ky"></i> Tanya Kyra
+                            </a>
+                        </li>
+                    @endif
                     @auth
                         <li class="nav-item d-none d-lg-block">
                             <a class="header-icon" href="{{ route('cart.index') }}" title="Keranjang">

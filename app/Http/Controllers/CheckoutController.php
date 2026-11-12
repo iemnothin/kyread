@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\Courier;
 use App\Enums\PaymentMethod;
+use App\Http\Requests\CheckoutRequest;
 use App\Services\CheckoutService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
@@ -28,35 +28,10 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request, CheckoutService $checkout): RedirectResponse
+    public function store(CheckoutRequest $request, CheckoutService $checkout): RedirectResponse
     {
-        $data = $request->validate([
-            'recipient_name' => ['required', 'string', 'max:60'],
-            'recipient_phone' => ['required', 'regex:/^(\+62|62|0)8[0-9]{7,12}$/'],
-            'street' => ['required', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:64'],
-            'province' => ['required', 'string', 'max:64'],
-            'zipcode' => ['required', 'digits:5'],
-            'courier' => ['required', Rule::enum(Courier::class)],
-            'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
-            'notes' => ['nullable', 'string', 'max:255'],
-            'save_address' => ['nullable', 'boolean'],
-        ], [
-            'recipient_phone.regex' => 'Format nomor HP tidak valid (contoh: 081234567890).',
-        ]);
-
-        $user = $request->user();
-        $orders = $checkout->placeOrder($user, $data);
-
-        if ($request->boolean('save_address')) {
-            $user->update([
-                'phone' => $data['recipient_phone'],
-                'street' => $data['street'],
-                'city' => $data['city'],
-                'province' => $data['province'],
-                'zipcode' => $data['zipcode'],
-            ]);
-        }
+        $orders = $checkout->placeOrder($request->user(), $request->validated());
+        $request->saveAddressIfRequested();
 
         $message = $orders->count() > 1
             ? "Berhasil membuat {$orders->count()} pesanan (dipisah per toko). Silakan selesaikan pembayaran."

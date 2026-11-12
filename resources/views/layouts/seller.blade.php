@@ -5,19 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard') · kyreadSeller</title>
-    <link href="{{ asset('pos/assets/img/brand.svg') }}" rel="icon">
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;1,700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="{{ asset('pos/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('pos/assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-    <link href="{{ asset('pos/assets/css/style.css') }}" rel="stylesheet">
-    <style>
-        .logo span.brand-text { color: #43aaff; font-family: "Barlow", sans-serif; font-style: italic; font-weight: 700; font-size: 24px; }
-        .btn-ky { background: #43aaff; border-color: #43aaff; color: #fff; }
-        .btn-ky:hover { background: #1f8ae6; border-color: #1f8ae6; color: #fff; }
-        .thumb-sm { width: 46px; height: 62px; object-fit: cover; border-radius: 4px; background: #eef3f9; }
-        .sidebar-nav .nav-link.active-page { color: #4154f1; background: #f6f9ff; }
-        .sidebar-nav .nav-link.active-page i { color: #4154f1; }
-    </style>
+    <meta name="robots" content="noindex">
+    <link href="{{ asset('img/brand.svg') }}" rel="icon" type="image/svg+xml">
+    @vite('resources/js/seller.js')
     @stack('styles')
 </head>
 
@@ -27,7 +17,7 @@
     <header class="header fixed-top d-flex align-items-center" id="header">
         <div class="d-flex align-items-center justify-content-between">
             <a class="logo d-flex align-items-center" href="{{ route('seller.dashboard') }}">
-                <img src="{{ asset('pos/assets/img/brand.svg') }}" alt="">
+                <img src="{{ asset('img/brand.svg') }}" alt="">
                 <span class="brand-text d-none d-lg-block">kyreadSeller</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -134,15 +124,6 @@
 
     <a class="back-to-top d-flex align-items-center justify-content-center" href="#"><i class="bi bi-arrow-up-short"></i></a>
 
-    <script src="{{ asset('pos/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('pos/assets/vendor/apexcharts/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('pos/assets/js/main.js') }}"></script>
-    <script>
-        document.addEventListener('submit', (e) => {
-            const msg = e.target.dataset.confirm;
-            if (msg && !confirm(msg)) e.preventDefault();
-        });
-    </script>
     @stack('scripts')
 </body>
 

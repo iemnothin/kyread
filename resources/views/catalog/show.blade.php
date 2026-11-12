@@ -45,10 +45,10 @@
                             <form action="{{ route('cart.store', $product) }}" method="POST">
                                 @csrf
                                 <div class="d-flex flex-wrap align-items-center gap-3">
-                                    <div class="input-group qty-input">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="this.nextElementSibling.stepDown()">−</button>
+                                    <div class="input-group qty-input" data-qty>
+                                        <button class="btn btn-outline-secondary" type="button" data-step="-1" aria-label="Kurangi">−</button>
                                         <input class="form-control text-center" name="quantity" type="number" value="1" min="1" max="{{ $product->stock }}" aria-label="Jumlah">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="this.previousElementSibling.stepUp()">+</button>
+                                        <button class="btn btn-outline-secondary" type="button" data-step="1" aria-label="Tambah">+</button>
                                     </div>
                                     <span class="small text-secondary">Stok: <b>{{ $product->stock }}</b></span>
                                 </div>
