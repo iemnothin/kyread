@@ -5,14 +5,17 @@ namespace App\Services;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Product;
+use App\Notifications\OrderUpdated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
+    public function __construct(private readonly VoucherService $vouchers) {}
+
     public function transition(Order $order, OrderStatus $to, ?string $trackingNumber = null): Order
     {
-        return DB::transaction(function () use ($order, $to, $trackingNumber) {
+        $order = DB::transaction(function () use ($order, $to, $trackingNumber) {
             $order = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
 
             if (! $order->status->canTransitionTo($to)) {
@@ -39,12 +42,29 @@ class OrderService
 
             return $order;
         });
+
+        $this->notify($order, $to);
+
+        return $order;
+    }
+
+    /** Beri tahu pembeli dan/atau penjual sesuai perubahan status. */
+    private function notify(Order $order, OrderStatus $status): void
+    {
+        $order->loadMissing('user', 'store.user');
+
+        foreach ([OrderUpdated::FOR_BUYER => $order->user, OrderUpdated::FOR_SELLER => $order->store->user] as $audience => $recipient) {
+            if ($recipient && OrderUpdated::shouldNotify($status, $audience)) {
+                $recipient->notify(new OrderUpdated($order, $audience, $status));
+            }
+        }
     }
 
     /** Kembalikan stok & jumlah terjual ketika pesanan dibatalkan. */
     private function restock(Order $order): void
     {
         $order->cancelled_at = now();
+        $this->vouchers->release($order);
 
         foreach ($order->items as $item) {
             if (! $item->product_id) {

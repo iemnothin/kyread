@@ -28,6 +28,7 @@ class CheckoutRequest extends FormRequest
             'courier' => ['required', Rule::enum(Courier::class)],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'notes' => ['nullable', 'string', 'max:255'],
+            'voucher_code' => ['nullable', 'string', 'max:20'],
             'save_address' => ['nullable', 'boolean'],
         ];
     }

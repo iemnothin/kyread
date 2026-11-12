@@ -36,6 +36,11 @@ class Store extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function vouchers(): HasMany
+    {
+        return $this->hasMany(Voucher::class);
+    }
+
     protected function logoUrl(): Attribute
     {
         return Attribute::get(fn () => $this->logo

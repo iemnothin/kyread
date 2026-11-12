@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\Courier;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
+use App\Enums\VoucherType;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
@@ -100,6 +101,25 @@ class DatabaseSeeder extends Seeder
             'image' => "img/books/{$b[5]}.jpg",
             'created_at' => now()->subDays(mt_rand(0, 60)),
         ]));
+
+        // Sebagian buku sedang diskon (harga coret 15–35% di atas harga jual).
+        $products->each(function (Product $product, int $i): void {
+            if ($i % 4 === 1) {
+                $markup = [1.15, 1.25, 1.35][$i % 3];
+                $product->forceFill(['compare_at_price' => (int) (ceil($product->price * $markup / 1000) * 1000)])->save();
+            }
+        });
+
+        $official->vouchers()->create([
+            'code' => 'KYREAD10', 'type' => VoucherType::Percent, 'value' => 10,
+            'min_spend' => 75000, 'max_discount' => 20000, 'expires_at' => now()->addMonths(3),
+        ]);
+        $pojok->vouchers()->create([
+            'code' => 'POJOKHEMAT', 'type' => VoucherType::Fixed, 'value' => 15000,
+            'min_spend' => 100000, 'quota' => 100,
+        ]);
+
+        $buyer->wishlist()->attach($products->random(3)->pluck('id'));
 
         $this->seedOrderHistory($buyer, $products);
     }

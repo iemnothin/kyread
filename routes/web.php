@@ -2,15 +2,19 @@
 
 use App\Http\Controllers\Api\AssistantController;
 use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Seller;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,6 +49,9 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
+// Invoice: pembeli/penjual yang login, atau tautan bertanda tangan dari aplikasi Android.
+Route::get('/orders/{order}/invoice', InvoiceController::class)->name('orders.invoice');
+
 /*
 |--------------------------------------------------------------------------
 | Pembeli (wajib login)
@@ -61,7 +68,15 @@ Route::middleware('auth')->group(function () {
     Route::patch('/cart/items/{item}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/items/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
 
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
+    Route::post('/notifications/read', [NotificationController::class, 'readAll'])->name('notifications.read');
+
     Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
+    Route::post('/checkout/voucher', VoucherController::class)->middleware('throttle:30,1')->name('checkout.voucher');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -84,6 +99,7 @@ Route::middleware('auth')->prefix('seller')->name('seller.')->group(function () 
     Route::middleware('seller')->group(function () {
         Route::get('/', Seller\DashboardController::class)->name('dashboard');
         Route::resource('products', Seller\ProductController::class)->except('show');
+        Route::resource('vouchers', Seller\VoucherController::class)->except('show');
         Route::get('/orders', [Seller\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [Seller\OrderController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}', [Seller\OrderController::class, 'update'])->name('orders.update');

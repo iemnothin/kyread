@@ -33,6 +33,10 @@
                         <input class="form-control form-control-sm" name="min" type="number" value="{{ $filters['min'] ?? '' }}" min="0" placeholder="Min">
                         <input class="form-control form-control-sm" name="max" type="number" value="{{ $filters['max'] ?? '' }}" min="0" placeholder="Maks">
                     </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" id="promo" name="promo" type="checkbox" value="1" @checked(filled($filters['promo'] ?? null))>
+                        <label class="form-check-label small" for="promo"><i class="bi bi-tag text-danger"></i> Hanya yang sedang diskon</label>
+                    </div>
                     <input name="sort" type="hidden" value="{{ $filters['sort'] ?? 'newest' }}">
                     <button class="btn btn-ky btn-sm w-100" type="submit">Terapkan</button>
                     @if (array_filter($filters))
@@ -61,7 +65,7 @@
                     @endforeach
                     <label class="small text-secondary text-nowrap" for="sort">Urutkan</label>
                     <select class="form-select form-select-sm" id="sort" name="sort" data-autosubmit>
-                        @foreach (['newest' => 'Terbaru', 'bestseller' => 'Terlaris', 'price_asc' => 'Harga terendah', 'price_desc' => 'Harga tertinggi', 'title' => 'Judul A-Z'] as $value => $label)
+                        @foreach (['newest' => 'Terbaru', 'bestseller' => 'Terlaris', 'price_asc' => 'Harga terendah', 'price_desc' => 'Harga tertinggi', 'discount' => 'Diskon terbesar', 'title' => 'Judul A-Z'] as $value => $label)
                             <option value="{{ $value }}" @selected(($filters['sort'] ?? 'newest') === $value)>{{ $label }}</option>
                         @endforeach
                     </select>

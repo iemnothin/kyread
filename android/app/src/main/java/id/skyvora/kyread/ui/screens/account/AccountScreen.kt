@@ -21,9 +21,12 @@ import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +68,10 @@ private val webBase = BuildConfig.API_BASE_URL.substringBefore("/api/")
 @Composable
 fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifier = Modifier) {
     val user by repo.user.collectAsStateWithLifecycle()
+    val unread by repo.unreadCount.collectAsStateWithLifecycle()
+
+    // Perbarui jumlah notifikasi & wishlist setiap kali tab Akun dibuka.
+    LaunchedEffect(user?.id) { if (user != null) runCatching { repo.refreshUser() } }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var confirmLogout by remember { mutableStateOf(false) }
@@ -117,6 +125,10 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
                 if (u != null) {
                     MenuItem(Icons.Outlined.Receipt, "Pesanan Saya") { nav.navigateTab(Routes.ORDERS) }
                     HorizontalDivider()
+                    MenuItem(Icons.Outlined.FavoriteBorder, "Wishlist", count = u.wishlistCount, countIsBadge = false) { nav.navigate(Routes.WISHLIST) }
+                    HorizontalDivider()
+                    MenuItem(Icons.Outlined.Notifications, "Notifikasi", count = unread) { nav.navigate(Routes.NOTIFICATIONS) }
+                    HorizontalDivider()
                     MenuItem(Icons.Outlined.Edit, "Edit Profil & Alamat") { nav.navigate(Routes.EDIT_PROFILE) }
                     HorizontalDivider()
                 }
@@ -146,13 +158,30 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
 }
 
 @Composable
-private fun MenuItem(icon: ImageVector, title: String, supporting: String? = null, danger: Boolean = false, onClick: () -> Unit) {
+private fun MenuItem(
+    icon: ImageVector,
+    title: String,
+    supporting: String? = null,
+    danger: Boolean = false,
+    count: Int = 0,
+    countIsBadge: Boolean = true,
+    onClick: () -> Unit,
+) {
     val color = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
     ListItem(
         headlineContent = { Text(title, color = color) },
         supportingContent = supporting?.let { { Text(it) } },
         leadingContent = { Icon(icon, null, tint = if (danger) color else MaterialTheme.colorScheme.primary) },
-        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) },
+        trailingContent = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (count > 0) {
+                    if (countIsBadge) Badge { Text(if (count > 99) "99+" else "$count") }
+                    else Text("$count", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.width(4.dp))
+                }
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+            }
+        },
         modifier = Modifier.clickable(onClick = onClick),
     )
 }

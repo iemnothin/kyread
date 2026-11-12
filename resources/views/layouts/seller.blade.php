@@ -81,6 +81,7 @@
                 <li class="nav-item"><a class="nav-link {{ $nav('seller.products.index') }}" href="{{ route('seller.products.index') }}"><i class="bi bi-book"></i><span>Daftar Buku</span></a></li>
                 <li class="nav-item"><a class="nav-link {{ $nav('seller.products.create') }}" href="{{ route('seller.products.create') }}"><i class="bi bi-plus-square"></i><span>Tambah Buku</span></a></li>
                 <li class="nav-item"><a class="nav-link {{ $nav('seller.orders.*') }}" href="{{ route('seller.orders.index') }}"><i class="bi bi-receipt"></i><span>Pesanan</span></a></li>
+                <li class="nav-item"><a class="nav-link {{ $nav('seller.vouchers.*') }}" href="{{ route('seller.vouchers.index') }}"><i class="bi bi-ticket-perforated"></i><span>Voucher</span></a></li>
                 <li class="nav-item"><a class="nav-link {{ $nav('seller.store.edit') }}" href="{{ route('seller.store.edit') }}"><i class="bi bi-shop"></i><span>Profil Toko</span></a></li>
                 <li class="nav-heading">Bantuan</li>
                 <li class="nav-item"><a class="nav-link {{ $nav('seller.faq') }}" href="{{ route('seller.faq') }}"><i class="bi bi-question-circle"></i><span>FAQ Penjual</span></a></li>

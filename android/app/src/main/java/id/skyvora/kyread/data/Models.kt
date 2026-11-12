@@ -38,6 +38,8 @@ data class Product(
     val title: String,
     val author: String,
     val price: Long,
+    val compareAtPrice: Long? = null,
+    val discountPercent: Int = 0,
     val stock: Int,
     val soldCount: Int = 0,
     val weight: Int = 0,
@@ -53,6 +55,48 @@ data class Product(
     val description: String? = null,
     val reviewsCount: Int = 0,
     val isOwnProduct: Boolean = false,
+    val isWishlisted: Boolean = false,
+    val vouchers: List<Voucher> = emptyList(),
+)
+
+@Serializable
+data class Voucher(
+    val code: String,
+    val type: String,
+    val value: Long,
+    val minSpend: Long = 0,
+    val maxDiscount: Long? = null,
+    val summary: String,
+    val expiresAt: String? = null,
+)
+
+/** Hasil cek voucher terhadap isi keranjang (POST /checkout/voucher). */
+@Serializable
+data class VoucherCheck(
+    val code: String,
+    val storeId: Int,
+    val storeName: String,
+    val summary: String,
+    val discount: Long,
+    val message: String,
+)
+
+@Serializable
+data class AppNotification(
+    val id: String,
+    val title: String,
+    val body: String,
+    val orderCode: String? = null,
+    val audience: String = "buyer",
+    val read: Boolean = false,
+    val createdAt: String,
+)
+
+@Serializable
+data class NotificationPage(
+    val data: List<AppNotification> = emptyList(),
+    val unreadCount: Int = 0,
+    val meta: PageMeta = PageMeta(),
 )
 
 @Serializable
@@ -90,6 +134,8 @@ data class User(
     val avatarUrl: String,
     val address: Address = Address(),
     val hasStore: Boolean = false,
+    val unreadNotifications: Int = 0,
+    val wishlistCount: Int = 0,
 )
 
 @Serializable
@@ -177,7 +223,10 @@ data class Order(
     val notes: String? = null,
     val subtotal: Long,
     val shippingCost: Long,
+    val voucherCode: String? = null,
+    val discount: Long = 0,
     val total: Long,
+    val invoiceUrl: String? = null,
     val paymentDeadline: String? = null,
     val virtualAccount: String? = null,
     val reviews: List<Review> = emptyList(),
@@ -235,6 +284,7 @@ data class CheckoutRequest(
     val courier: String,
     val paymentMethod: String,
     val notes: String? = null,
+    val voucherCode: String? = null,
     val saveAddress: Boolean = false,
 )
 

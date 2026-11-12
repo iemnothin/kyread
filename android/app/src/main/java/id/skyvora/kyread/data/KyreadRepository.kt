@@ -16,6 +16,9 @@ class KyreadRepository(private val tokens: TokenStore) {
     private val _cartCount = MutableStateFlow(0)
     val cartCount: StateFlow<Int> = _cartCount.asStateFlow()
 
+    private val _unreadCount = MutableStateFlow(0)
+    val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
+
     private var cachedMeta: AppMeta? = null
 
     private val api = ApiClient(
@@ -53,7 +56,10 @@ class KyreadRepository(private val tokens: TokenStore) {
         clearSession()
     }
 
-    suspend fun refreshUser(): User = api.get<DataWrapper<User>>("me").data.also { _user.value = it }
+    suspend fun refreshUser(): User = api.get<DataWrapper<User>>("me").data.also {
+        _user.value = it
+        _unreadCount.value = it.unreadNotifications
+    }
 
     suspend fun updateProfile(body: ProfileRequest): User =
         api.post<DataWrapper<User>, ProfileRequest>("me", body).data.also { _user.value = it }
@@ -61,6 +67,7 @@ class KyreadRepository(private val tokens: TokenStore) {
     private suspend fun startSession(res: AuthResponse) {
         tokens.save(res.token)
         _user.value = res.user
+        _unreadCount.value = res.user.unreadNotifications
         runCatching { refreshCartCount() }
     }
 
@@ -68,6 +75,7 @@ class KyreadRepository(private val tokens: TokenStore) {
         tokens.clear()
         _user.value = null
         _cartCount.value = 0
+        _unreadCount.value = 0
     }
 
     // --- Katalog ---------------------------------------------------------------
@@ -80,11 +88,15 @@ class KyreadRepository(private val tokens: TokenStore) {
         q: String? = null,
         category: String? = null,
         sort: String? = null,
+        promo: Boolean = false,
         page: Int = 1,
         perPage: Int = 20,
     ): Paged<Product> = api.get(
         "products",
-        mapOf("q" to q, "category" to category, "sort" to sort, "page" to page, "per_page" to perPage),
+        mapOf(
+            "q" to q, "category" to category, "sort" to sort, "page" to page, "per_page" to perPage,
+            "promo" to if (promo) 1 else null,
+        ),
     )
 
     suspend fun product(slug: String): ProductDetail = api.get("products/$slug")
@@ -96,6 +108,24 @@ class KyreadRepository(private val tokens: TokenStore) {
 
     suspend fun askAssistant(history: List<ChatMessage>): AssistantReply =
         api.post<AssistantReply, AssistantBody>("assistant", AssistantBody(history.takeLast(12)))
+
+    // --- Wishlist ---------------------------------------------------------------
+
+    suspend fun wishlist(page: Int = 1): Paged<Product> = api.get("wishlist", mapOf("page" to page))
+
+    suspend fun setWishlisted(slug: String, wishlisted: Boolean) {
+        if (wishlisted) api.post<WishlistState>("wishlist/$slug") else api.delete<WishlistState>("wishlist/$slug")
+    }
+
+    // --- Notifikasi -------------------------------------------------------------
+
+    suspend fun notifications(page: Int = 1): NotificationPage =
+        api.get<NotificationPage>("notifications", mapOf("page" to page)).also { _unreadCount.value = it.unreadCount }
+
+    suspend fun markNotificationsRead() {
+        api.post<Message>("notifications/read")
+        _unreadCount.value = 0
+    }
 
     // --- Keranjang -------------------------------------------------------------
 
@@ -115,6 +145,9 @@ class KyreadRepository(private val tokens: TokenStore) {
     }
 
     // --- Pesanan ---------------------------------------------------------------
+
+    suspend fun checkVoucher(code: String): VoucherCheck =
+        api.post<VoucherCheck, VoucherBody>("checkout/voucher", VoucherBody(code))
 
     suspend fun checkout(body: CheckoutRequest): List<Order> {
         val orders = api.post<Paged<Order>, CheckoutRequest>("checkout", body).data
@@ -165,6 +198,12 @@ private data class QuantityBody(val quantity: Int)
 
 @kotlinx.serialization.Serializable
 private data class ReviewBody(val productId: Int, val rating: Int, val comment: String?)
+
+@kotlinx.serialization.Serializable
+private data class VoucherBody(val code: String)
+
+@kotlinx.serialization.Serializable
+private data class WishlistState(val wishlisted: Boolean)
 
 @kotlinx.serialization.Serializable
 data class Message(val message: String? = null)

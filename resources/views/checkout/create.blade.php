@@ -5,7 +5,7 @@
 @section('content')
     <h1 class="h4 fw-bold mb-3">Checkout</h1>
 
-    <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form" data-subtotal="{{ $groups->sum('subtotal') }}">
+    <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form" data-subtotal="{{ $groups->sum('subtotal') }}" data-voucher-url="{{ route('checkout.voucher') }}">
         @csrf
         <div class="row g-4">
             <div class="col-lg-8">
@@ -120,6 +120,17 @@
                         <h2 class="h6 fw-bold mb-3">Ringkasan Pembayaran</h2>
                         <div class="d-flex justify-content-between mb-2"><span class="text-secondary">Total harga</span><span id="sum-subtotal" data-value="{{ $groups->sum('subtotal') }}">@rupiah($groups->sum('subtotal'))</span></div>
                         <div class="d-flex justify-content-between mb-2"><span class="text-secondary">Ongkos kirim</span><span data-sum="shipping">-</span></div>
+                        <div class="d-flex justify-content-between mb-2 text-success {{ old('voucher_code') ? '' : 'd-none' }}" data-voucher-row>
+                            <span>Diskon voucher</span><span data-sum="discount">-</span>
+                        </div>
+
+                        <label class="form-label small fw-semibold mt-2 mb-1" for="voucher_code"><i class="bi bi-ticket-perforated text-ky"></i> Kode voucher</label>
+                        <div class="input-group input-group-sm has-validation">
+                            <input class="form-control text-uppercase @error('voucher_code') is-invalid @enderror" id="voucher_code" name="voucher_code" type="text" value="{{ old('voucher_code') }}" maxlength="20" placeholder="Opsional" autocomplete="off">
+                            <button class="btn btn-outline-ky" type="button" data-voucher-apply>Pakai</button>
+                            <div class="invalid-feedback" data-voucher-error>@error('voucher_code'){{ $message }}@enderror</div>
+                        </div>
+                        <div class="small text-success mt-1 d-none" data-voucher-ok></div>
                         <hr>
                         <div class="d-flex justify-content-between fw-bold fs-5 mb-3"><span>Total tagihan</span><span class="text-ky" data-sum="total">-</span></div>
                         <button class="btn btn-ky w-100 py-2" type="submit">Buat Pesanan</button>

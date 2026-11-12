@@ -1,6 +1,8 @@
 package id.skyvora.kyread.ui.screens.product
 
+import android.content.ClipData
 import android.content.Intent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,9 +17,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.ConfirmationNumber
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.BadgedBox
@@ -29,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -47,7 +55,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -63,6 +75,7 @@ import id.skyvora.kyread.ui.Routes
 import id.skyvora.kyread.ui.components.BackIcon
 import id.skyvora.kyread.ui.components.BookCard
 import id.skyvora.kyread.ui.components.BookCover
+import id.skyvora.kyread.ui.components.DiscountBadge
 import id.skyvora.kyread.ui.components.ErrorBox
 import id.skyvora.kyread.ui.components.Load
 import id.skyvora.kyread.ui.components.LoadingBox
@@ -84,6 +97,10 @@ class ProductViewModel(private val repo: KyreadRepository, private val slug: Str
     var adding by mutableStateOf(false)
         private set
 
+    /** null = belum dimuat; diperbarui optimistis saat tombol hati ditekan. */
+    var wishlisted by mutableStateOf<Boolean?>(null)
+        private set
+
     init {
         load()
     }
@@ -91,7 +108,19 @@ class ProductViewModel(private val repo: KyreadRepository, private val slug: Str
     fun load() = viewModelScope.launch {
         _state.value = Load.Loading
         _state.value = runCatching { repo.product(slug) }
+            .onSuccess { wishlisted = it.data.isWishlisted }
             .fold({ Load.Ready(it) }, { Load.Error(it.message ?: "Terjadi kesalahan") })
+    }
+
+    /** Mengembalikan pesan untuk snackbar. */
+    suspend fun toggleWishlist(): String {
+        val target = !(wishlisted ?: false)
+        wishlisted = target
+        return runCatching { repo.setWishlisted(slug, target) }
+            .fold(
+                { if (target) "Disimpan ke wishlist." else "Dihapus dari wishlist." },
+                { wishlisted = !target; it.message ?: "Gagal memperbarui wishlist" },
+            )
     }
 
     /** Mengembalikan pesan untuk snackbar. */
@@ -113,6 +142,7 @@ fun ProductScreen(repo: KyreadRepository, nav: NavHostController, slug: String) 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var quantity by remember { mutableStateOf(1) }
+    val clipboard = LocalClipboard.current
 
     Scaffold(
         topBar = {
@@ -120,6 +150,17 @@ fun ProductScreen(repo: KyreadRepository, nav: NavHostController, slug: String) 
                 title = {},
                 navigationIcon = { BackIcon { nav.popBackStack() } },
                 actions = {
+                    val product = (state as? Load.Ready)?.data?.data
+                    if (user != null && product != null && !product.isOwnProduct) {
+                        val wished = vm.wishlisted == true
+                        IconButton(onClick = { scope.launch { snackbar.showSnackbar(vm.toggleWishlist()) } }) {
+                            Icon(
+                                if (wished) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = if (wished) "Hapus dari wishlist" else "Simpan ke wishlist",
+                                tint = if (wished) Color(0xFFEF4444) else LocalContentColor.current,
+                            )
+                        }
+                    }
                     IconButton(onClick = {
                         val webUrl = BuildConfig.API_BASE_URL.substringBefore("/api/") + "/books/$slug"
                         context.startActivity(
@@ -191,13 +232,18 @@ fun ProductScreen(repo: KyreadRepository, nav: NavHostController, slug: String) 
         when (val s = state) {
             Load.Loading -> LoadingBox(Modifier.padding(padding))
             is Load.Error -> ErrorBox(s.message, onRetry = { vm.load() }, modifier = Modifier.padding(padding))
-            is Load.Ready -> ProductContent(s.data, nav, Modifier.padding(padding))
+            is Load.Ready -> ProductContent(s.data, nav, Modifier.padding(padding)) { code ->
+                scope.launch {
+                    clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Voucher", code)))
+                    snackbar.showSnackbar("Kode $code disalin. Tempel di halaman checkout.")
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifier: Modifier) {
+private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifier: Modifier, onCopyVoucher: (String) -> Unit) {
     val p = detail.data
     LazyColumn(modifier) {
         item {
@@ -217,7 +263,41 @@ private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifi
                     Text("${p.soldCount} terjual", style = MaterialTheme.typography.bodySmall)
                 }
                 Spacer(Modifier.height(10.dp))
-                Text(rupiah(p.price), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(rupiah(p.price), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                    if (p.discountPercent > 0 && p.compareAtPrice != null) {
+                        DiscountBadge(p.discountPercent)
+                        Text(
+                            rupiah(p.compareAtPrice),
+                            style = MaterialTheme.typography.bodyMedium.copy(textDecoration = TextDecoration.LineThrough),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                if (p.vouchers.isNotEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    Text("Voucher toko · ketuk untuk menyalin", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(6.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        p.vouchers.forEach { v ->
+                            Surface(
+                                onClick = { onCopyVoucher(v.code) },
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = .5f)),
+                            ) {
+                                Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Outlined.ConfirmationNumber, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(v.code, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(v.summary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                                    Icon(Icons.Outlined.ContentCopy, "Salin", modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         p.store?.let { store ->

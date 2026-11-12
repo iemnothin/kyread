@@ -101,6 +101,7 @@ class ProductController extends Controller
             'published_year' => ['nullable', 'integer', 'min:1800', 'max:'.(now()->year + 1)],
             'description' => ['required', 'string', 'max:5000'],
             'price' => ['required', 'integer', 'min:1000', 'max:100000000'],
+            'compare_at_price' => ['nullable', 'integer', 'gt:price', 'max:100000000'],
             'weight' => ['required', 'integer', 'min:1', 'max:50000'],
             'stock' => ['required', 'integer', 'min:0', 'max:100000'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],

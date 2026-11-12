@@ -100,6 +100,7 @@ private val SortOptions = listOf(
     "bestseller" to "Terlaris",
     "price_asc" to "Harga terendah",
     "price_desc" to "Harga tertinggi",
+    "discount" to "Diskon terbesar",
     "title" to "Judul A-Z",
 )
 

@@ -10,12 +10,28 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\User;
+use App\Models\Voucher;
+use App\Notifications\OrderUpdated;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutService
 {
+    public function __construct(private readonly VoucherService $vouchers) {}
+
+    /**
+     * Cek voucher terhadap isi keranjang saat ini (untuk pratinjau di halaman checkout).
+     *
+     * @return array{voucher: Voucher, store_id: int, discount: int}
+     */
+    public function previewVoucher(User $user, string $code): array
+    {
+        $subtotals = $this->groupedCart($user)->mapWithKeys(fn (array $g) => [$g['store']->id => $g['subtotal']]);
+
+        return $this->vouchers->resolve($code, $user, $subtotals);
+    }
+
     /**
      * Ringkasan keranjang yang dikelompokkan per toko (dipakai halaman cart & checkout).
      *
@@ -39,7 +55,7 @@ class CheckoutService
     /**
      * Membuat satu pesanan per toko dari isi keranjang, mengurangi stok, lalu mengosongkan keranjang.
      *
-     * @param  array{recipient_name: string, recipient_phone: string, street: string, city: string, province: string, zipcode: string, courier: string, payment_method: string, notes?: ?string}  $data
+     * @param  array{recipient_name: string, recipient_phone: string, street: string, city: string, province: string, zipcode: string, courier: string, payment_method: string, notes?: ?string, voucher_code?: ?string}  $data
      * @return Collection<int, Order>
      */
     public function placeOrder(User $user, array $data): Collection
@@ -47,7 +63,7 @@ class CheckoutService
         $courier = Courier::from($data['courier']);
         $payment = PaymentMethod::from($data['payment_method']);
 
-        return DB::transaction(function () use ($user, $data, $courier, $payment) {
+        $orders = DB::transaction(function () use ($user, $data, $courier, $payment) {
             $cart = $user->cartItems()->get();
 
             if ($cart->isEmpty()) {
@@ -72,12 +88,22 @@ class CheckoutService
                 }
             }
 
-            $orders = $cart
-                ->groupBy(fn (CartItem $item) => $products[$item->product_id]->store_id)
-                ->map(function (Collection $items, int $storeId) use ($user, $data, $courier, $payment, $products) {
+            $byStore = $cart->groupBy(fn (CartItem $item) => $products[$item->product_id]->store_id);
+
+            // Voucher toko dikunci agar kuotanya tidak terlampaui oleh checkout bersamaan.
+            $voucher = null;
+            if (filled($data['voucher_code'] ?? null)) {
+                $subtotals = $byStore->map(fn (Collection $items) => $items->sum(fn (CartItem $i) => $i->quantity * $products[$i->product_id]->price));
+                $voucher = $this->vouchers->resolve($data['voucher_code'], $user, $subtotals, lock: true);
+                $voucher['voucher']->increment('used_count');
+            }
+
+            $orders = $byStore
+                ->map(function (Collection $items, int $storeId) use ($user, $data, $courier, $payment, $products, $voucher) {
                     $subtotal = $items->sum(fn (CartItem $i) => $i->quantity * $products[$i->product_id]->price);
                     $weight = $items->sum(fn (CartItem $i) => $i->quantity * $products[$i->product_id]->weight);
                     $shipping = $courier->costFor($weight);
+                    $discount = $voucher && $voucher['store_id'] === $storeId ? $voucher['discount'] : 0;
 
                     $order = Order::create([
                         'code' => Order::generateCode(),
@@ -94,7 +120,9 @@ class CheckoutService
                         'payment_method' => $payment,
                         'subtotal' => $subtotal,
                         'shipping_cost' => $shipping,
-                        'total' => $subtotal + $shipping,
+                        'voucher_code' => $discount > 0 ? $voucher['voucher']->code : null,
+                        'discount' => $discount,
+                        'total' => $subtotal + $shipping - $discount,
                         'notes' => $data['notes'] ?? null,
                     ]);
 
@@ -122,5 +150,9 @@ class CheckoutService
 
             return $orders;
         });
+
+        $orders->each(fn (Order $order) => $order->store->user->notify(new OrderUpdated($order, OrderUpdated::FOR_SELLER)));
+
+        return $orders;
     }
 }

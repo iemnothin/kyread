@@ -29,7 +29,18 @@ class AppServiceProvider extends ServiceProvider
 
         // Jumlah item keranjang untuk badge di header.
         View::composer('partials.header', function ($view): void {
-            $view->with('cartCount', auth()->check() ? (int) auth()->user()->cartItems()->sum('quantity') : 0);
+            $user = auth()->user();
+            $view->with('cartCount', $user ? (int) $user->cartItems()->sum('quantity') : 0);
+            $view->with('unreadCount', $user ? $user->unreadNotifications()->count() : 0);
+        });
+
+        // Daftar id buku di wishlist, dihitung sekali per request untuk semua kartu buku.
+        View::composer('partials.product-card', function ($view): void {
+            $cache = request()->attributes;
+            if (! $cache->has('wishlist_ids')) {
+                $cache->set('wishlist_ids', auth()->check() ? auth()->user()->wishlist()->pluck('products.id')->flip() : collect());
+            }
+            $view->with('wishlistIds', $cache->get('wishlist_ids'));
         });
     }
 }

@@ -27,6 +27,9 @@
                         <tfoot class="small">
                             <tr><td></td><td class="text-end text-muted">Subtotal</td><td class="text-end">@rupiah($order->subtotal)</td></tr>
                             <tr><td></td><td class="text-end text-muted">Ongkir ({{ $order->courier->label() }})</td><td class="text-end">@rupiah($order->shipping_cost)</td></tr>
+                            @if ($order->discount > 0)
+                                <tr><td></td><td class="text-end text-success">Voucher {{ $order->voucher_code }}</td><td class="text-end text-success">−@rupiah($order->discount)</td></tr>
+                            @endif
                             <tr><td></td><td class="text-end fw-bold">Total</td><td class="text-end fw-bold">@rupiah($order->total)</td></tr>
                         </tfoot>
                     </table>
@@ -40,7 +43,7 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Tindakan</h5>
+                    <h5 class="card-title d-flex justify-content-between align-items-center">Tindakan <a class="btn btn-sm btn-outline-secondary" href="{{ route('orders.invoice', $order) }}" target="_blank"><i class="bi bi-printer"></i> Invoice</a></h5>
                     @switch($order->status)
                         @case(OrderStatus::Pending)
                             <p class="small text-muted">Menunggu pembeli membayar. Pesanan otomatis batal jika tidak dibayar sampai {{ $order->payment_deadline->translatedFormat('d M H:i') }}.</p>

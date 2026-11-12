@@ -87,6 +87,15 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
+                                <label class="form-label" for="compare_at_price">Harga sebelum diskon</label>
+                                <div class="input-group has-validation">
+                                    <span class="input-group-text">Rp</span>
+                                    <input class="form-control @error('compare_at_price') is-invalid @enderror" id="compare_at_price" name="compare_at_price" type="number" min="1000" step="500" value="{{ old('compare_at_price', $product->compare_at_price) }}" placeholder="Opsional">
+                                    @error('compare_at_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="form-text">Isi bila sedang diskon; ditampilkan sebagai harga coret.</div>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label" for="stock">Stok <span class="text-danger">*</span></label>
                                 <input class="form-control @error('stock') is-invalid @enderror" id="stock" name="stock" type="number" min="0" value="{{ old('stock', $product->stock ?? 1) }}" required>
                                 @error('stock')<div class="invalid-feedback">{{ $message }}</div>@enderror

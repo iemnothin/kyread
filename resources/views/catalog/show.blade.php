@@ -33,7 +33,24 @@
                 @endif
                 <span class="text-secondary">{{ $product->sold_count }} terjual</span>
             </div>
-            <div class="display-6 fw-bold text-ky mb-4">@rupiah($product->price)</div>
+            <div class="d-flex align-items-end flex-wrap gap-2 mb-3">
+                <div class="display-6 fw-bold text-ky lh-1">@rupiah($product->price)</div>
+                @if ($product->discount_percent > 0)
+                    <span class="badge bg-danger mb-1">-{{ $product->discount_percent }}%</span>
+                    <span class="compare-price fs-6 mb-1">@rupiah($product->compare_at_price)</span>
+                @endif
+            </div>
+
+            @if ($vouchers->isNotEmpty())
+                <div class="mb-3">
+                    <div class="small text-secondary mb-1"><i class="bi bi-ticket-perforated"></i> Voucher dari {{ $product->store->name }}</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach ($vouchers as $voucher)
+                            <span class="voucher-chip"><code>{{ $voucher->code }}</code> {{ $voucher->summary }}</span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             <div class="card card-soft mb-4">
                 <div class="card-body">
@@ -60,6 +77,12 @@
                         @else
                             <button class="btn btn-secondary w-100" disabled>Stok habis</button>
                         @endif
+                        @unless (auth()->user()->store?->id === $product->store_id)
+                            @php($wished = auth()->user()->hasWishlisted($product))
+                            <div class="mt-2">
+                                @include('partials.wishlist-button', ['product' => $product, 'active' => $wished, 'class' => 'wish-btn-wide', 'label' => $wished ? 'Tersimpan' : 'Wishlist'])
+                            </div>
+                        @endunless
                     @else
                         <a class="btn btn-ky w-100" href="{{ route('login') }}">Masuk untuk membeli</a>
                     @endauth

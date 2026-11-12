@@ -42,12 +42,34 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import id.skyvora.kyread.data.OrderStatus
 import id.skyvora.kyread.data.Product
 import id.skyvora.kyread.ui.theme.KyStar
+
+private val KyDanger = Color(0xFFEF4444)
+
+/** Label "-20%" merah untuk buku yang sedang diskon. */
+@Composable
+fun DiscountBadge(percent: Int, modifier: Modifier = Modifier) {
+    Surface(color = KyDanger, contentColor = Color.White, shape = RoundedCornerShape(6.dp), modifier = modifier) {
+        Text("-$percent%", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+    }
+}
+
+/** Harga sebelum diskon (dicoret). */
+@Composable
+fun StrikePrice(price: Long, modifier: Modifier = Modifier) {
+    Text(
+        rupiah(price),
+        style = MaterialTheme.typography.labelSmall.copy(textDecoration = TextDecoration.LineThrough),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier,
+    )
+}
 
 /** State pemuatan sederhana untuk layar. */
 sealed interface Load<out T> {
@@ -74,13 +96,18 @@ fun BookCard(product: Product, onClick: () -> Unit, modifier: Modifier = Modifie
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
-        BookCover(
-            url = product.imageUrl,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(3f / 4f)
-                .padding(10.dp),
-        )
+        Box {
+            BookCover(
+                url = product.imageUrl,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(3f / 4f)
+                    .padding(10.dp),
+            )
+            if (product.discountPercent > 0) {
+                DiscountBadge(product.discountPercent, Modifier.align(Alignment.TopStart).padding(8.dp))
+            }
+        }
         Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
             product.category?.let {
                 Text(it.name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
@@ -101,6 +128,7 @@ fun BookCard(product: Product, onClick: () -> Unit, modifier: Modifier = Modifie
             )
             Spacer(Modifier.height(6.dp))
             Text(rupiah(product.price), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            product.compareAtPrice?.let { StrikePrice(it) }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 product.rating?.let {
                     Icon(Icons.Filled.Star, null, tint = KyStar, modifier = Modifier.size(14.dp))

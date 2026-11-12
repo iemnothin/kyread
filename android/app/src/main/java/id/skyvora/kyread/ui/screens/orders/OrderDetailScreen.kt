@@ -1,6 +1,8 @@
 package id.skyvora.kyread.ui.screens.orders
 
 import android.content.ClipData
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -39,8 +42,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -102,6 +107,7 @@ fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: Stri
     val vm = kyViewModel(key = "order-$code") { OrderDetailViewModel(repo, code) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     var confirm by remember { mutableStateOf<Pair<String, suspend () -> String>?>(null) }
 
     fun run(action: suspend () -> String) = scope.launch { snackbar.showSnackbar(action()) }
@@ -116,7 +122,20 @@ fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: Stri
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(code) }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(code) },
+                navigationIcon = { BackIcon { nav.popBackStack() } },
+                actions = {
+                    // Invoice dibuka di browser lewat tautan bertanda tangan (berlaku 1 jam).
+                    (vm.state as? Load.Ready)?.data?.invoiceUrl?.let { url ->
+                        IconButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }) {
+                            Icon(Icons.Outlined.Description, "Invoice")
+                        }
+                    }
+                },
+            )
+        },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         when (val s = vm.state) {
@@ -186,6 +205,9 @@ fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: Stri
                             SummaryRow("Metode", order.paymentMethod.label)
                             SummaryRow("Subtotal", rupiah(order.subtotal))
                             SummaryRow("Ongkos kirim", rupiah(order.shippingCost))
+                            if (order.discount > 0) {
+                                SummaryRow("Voucher ${order.voucherCode.orEmpty()}", "−" + rupiah(order.discount), valueColor = Color(0xFF16A34A))
+                            }
                             HorizontalDivider(Modifier.padding(vertical = 6.dp))
                             SummaryRow("Total", rupiah(order.total), bold = true, valueColor = MaterialTheme.colorScheme.primary)
                         }

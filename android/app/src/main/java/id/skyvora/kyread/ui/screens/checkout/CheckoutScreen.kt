@@ -13,14 +13,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -40,6 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -51,6 +58,7 @@ import id.skyvora.kyread.data.Cart
 import id.skyvora.kyread.data.CheckoutRequest
 import id.skyvora.kyread.data.KyreadRepository
 import id.skyvora.kyread.data.Order
+import id.skyvora.kyread.data.VoucherCheck
 import id.skyvora.kyread.ui.Routes
 import id.skyvora.kyread.ui.components.BackIcon
 import id.skyvora.kyread.ui.components.ErrorBox
@@ -82,6 +90,41 @@ class CheckoutViewModel(private val repo: KyreadRepository) : ViewModel() {
     var saveAddress by mutableStateOf(false)
     var courier by mutableStateOf("jne")
     var payment by mutableStateOf("bca")
+
+    // Voucher
+    var voucherInput by mutableStateOf("")
+    var voucher by mutableStateOf<VoucherCheck?>(null)
+        private set
+    var voucherError by mutableStateOf<String?>(null)
+        private set
+    var checkingVoucher by mutableStateOf(false)
+        private set
+
+    val discount: Long get() = voucher?.discount ?: 0
+
+    fun onVoucherInput(value: String) {
+        voucherInput = value.uppercase().filter { !it.isWhitespace() }.take(20)
+        voucherError = null
+        if (voucher != null && voucher?.code != voucherInput) voucher = null
+    }
+
+    fun applyVoucher() = viewModelScope.launch {
+        if (voucherInput.isBlank()) return@launch
+        checkingVoucher = true
+        voucherError = null
+        runCatching { repo.checkVoucher(voucherInput) }
+            .onSuccess { voucher = it; voucherInput = it.code }
+            .onFailure { voucher = null; voucherError = it.message }
+        checkingVoucher = false
+    }
+
+    fun removeVoucher() {
+        voucher = null
+        voucherInput = ""
+        voucherError = null
+    }
+
+    fun grandTotal(): Long = (cart?.total ?: 0) + shippingTotal() - discount
 
     init {
         load()
@@ -126,6 +169,7 @@ class CheckoutViewModel(private val repo: KyreadRepository) : ViewModel() {
                     courier = courier,
                     paymentMethod = payment,
                     notes = notes.trim().ifBlank { null },
+                    voucherCode = voucher?.code,
                     saveAddress = saveAddress,
                 ),
             )
@@ -156,7 +200,7 @@ fun CheckoutScreen(repo: KyreadRepository, nav: NavHostController) {
                         Column(Modifier.weight(1f)) {
                             Text("Total tagihan", style = MaterialTheme.typography.bodySmall)
                             Text(
-                                rupiah(cart.total + vm.shippingTotal()),
+                                rupiah(vm.grandTotal()),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,
@@ -236,11 +280,13 @@ fun CheckoutScreen(repo: KyreadRepository, nav: NavHostController) {
                         OutlinedTextField(vm.notes, { vm.notes = it }, Modifier.fillMaxWidth(), placeholder = { Text("Opsional") })
                     }
                 }
+                item { Section("Voucher Toko") { VoucherField(vm) } }
                 item {
                     Section("Rincian Pembayaran") {
                         SummaryRow("Total harga", rupiah(cart.total))
                         SummaryRow("Ongkos kirim", rupiah(vm.shippingTotal()))
-                        SummaryRow("Total tagihan", rupiah(cart.total + vm.shippingTotal()), bold = true)
+                        vm.voucher?.let { SummaryRow("Voucher ${it.code}", "−" + rupiah(it.discount)) }
+                        SummaryRow("Total tagihan", rupiah(vm.grandTotal()), bold = true)
                         Text(
                             "Selesaikan pembayaran dalam 24 jam atau pesanan dibatalkan otomatis.",
                             style = MaterialTheme.typography.bodySmall,
@@ -263,6 +309,36 @@ private fun Section(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
+@Composable
+private fun VoucherField(vm: CheckoutViewModel) {
+    val applied = vm.voucher
+    Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = vm.voucherInput,
+            onValueChange = vm::onVoucherInput,
+            modifier = Modifier.weight(1f),
+            placeholder = { Text("Masukkan kode") },
+            leadingIcon = { Icon(Icons.Outlined.ConfirmationNumber, null) },
+            singleLine = true,
+            isError = vm.voucherError != null,
+            supportingText = (vm.voucherError ?: applied?.let { "${it.message} (${it.storeName})" })?.let { msg ->
+                { Text(msg, color = if (vm.voucherError != null) MaterialTheme.colorScheme.error else KySuccess) }
+            },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { vm.applyVoucher() }),
+        )
+        if (applied != null) {
+            OutlinedButton(onClick = vm::removeVoucher, modifier = Modifier.padding(top = 8.dp)) { Text("Hapus") }
+        } else {
+            Button(onClick = { vm.applyVoucher() }, enabled = !vm.checkingVoucher && vm.voucherInput.isNotBlank(), modifier = Modifier.padding(top = 8.dp)) {
+                if (vm.checkingVoucher) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp) else Text("Pakai")
+            }
+        }
+    }
+}
+
+private val KySuccess = androidx.compose.ui.graphics.Color(0xFF16A34A)
 
 @Composable
 private fun AddressForm(vm: CheckoutViewModel) {

@@ -25,3 +25,40 @@ export function initCommon() {
         setTimeout(() => window.bootstrap?.Alert.getOrCreateInstance(el).close(), 5000);
     });
 }
+
+/** Tombol wishlist (<form data-wishlist>) dikirim lewat fetch agar halaman tidak reload. */
+export function initWishlist() {
+    const token = document.querySelector('meta[name=csrf-token]')?.content;
+
+    document.addEventListener('submit', async (e) => {
+        const form = e.target.closest('form[data-wishlist]');
+        if (!form) return;
+        e.preventDefault();
+
+        const btn = form.querySelector('button');
+        btn.disabled = true;
+        try {
+            const res = await fetch(form.action, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': token },
+            });
+            if (!res.ok) throw new Error(res.status);
+            const { wishlisted } = await res.json();
+
+            // Samakan semua tombol untuk buku yang sama di halaman ini.
+            document.querySelectorAll(`form[data-wishlist][action="${form.action}"] button`).forEach((b) => {
+                b.classList.toggle('active', wishlisted);
+                b.setAttribute('aria-pressed', String(wishlisted));
+                b.title = wishlisted ? 'Hapus dari wishlist' : 'Simpan ke wishlist';
+                const icon = b.querySelector('i');
+                icon.className = `bi ${wishlisted ? 'bi-heart-fill' : 'bi-heart'}`;
+                const label = b.querySelector('span');
+                if (label) label.textContent = wishlisted ? 'Tersimpan' : 'Wishlist';
+            });
+        } catch {
+            form.submit(); // fallback: kirim biasa
+        } finally {
+            btn.disabled = false;
+        }
+    });
+}

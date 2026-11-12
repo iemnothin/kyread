@@ -4,8 +4,11 @@ use App\Http\Controllers\Api\AssistantController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CatalogController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\VoucherController;
+use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,6 +42,14 @@ Route::prefix('v1')->name('api.')->group(function () {
         Route::patch('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
         Route::delete('/cart/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
 
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+        Route::post('/wishlist/{product}', [WishlistController::class, 'store'])->name('wishlist.store');
+        Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/read', [NotificationController::class, 'readAll'])->name('notifications.read');
+
+        Route::post('/checkout/voucher', VoucherController::class)->middleware('throttle:30,1')->name('checkout.voucher');
         Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');

@@ -34,13 +34,19 @@ Pembeli bisa mencari buku, memasukkan ke keranjang, checkout dengan pilihan kuri
 - **Saran kata** di kolom pencarian yang diperbarui setiap huruf diketik (judul, penulis, kategori)
 - **Cari dengan gambar**: foto sampul buku → AI mengenali judul/penulis → dicocokkan dengan katalog
 - **Tanya Kyra**: asisten AI yang merekomendasikan buku dari katalog dan menjawab pertanyaan belanja
+- **Wishlist**: simpan buku dengan ikon hati di kartu buku/halaman detail
+- **Harga coret**: badge diskon (%), bagian "Sedang Diskon" di beranda, filter & urutan "Diskon terbesar"
+- **Voucher toko** di checkout, dengan pratinjau potongan sebelum pesanan dibuat
+- **Notifikasi pesanan** in-app (ikon lonceng) untuk pembeli dan penjual setiap status pesanan berubah
+- **Invoice** siap cetak/simpan PDF untuk setiap pesanan
 - Pesan validasi & halaman error (403/404/419/429/500/503) berbahasa Indonesia
 
 **Penjual (kyreadSeller)**
 - Buka toko langsung dari akun yang sama
 - Dashboard: pendapatan, jumlah pesanan, buku terjual, grafik penjualan 14 hari, buku terlaris, stok menipis
-- CRUD buku: sampul, kategori, penulis, penerbit, ISBN, halaman, tahun, harga, berat, stok, aktif/nonaktif
+- CRUD buku: sampul, kategori, penulis, penerbit, ISBN, halaman, tahun, harga, harga sebelum diskon, berat, stok, aktif/nonaktif
 - Kelola pesanan: proses → kirim (wajib nomor resi) → selesai, atau tolak/batalkan
+- Voucher toko: persentase atau potongan tetap, minimal belanja, maksimal potongan, kuota, masa berlaku
 - Profil toko (nama, kota, logo, deskripsi)
 
 **Aturan bisnis**
@@ -49,6 +55,8 @@ Pembeli bisa mencari buku, memasukkan ke keranjang, checkout dengan pilihan kuri
 - Pesanan yang belum dibayar lebih dari 24 jam dibatalkan otomatis (`php artisan orders:expire`, dijadwalkan tiap jam)
 - Penjual tidak bisa membeli buku dari tokonya sendiri. Akses pesanan dan buku dibatasi lewat Policy.
 - Judul, harga, dan sampul disalin ke `order_items`, jadi riwayat tetap utuh walaupun bukunya dihapus
+- Voucher hanya memotong subtotal toko pemiliknya, sekali per pembeli, kuotanya dikunci saat checkout dan dikembalikan bila pesanan batal
+- Invoice bisa dibuka pembeli/penjual yang login, atau lewat tautan bertanda tangan (1 jam) dari aplikasi Android
 
 > Pembayaran masih **disimulasikan** (tombol "Saya Sudah Bayar"), belum terhubung ke payment gateway.
 

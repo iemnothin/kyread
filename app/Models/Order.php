@@ -23,6 +23,7 @@ class Order extends Model
             'payment_method' => PaymentMethod::class,
             'subtotal' => 'integer',
             'shipping_cost' => 'integer',
+            'discount' => 'integer',
             'total' => 'integer',
             'paid_at' => 'datetime',
             'shipped_at' => 'datetime',

@@ -12,7 +12,7 @@ class CatalogController extends Controller
 {
     public function index(Request $request): View
     {
-        $filters = $request->only('q', 'category', 'min', 'max', 'sort');
+        $filters = $request->only('q', 'category', 'min', 'max', 'promo', 'sort');
 
         $products = Product::active()
             ->with('category', 'store')
@@ -38,6 +38,7 @@ class CatalogController extends Controller
         return view('catalog.show', [
             'product' => $product,
             'reviews' => $product->reviews()->with('user')->latest()->take(10)->get(),
+            'vouchers' => $product->store->vouchers()->available()->orderBy('min_spend')->take(5)->get(),
             'related' => Product::active()
                 ->with('category', 'store')
                 ->withAvg('reviews', 'rating')
@@ -53,6 +54,7 @@ class CatalogController extends Controller
     {
         return view('catalog.store', [
             'store' => $store->loadCount(['products' => fn ($q) => $q->active()]),
+            'vouchers' => $store->vouchers()->available()->orderBy('min_spend')->get(),
             'products' => $store->products()->active()->with('category')->withAvg('reviews', 'rating')
                 ->filter($request->only('q', 'sort'))->paginate(20)->withQueryString(),
         ]);

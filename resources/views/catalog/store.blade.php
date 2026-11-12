@@ -21,6 +21,21 @@
         </div>
     </div>
 
+    @if ($vouchers->isNotEmpty())
+        <div class="mb-4">
+            <h2 class="h6 fw-bold mb-2"><i class="bi bi-ticket-perforated text-ky"></i> Voucher Toko</h2>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach ($vouchers as $voucher)
+                    <span class="voucher-chip">
+                        <code>{{ $voucher->code }}</code> {{ $voucher->summary }}
+                        @if ($voucher->expires_at)<small class="text-secondary">· s.d. {{ $voucher->expires_at->translatedFormat('d M') }}</small>@endif
+                    </span>
+                @endforeach
+            </div>
+            <small class="text-secondary">Masukkan kodenya saat checkout.</small>
+        </div>
+    @endif
+
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
         @forelse ($products as $product)
             <div class="col">@include('partials.product-card')</div>

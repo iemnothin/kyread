@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\OrderStatus;
+use App\Http\Controllers\InvoiceController;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -40,10 +41,13 @@ class OrderResource extends JsonResource
             'notes' => $this->notes,
             'subtotal' => $this->subtotal,
             'shipping_cost' => $this->shipping_cost,
+            'voucher_code' => $this->voucher_code,
+            'discount' => $this->discount,
             'total' => $this->total,
             'payment_deadline' => $this->status === OrderStatus::Pending ? $date($this->payment_deadline) : null,
             'virtual_account' => $this->status === OrderStatus::Pending ? '8808'.str_pad((string) $this->id, 10, '0', STR_PAD_LEFT) : null,
             'reviews' => ReviewResource::collection($this->whenLoaded('reviews')),
+            'invoice_url' => $this->status !== OrderStatus::Cancelled ? InvoiceController::signedUrl($this->resource) : null,
             'can' => [
                 'pay' => $this->status === OrderStatus::Pending,
                 'cancel' => $this->status === OrderStatus::Pending,

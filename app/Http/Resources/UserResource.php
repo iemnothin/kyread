@@ -29,6 +29,8 @@ class UserResource extends JsonResource
                 'complete' => $this->hasCompleteAddress(),
             ],
             'has_store' => $this->store()->exists(),
+            'unread_notifications' => $this->unreadNotifications()->count(),
+            'wishlist_count' => $this->wishlist()->count(),
         ];
     }
 }

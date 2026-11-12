@@ -45,7 +45,9 @@ import id.skyvora.kyread.ui.screens.home.HomeScreen
 import id.skyvora.kyread.ui.screens.orders.OrderDetailScreen
 import id.skyvora.kyread.ui.screens.orders.OrdersScreen
 import id.skyvora.kyread.ui.screens.product.ProductScreen
+import id.skyvora.kyread.ui.screens.notifications.NotificationsScreen
 import id.skyvora.kyread.ui.screens.search.SearchScreen
+import id.skyvora.kyread.ui.screens.wishlist.WishlistScreen
 
 object Routes {
     const val HOME = "home"
@@ -60,6 +62,8 @@ object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val ASSISTANT = "assistant"
+    const val WISHLIST = "wishlist"
+    const val NOTIFICATIONS = "notifications"
 
     fun search(category: String? = null, q: String? = null, sort: String? = null) =
         "search?category=${category.orEmpty()}&q=${q.orEmpty()}&sort=${sort.orEmpty()}"
@@ -91,6 +95,7 @@ fun KyreadAppUi(repository: KyreadRepository, deepLinkSlug: String?, onDeepLinkH
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
     val cartCount by repository.cartCount.collectAsStateWithLifecycle()
+    val unreadCount by repository.unreadCount.collectAsStateWithLifecycle()
 
     LaunchedEffect(deepLinkSlug) {
         if (deepLinkSlug != null) {
@@ -112,6 +117,7 @@ fun KyreadAppUi(repository: KyreadRepository, deepLinkSlug: String?, onDeepLinkH
                             icon = {
                                 BadgedBox(badge = {
                                     if (tab.route == Routes.CART && cartCount > 0) Badge { Text("$cartCount") }
+                                    if (tab.route == Routes.ACCOUNT && unreadCount > 0) Badge()
                                 }) {
                                     Icon(if (selected) tab.selectedIcon else tab.icon, contentDescription = tab.label)
                                 }
@@ -155,6 +161,8 @@ fun KyreadAppUi(repository: KyreadRepository, deepLinkSlug: String?, onDeepLinkH
             composable(Routes.LOGIN) { LoginScreen(repository, nav) }
             composable(Routes.REGISTER) { RegisterScreen(repository, nav) }
             composable(Routes.ASSISTANT) { AssistantScreen(repository, nav) }
+            composable(Routes.WISHLIST) { WishlistScreen(repository, nav) }
+            composable(Routes.NOTIFICATIONS) { NotificationsScreen(repository, nav) }
         }
     }
 }

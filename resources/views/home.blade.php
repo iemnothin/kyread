@@ -46,6 +46,19 @@
         @endforelse
     </div>
 
+    {{-- Diskon --}}
+    @if ($deals->isNotEmpty())
+        <div class="d-flex justify-content-between align-items-center mt-5 mb-3">
+            <h2 class="section-title mb-0"><i class="bi bi-lightning-charge-fill text-danger"></i> Sedang Diskon</h2>
+            <a class="small fw-semibold text-decoration-none" href="{{ route('books.index', ['promo' => 1, 'sort' => 'discount']) }}">Lihat semua <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+            @foreach ($deals as $product)
+                <div class="col">@include('partials.product-card')</div>
+            @endforeach
+        </div>
+    @endif
+
     {{-- Terbaru --}}
     <div class="d-flex justify-content-between align-items-center mt-5 mb-3">
         <h2 class="section-title mb-0">Baru Masuk</h2>

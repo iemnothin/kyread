@@ -30,6 +30,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -82,6 +86,7 @@ data class HomeData(
     val categories: List<Category>,
     val bestsellers: List<Product>,
     val latest: List<Product>,
+    val deals: List<Product> = emptyList(),
 )
 
 class HomeViewModel(private val repo: KyreadRepository) : ViewModel() {
@@ -102,7 +107,8 @@ class HomeViewModel(private val repo: KyreadRepository) : ViewModel() {
             val categories = async { repo.categories() }
             val best = async { repo.products(sort = "bestseller", perPage = 10) }
             val latest = async { repo.products(sort = "newest", perPage = 10) }
-            HomeData(meta.await().banners, categories.await(), best.await().data, latest.await().data)
+            val deals = async { repo.products(sort = "discount", promo = true, perPage = 10) }
+            HomeData(meta.await().banners, categories.await(), best.await().data, latest.await().data, deals.await().data)
         }.fold({ Load.Ready(it) }, { Load.Error(it.message ?: "Terjadi kesalahan") })
         refreshing = false
     }
@@ -113,6 +119,8 @@ class HomeViewModel(private val repo: KyreadRepository) : ViewModel() {
 fun HomeScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifier = Modifier) {
     val vm = kyViewModel { HomeViewModel(repo) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val user by repo.user.collectAsStateWithLifecycle()
+    val unread by repo.unreadCount.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier,
@@ -129,6 +137,13 @@ fun HomeScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifie
                     TextButton(onClick = { nav.navigate(Routes.ASSISTANT) }) {
                         Icon(Icons.Filled.AutoAwesome, null, modifier = Modifier.size(18.dp))
                         Text(" Tanya Kyra")
+                    }
+                    if (user != null) {
+                        IconButton(onClick = { nav.navigate(Routes.NOTIFICATIONS) }) {
+                            BadgedBox(badge = { if (unread > 0) Badge { Text(if (unread > 99) "99+" else "$unread") } }) {
+                                Icon(Icons.Outlined.Notifications, "Notifikasi")
+                            }
+                        }
                     }
                 },
             )
@@ -171,6 +186,17 @@ private fun HomeContent(data: HomeData, nav: NavHostController) {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(data.categories, key = { it.id }) { category ->
                         CategoryChip(category) { nav.navigate(Routes.search(category = category.slug)) }
+                    }
+                }
+            }
+        }
+        if (data.deals.isNotEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Column {
+                    SectionTitle("Sedang Diskon", Modifier.padding(top = 8.dp), "Lihat semua") { nav.navigate(Routes.search(sort = "discount")) }
+                    Spacer(Modifier.height(8.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(data.deals, key = { "deal-${it.id}" }) { BookCard(it, onClick = { open(it) }, modifier = Modifier.width(150.dp)) }
                     }
                 }
             }

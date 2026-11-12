@@ -48,7 +48,7 @@ class CatalogController extends Controller
         $products = Product::active()
             ->with('category', 'store')
             ->withAvg('reviews', 'rating')
-            ->filter($request->only('q', 'category', 'min', 'max', 'sort'))
+            ->filter($request->only('q', 'category', 'min', 'max', 'promo', 'sort'))
             ->paginate(min(50, max(1, (int) $request->query('per_page', 20))))
             ->withQueryString();
 

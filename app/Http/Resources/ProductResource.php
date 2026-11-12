@@ -17,6 +17,8 @@ class ProductResource extends JsonResource
             'title' => $this->title,
             'author' => $this->author,
             'price' => $this->price,
+            'compare_at_price' => $this->compare_at_price > $this->price ? $this->compare_at_price : null,
+            'discount_percent' => $this->discount_percent,
             'stock' => $this->stock,
             'sold_count' => $this->sold_count,
             'weight' => $this->weight,
@@ -33,6 +35,8 @@ class ProductResource extends JsonResource
                 'description' => $this->description,
                 'reviews_count' => $this->reviews_count ?? 0,
                 'is_own_product' => $request->user('sanctum')?->store?->id === $this->store_id,
+                'is_wishlisted' => (bool) $request->user('sanctum')?->hasWishlisted($this->resource),
+                'vouchers' => VoucherResource::collection($this->store->vouchers()->available()->orderBy('min_spend')->take(5)->get()),
             ]),
         ];
     }

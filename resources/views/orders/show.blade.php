@@ -139,8 +139,14 @@
                     <div class="d-flex justify-content-between mb-1"><span class="text-secondary">Metode</span><span>{{ $order->payment_method->label() }}</span></div>
                     <div class="d-flex justify-content-between mb-1"><span class="text-secondary">Subtotal</span><span>@rupiah($order->subtotal)</span></div>
                     <div class="d-flex justify-content-between mb-1"><span class="text-secondary">Ongkos kirim</span><span>@rupiah($order->shipping_cost)</span></div>
+                    @if ($order->discount > 0)
+                        <div class="d-flex justify-content-between mb-1 text-success"><span>Voucher {{ $order->voucher_code }}</span><span>−@rupiah($order->discount)</span></div>
+                    @endif
                     <hr>
                     <div class="d-flex justify-content-between fw-bold fs-6"><span>Total</span><span class="text-ky">@rupiah($order->total)</span></div>
+                    @if ($order->status !== OrderStatus::Cancelled)
+                        <a class="btn btn-outline-ky btn-sm w-100 mt-3" href="{{ route('orders.invoice', $order) }}" target="_blank"><i class="bi bi-printer me-1"></i>Lihat / Cetak Invoice</a>
+                    @endif
                 </div>
             </div>
         </div>

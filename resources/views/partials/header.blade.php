@@ -8,6 +8,12 @@
 
             <div class="d-flex align-items-center gap-3 d-lg-none">
                 @auth
+                    <a class="header-icon" href="{{ route('notifications.index') }}" aria-label="Notifikasi">
+                        <i class="bi bi-bell"></i>
+                        @if ($unreadCount > 0)
+                            <span class="badge rounded-pill bg-danger">{{ $unreadCount }}</span>
+                        @endif
+                    </a>
                     <a class="header-icon" href="{{ route('cart.index') }}" aria-label="Keranjang">
                         <i class="bi bi-bag"></i>
                         @if ($cartCount > 0)
@@ -49,6 +55,19 @@
                     @endif
                     @auth
                         <li class="nav-item d-none d-lg-block">
+                            <a class="header-icon" href="{{ route('wishlist.index') }}" title="Wishlist">
+                                <i class="bi bi-heart"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item d-none d-lg-block">
+                            <a class="header-icon" href="{{ route('notifications.index') }}" title="Notifikasi">
+                                <i class="bi bi-bell"></i>
+                                @if ($unreadCount > 0)
+                                    <span class="badge rounded-pill bg-danger">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="nav-item d-none d-lg-block">
                             <a class="header-icon" href="{{ route('cart.index') }}" title="Keranjang">
                                 <i class="bi bi-bag"></i>
                                 @if ($cartCount > 0)
@@ -68,6 +87,8 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
                                 <li><a class="dropdown-item" href="{{ route('orders.index') }}"><i class="bi bi-receipt me-2 text-ky"></i>Pesanan Saya</a></li>
+                                <li><a class="dropdown-item" href="{{ route('wishlist.index') }}"><i class="bi bi-heart me-2 text-ky"></i>Wishlist</a></li>
+                                <li><a class="dropdown-item" href="{{ route('notifications.index') }}"><i class="bi bi-bell me-2 text-ky"></i>Notifikasi @if ($unreadCount > 0)<span class="badge bg-danger ms-1">{{ $unreadCount }}</span>@endif</a></li>
                                 <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-person-gear me-2 text-ky"></i>Edit Profil</a></li>
                                 <li><a class="dropdown-item" href="{{ route('seller.dashboard') }}"><i class="bi bi-shop me-2 text-ky"></i>{{ auth()->user()->store ? 'Toko Saya' : 'Buka Toko' }}</a></li>
                                 <li><hr class="dropdown-divider"></li>
