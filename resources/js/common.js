@@ -62,3 +62,74 @@ export function initWishlist() {
         }
     });
 }
+
+/** Efek riak pada setiap tombol .btn. */
+export function initRipple() {
+    document.addEventListener('pointerdown', (e) => {
+        const btn = e.target.closest('.btn');
+        if (!btn || btn.disabled || btn.classList.contains('disabled')) return;
+
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+        ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+        btn.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+    });
+}
+
+/**
+ * Loading screen halaman: disembunyikan setelah halaman siap, ditampilkan lagi saat
+ * pengguna berpindah halaman (klik tautan / kirim form). Tombol submit diberi spinner.
+ */
+export function initPageLoader() {
+    const html = document.documentElement;
+    const done = () => html.classList.add('is-loaded');
+    document.readyState === 'complete' ? done() : window.addEventListener('load', done);
+    setTimeout(done, 2500); // jangan menunggu gambar yang lambat terlalu lama
+
+    // Kembali lewat tombol Back (bfcache): pastikan loader & tombol kembali normal.
+    window.addEventListener('pageshow', (e) => {
+        if (!e.persisted) return;
+        html.classList.remove('is-navigating');
+        document.querySelectorAll('.btn.is-loading').forEach(resetButton);
+    });
+
+    const navigating = () => html.classList.add('is-navigating');
+
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest('a[href]');
+        if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        if (a.target && a.target !== '_self') return;
+        if (a.hasAttribute('download') || a.dataset.bsToggle || a.dataset.noLoader !== undefined) return;
+
+        const url = new URL(a.href, location.href);
+        if (url.origin !== location.origin) return;
+        if (url.pathname === location.pathname && url.search === location.search && url.hash) return; // anchor di halaman yang sama
+        navigating();
+    });
+
+    // Didaftarkan setelah handler data-confirm, jadi form yang dibatalkan tidak memicu loader.
+    document.addEventListener('submit', (e) => {
+        const form = e.target;
+        if (e.defaultPrevented || form.target === '_blank' || form.dataset.noLoader !== undefined) return;
+
+        const btn = e.submitter ?? form.querySelector('[type=submit]');
+        if (btn && btn.classList.contains('btn') && !btn.classList.contains('is-loading')) {
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.style.width = `${btn.offsetWidth}px`;
+            btn.classList.add('is-loading');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>';
+        }
+        navigating();
+    });
+}
+
+function resetButton(btn) {
+    btn.classList.remove('is-loading');
+    btn.style.width = '';
+    if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+}

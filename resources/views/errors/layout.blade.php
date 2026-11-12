@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    @include('partials.page-loader')
     <div class="auth-wrapper d-flex align-items-center py-5">
         <div class="container text-center" style="max-width: 520px">
             <a class="navbar-brand ky-brand justify-content-center mb-4" href="{{ url('/') }}">

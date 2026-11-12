@@ -12,6 +12,7 @@
 </head>
 
 <body>
+    @include('partials.page-loader')
     @php($store = auth()->user()->store)
 
     <header class="header fixed-top d-flex align-items-center" id="header">

@@ -1,7 +1,7 @@
 import '../css/seller.css';
 import * as bootstrap from 'bootstrap';
 import ApexCharts from 'apexcharts';
-import { initCommon } from './common';
+import { initCommon, initPageLoader, initRipple } from './common';
 
 window.bootstrap = bootstrap;
 
@@ -44,3 +44,5 @@ if (chartEl) {
 }
 
 initCommon();
+initRipple();
+initPageLoader();

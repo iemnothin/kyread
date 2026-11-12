@@ -4,6 +4,7 @@
 @import '@fontsource/barlow/600.css';
 @import '@fontsource/barlow/700-italic.css';
 @import './vendor/niceadmin.css';
+@import './motion.css';
 
 /* Seragamkan font dengan storefront (NiceAdmin aslinya Open Sans/Nunito/Poppins dari Google Fonts). */
 body,

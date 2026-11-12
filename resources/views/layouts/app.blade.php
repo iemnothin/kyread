@@ -14,6 +14,7 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100">
+    @include('partials.page-loader')
     @include('partials.header')
 
     <main class="flex-grow-1 py-4">

@@ -1,5 +1,9 @@
 package id.skyvora.kyread.ui
 
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -131,7 +135,14 @@ fun KyreadAppUi(repository: KyreadRepository, deepLinkSlug: String?, onDeepLinkH
         // Layar dengan bottom bar memakai padding bawah dari Scaffold ini; layar lain punya Scaffold sendiri.
         val tabPadding = Modifier.padding(bottom = padding.calculateBottomPadding())
 
-        NavHost(nav, startDestination = Routes.HOME) {
+        NavHost(
+            nav,
+            startDestination = Routes.HOME,
+            enterTransition = { fadeIn(tween(220)) + slideIntoContainer(SlideDirection.Start, tween(260)) { it / 8 } },
+            exitTransition = { fadeOut(tween(180)) },
+            popEnterTransition = { fadeIn(tween(220)) },
+            popExitTransition = { fadeOut(tween(180)) + slideOutOfContainer(SlideDirection.End, tween(240)) { it / 8 } },
+        ) {
             composable(Routes.HOME) { HomeScreen(repository, nav, tabPadding) }
             composable(
                 Routes.SEARCH,

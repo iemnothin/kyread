@@ -1,6 +1,6 @@
 import '../css/app.css';
 import * as bootstrap from 'bootstrap';
-import { initCommon, initWishlist } from './common';
+import { initCommon, initPageLoader, initRipple, initWishlist } from './common';
 import { initImageSearch, initSuggestions } from './search';
 import { initAssistant } from './assistant';
 
@@ -104,16 +104,12 @@ function initCheckout() {
     recalc();
     if (input.value.trim()) applyVoucher();
 
-    // Cegah klik ganda yang membuat pesanan dobel.
-    form.addEventListener('submit', () => {
-        const btn = form.querySelector('[type=submit]');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses…';
-    });
 }
 
 initCommon();
 initWishlist();
+initRipple();
+initPageLoader();
 initQuantitySteppers();
 initCheckout();
 initSuggestions();

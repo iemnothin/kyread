@@ -5,6 +5,7 @@
 @import '@fontsource/barlow/600.css';
 @import '@fontsource/barlow/700.css';
 @import '@fontsource/barlow/700-italic.css';
+@import './motion.css';
 
 :root {
     --ky-primary: #43aaff;

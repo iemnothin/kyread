@@ -1,5 +1,12 @@
 package id.skyvora.kyread.ui.components
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,21 +29,21 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.outlined.CloudOff
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -47,6 +54,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import id.skyvora.kyread.BuildConfig
+import id.skyvora.kyread.R
 import id.skyvora.kyread.data.OrderStatus
 import id.skyvora.kyread.data.Product
 import id.skyvora.kyread.ui.theme.KyStar
@@ -105,9 +113,11 @@ fun BookCover(url: String, modifier: Modifier = Modifier, contentScale: ContentS
 
 @Composable
 fun BookCard(product: Product, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val (source, scale) = rememberPressScale(0.96f)
     Card(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        interactionSource = source,
+        modifier = modifier.then(scale).fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
@@ -200,8 +210,35 @@ fun StatusChip(status: String, label: String) {
 }
 
 @Composable
-fun LoadingBox(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+fun LoadingBox(modifier: Modifier = Modifier, message: String = "Memuat…") {
+    val pulse = rememberInfiniteTransition(label = "loading")
+    val scale by pulse.animateFloat(
+        initialValue = 0.9f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(tween(700, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "logo-scale",
+    )
+    val alpha by pulse.animateFloat(
+        initialValue = 0.6f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
+        label = "logo-alpha",
+    )
+    Column(
+        modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Image(
+            painterResource(R.drawable.ic_splash),
+            contentDescription = null,
+            modifier = Modifier.size(72.dp).graphicsLayer { scaleX = scale; scaleY = scale; this.alpha = alpha },
+        )
+        Spacer(Modifier.height(12.dp))
+        LinearProgressIndicator(Modifier.width(120.dp).clip(RoundedCornerShape(50)))
+        Spacer(Modifier.height(10.dp))
+        Text(message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
 }
 
 @Composable
