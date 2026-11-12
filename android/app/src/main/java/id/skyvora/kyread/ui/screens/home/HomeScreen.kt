@@ -72,6 +72,7 @@ import id.skyvora.kyread.ui.components.BookCard
 import id.skyvora.kyread.ui.components.ErrorBox
 import id.skyvora.kyread.ui.components.Load
 import id.skyvora.kyread.ui.components.LoadingBox
+import id.skyvora.kyread.ui.components.EnvBadge
 import id.skyvora.kyread.ui.components.SectionTitle
 import id.skyvora.kyread.ui.kyViewModel
 import id.skyvora.kyread.ui.theme.KyBlue
@@ -131,6 +132,7 @@ fun HomeScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifie
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(painterResource(R.drawable.ic_splash), null, modifier = Modifier.size(40.dp))
                         Text("kyread", color = KyBlue, fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic, fontSize = 26.sp)
+                        EnvBadge(Modifier.padding(start = 8.dp))
                     }
                 },
                 actions = {

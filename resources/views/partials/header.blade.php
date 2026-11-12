@@ -4,6 +4,7 @@
             <a class="navbar-brand ky-brand" href="{{ route('home') }}">
                 <img src="{{ asset('img/brand.svg') }}" alt="">
                 <span>{{ config('app.name') }}</span>
+                @include('partials.env-badge')
             </a>
 
             <div class="d-flex align-items-center gap-3 d-lg-none">

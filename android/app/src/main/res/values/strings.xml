@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">kyread</string>
+    <!-- app_name diatur di app/build.gradle.kts (resValue): "kyread Staging" untuk build staging. -->
 </resources>

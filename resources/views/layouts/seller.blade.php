@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') · kyreadSeller</title>
+    <title>{{ app()->environment('staging') ? '[Staging] ' : '' }}@yield('title', 'Dashboard') · kyreadSeller</title>
     <meta name="robots" content="noindex">
     <link href="{{ asset('img/brand.svg') }}" rel="icon" type="image/svg+xml">
     @vite('resources/js/seller.js')
@@ -19,6 +19,7 @@
             <a class="logo d-flex align-items-center" href="{{ route('seller.dashboard') }}">
                 <img src="{{ asset('img/brand.svg') }}" alt="">
                 <span class="brand-text d-none d-lg-block">kyreadSeller</span>
+                @include('partials.env-badge')
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div>

@@ -446,3 +446,20 @@ a { color: var(--ky-primary-dark); }
 /* ---------- Notifikasi ---------- */
 .notif-item.unread { background: rgba(67, 170, 255, .08); }
 .notif-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ky-primary); }
+
+/* ---------- Penanda staging ---------- */
+.env-badge {
+    display: inline-block;
+    margin-left: .5rem;
+    padding: .15rem .5rem;
+    border-radius: 6px;
+    background: #f59e0b;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    line-height: 1.4;
+}

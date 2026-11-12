@@ -78,4 +78,13 @@ class StorefrontTest extends TestCase
 
         $this->actingAs($stranger)->get("/orders/{$order->code}")->assertForbidden();
     }
+
+    public function test_staging_label_only_appears_on_staging(): void
+    {
+        $this->get('/')->assertDontSee('env-badge', false);
+
+        $this->app['env'] = 'staging';
+        $this->get('/')->assertSee('env-badge', false)->assertSee('<title>[Staging]', false);
+        $this->actingAs(User::firstWhere('email', 'seller@kyread.test'))->get('/seller')->assertSee('env-badge', false);
+    }
 }

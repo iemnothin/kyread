@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@hasSection('title')@yield('title') · @endif{{ config('app.name') }} — Toko Buku Online</title>
+    <title>{{ app()->environment('staging') ? '[Staging] ' : '' }}@hasSection('title')@yield('title') · @endif{{ config('app.name') }} — Toko Buku Online</title>
     <meta name="description" content="@yield('description', 'kyread: toko buku online. Novel, komik, biografi, dan banyak lagi dengan pengiriman ke seluruh Indonesia.')">
 
     @include('partials.meta')

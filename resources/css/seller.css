@@ -47,3 +47,21 @@ body,
 .sidebar-nav .nav-link.active-page i {
     color: #4154f1;
 }
+
+/* ---------- Penanda staging ---------- */
+.env-badge,
+.logo span.env-badge {
+    display: inline-block;
+    margin-left: .5rem;
+    padding: .15rem .5rem;
+    border-radius: 6px;
+    background: #f59e0b;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    line-height: 1.4;
+}

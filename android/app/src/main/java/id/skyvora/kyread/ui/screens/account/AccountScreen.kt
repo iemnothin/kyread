@@ -148,7 +148,7 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
             }
 
             Text(
-                "kyread v${BuildConfig.VERSION_NAME}",
+                "kyread v${BuildConfig.VERSION_NAME}" + if (BuildConfig.IS_STAGING) " · staging (${BuildConfig.API_BASE_URL.substringAfter("://").substringBefore("/")})" else "",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.CenterHorizontally),

@@ -10,6 +10,8 @@ plugins {
 val apiUrl = (project.findProperty("kyreadApiUrl") as String?) ?: "https://kyread-staging.skyvora.id/api/v1/"
 // "Web client ID" OAuth Google (sama dengan GOOGLE_CLIENT_ID di server). Kosong = tombol Google disembunyikan.
 val googleWebClientId = (project.findProperty("googleWebClientId") as String?).orEmpty()
+// Build yang mengarah ke server staging diberi label "Staging" (nama launcher & badge di aplikasi).
+val isStaging = apiUrl.contains("staging")
 
 // Kredensial rilis dibaca dari android/keystore.properties (tidak di-commit).
 val keystoreProps = Properties().apply {
@@ -30,6 +32,8 @@ android {
 
         buildConfigField("String", "API_BASE_URL", "\"$apiUrl\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
+        buildConfigField("boolean", "IS_STAGING", "$isStaging")
+        resValue("string", "app_name", if (isStaging) "kyread Staging" else "kyread")
         vectorDrawables { useSupportLibrary = true }
     }
 

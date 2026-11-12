@@ -46,11 +46,26 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import id.skyvora.kyread.BuildConfig
 import id.skyvora.kyread.data.OrderStatus
 import id.skyvora.kyread.data.Product
 import id.skyvora.kyread.ui.theme.KyStar
 
 private val KyDanger = Color(0xFFEF4444)
+
+/** Badge "STAGING" untuk build yang mengarah ke server uji coba; tidak tampil di build produksi. */
+@Composable
+fun EnvBadge(modifier: Modifier = Modifier) {
+    if (!BuildConfig.IS_STAGING) return
+    Surface(color = Color(0xFFF59E0B), contentColor = Color.White, shape = RoundedCornerShape(6.dp), modifier = modifier) {
+        Text(
+            "STAGING",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+        )
+    }
+}
 
 /** Label "-20%" merah untuk buku yang sedang diskon. */
 @Composable
