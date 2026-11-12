@@ -224,6 +224,22 @@ fun SummaryRow(label: String, value: String, bold: Boolean = false, valueColor: 
     }
 }
 
+/** Avatar bulat: inisial nama sebagai dasar, foto (bila ada & berhasil dimuat) di atasnya. */
+@Composable
+fun UserAvatar(name: String, url: String?, modifier: Modifier = Modifier, size: Int = 64) {
+    val initials = name.split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.first().uppercase() }.ifEmpty { "?" }
+    Box(
+        modifier.size(size.dp).clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.primary),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(initials, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+        // Avatar default dari layanan inisial eksternal tidak perlu dimuat; inisial lokal sudah cukup.
+        if (url != null && !url.contains("ui-avatars.com")) {
+            AsyncImage(model = url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        }
+    }
+}
+
 @Composable
 fun BackIcon(onBack: () -> Unit) {
     IconButton(onClick = onBack) {

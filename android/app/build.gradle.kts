@@ -95,7 +95,7 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.okhttp)
-    debugImplementation(libs.okhttp.logging)
+    implementation(libs.okhttp.logging) // hanya aktif saat BuildConfig.DEBUG; dibuang R8 di rilis
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose)
     implementation(libs.androidx.credentials)

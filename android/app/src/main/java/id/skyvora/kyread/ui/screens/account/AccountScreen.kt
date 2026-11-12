@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -46,14 +45,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
+import id.skyvora.kyread.ui.components.UserAvatar
 import id.skyvora.kyread.BuildConfig
 import id.skyvora.kyread.data.KyreadRepository
 import id.skyvora.kyread.ui.Routes
@@ -104,7 +102,7 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
                     }
                 } else {
                     Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                        AsyncImage(u.avatarUrl, null, modifier = Modifier.size(64.dp).clip(CircleShape))
+                        UserAvatar(u.displayName, u.avatarUrl)
                         Spacer(Modifier.width(16.dp))
                         Column(Modifier.weight(1f)) {
                             Text(u.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)

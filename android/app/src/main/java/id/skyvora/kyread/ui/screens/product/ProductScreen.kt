@@ -54,7 +54,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
+import id.skyvora.kyread.ui.components.UserAvatar
 import id.skyvora.kyread.BuildConfig
 import id.skyvora.kyread.data.KyreadRepository
 import id.skyvora.kyread.data.Product
@@ -227,7 +227,7 @@ private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifi
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 ) {
                     Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        AsyncImage(store.logoUrl, null, modifier = Modifier.size(44.dp).clip(CircleShape))
+                        UserAvatar(store.name, store.logoUrl, size = 44)
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(store.name, fontWeight = FontWeight.SemiBold)
