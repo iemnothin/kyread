@@ -28,6 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,6 +57,8 @@ import id.skyvora.kyread.ui.screens.orders.OrderDetailScreen
 import id.skyvora.kyread.ui.screens.orders.OrdersScreen
 import id.skyvora.kyread.ui.screens.product.ProductScreen
 import id.skyvora.kyread.ui.screens.notifications.NotificationsScreen
+import id.skyvora.kyread.ui.screens.onboarding.Onboarding
+import id.skyvora.kyread.ui.screens.onboarding.OnboardingScreen
 import id.skyvora.kyread.ui.screens.search.SearchScreen
 import id.skyvora.kyread.ui.screens.wishlist.WishlistScreen
 
@@ -98,12 +104,28 @@ fun NavHostController.navigateTab(route: String) = navigate(route) {
 
 @Composable
 fun KyreadAppUi(repository: KyreadRepository, deepLinkSlug: String?, onDeepLinkHandled: () -> Unit) {
+    val context = LocalContext.current
+    // Onboarding hanya sekali; tautan buku (deep link) langsung membuka bukunya tanpa onboarding.
+    var onboarding by remember { mutableStateOf(!Onboarding.isDone(context) && deepLinkSlug == null) }
+    var openSignIn by remember { mutableStateOf(false) }
+    if (onboarding) {
+        OnboardingScreen { signIn ->
+            openSignIn = signIn
+            onboarding = false
+        }
+        return
+    }
+
     // Ganti bahasa = susun ulang navigasi dari awal: layar & ViewModel lama dibuang sehingga
     // data dari server (label status, ringkasan voucher, …) dimuat ulang dalam bahasa baru.
     key(I18n.language.code) {
         KyreadNavigation(
             repository, deepLinkSlug, onDeepLinkHandled,
-            startRoute = if (I18n.changedByUser) Routes.ACCOUNT else Routes.HOME,
+            startRoute = when {
+                I18n.changedByUser -> Routes.ACCOUNT
+                openSignIn -> Routes.LOGIN
+                else -> Routes.HOME
+            },
         )
     }
 }

@@ -54,9 +54,10 @@ object I18n {
     var changedByUser by mutableStateOf(false)
         private set
 
-    fun change(context: Context, code: String) {
+    /** @param reopenAccount buka ulang navigasi di layar Akun (dipakai saat diganti dari menu Akun). */
+    fun change(context: Context, code: String, reopenAccount: Boolean = true) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, code).apply()
-        changedByUser = true
+        changedByUser = reopenAccount
         apply(context, code)
     }
 

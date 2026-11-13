@@ -64,6 +64,7 @@ import id.skyvora.kyread.ui.components.UserAvatar
 import id.skyvora.kyread.BuildConfig
 import id.skyvora.kyread.data.KyreadRepository
 import id.skyvora.kyread.i18n.I18n
+import id.skyvora.kyread.ui.components.LanguageDialog
 import id.skyvora.kyread.ui.Routes
 import id.skyvora.kyread.ui.navigateTab
 import kotlinx.coroutines.launch
@@ -178,34 +179,6 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
             )
         }
     }
-}
-
-@Composable
-private fun LanguageDialog(onDismiss: () -> Unit, onPick: (String) -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(tr("Bahasa")) },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                I18n.languages.forEach { lang ->
-                    val selected = lang.code == I18n.language.code
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .selectable(selected = selected, onClick = { onPick(lang.code) }, role = Role.RadioButton)
-                            .padding(vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(selected = selected, onClick = null)
-                        Spacer(Modifier.width(12.dp))
-                        Text(lang.native, modifier = Modifier.weight(1f))
-                        Text(lang.code.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Tutup")) } },
-    )
 }
 
 @Composable
