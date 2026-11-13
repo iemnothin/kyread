@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,6 +40,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import id.skyvora.kyread.data.KyreadRepository
+import id.skyvora.kyread.i18n.I18n
 import id.skyvora.kyread.ui.screens.account.AccountScreen
 import id.skyvora.kyread.ui.screens.account.EditProfileScreen
 import id.skyvora.kyread.ui.screens.assistant.AssistantScreen
@@ -96,6 +98,18 @@ fun NavHostController.navigateTab(route: String) = navigate(route) {
 
 @Composable
 fun KyreadAppUi(repository: KyreadRepository, deepLinkSlug: String?, onDeepLinkHandled: () -> Unit) {
+    // Ganti bahasa = susun ulang navigasi dari awal: layar & ViewModel lama dibuang sehingga
+    // data dari server (label status, ringkasan voucher, …) dimuat ulang dalam bahasa baru.
+    key(I18n.language.code) {
+        KyreadNavigation(
+            repository, deepLinkSlug, onDeepLinkHandled,
+            startRoute = if (I18n.changedByUser) Routes.ACCOUNT else Routes.HOME,
+        )
+    }
+}
+
+@Composable
+private fun KyreadNavigation(repository: KyreadRepository, deepLinkSlug: String?, onDeepLinkHandled: () -> Unit, startRoute: String) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
@@ -138,7 +152,7 @@ fun KyreadAppUi(repository: KyreadRepository, deepLinkSlug: String?, onDeepLinkH
 
         NavHost(
             nav,
-            startDestination = Routes.HOME,
+            startDestination = startRoute,
             enterTransition = { fadeIn(tween(220)) + slideIntoContainer(SlideDirection.Start, tween(260)) { it / 8 } },
             exitTransition = { fadeOut(tween(180)) },
             popEnterTransition = { fadeIn(tween(220)) },

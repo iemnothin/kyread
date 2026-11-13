@@ -612,5 +612,7 @@
     "tanpa batas": "sin límite",
     "tidak ada akun Google di perangkat": "no hay ninguna cuenta de Google en el dispositivo",
     "via": "vía",
-    "| 14 hari terakhir": "| últimos 14 días"
+    "| 14 hari terakhir": "| últimos 14 días",
+    "(and :count more error)": "(y :count error más)",
+    "(and :count more errors)": "(y :count errores más)"
 }

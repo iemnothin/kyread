@@ -612,5 +612,7 @@
     "tanpa batas": "tanpa wates",
     "tidak ada akun Google di perangkat": "ora ana akun Google ing piranti",
     "via": "liwat",
-    "| 14 hari terakhir": "| 14 dina pungkasan"
+    "| 14 hari terakhir": "| 14 dina pungkasan",
+    "(and :count more error)": "(lan :count kaluputan liyane)",
+    "(and :count more errors)": "(lan :count kaluputan liyane)"
 }

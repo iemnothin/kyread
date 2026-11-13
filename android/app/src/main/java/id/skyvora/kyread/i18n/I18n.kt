@@ -50,8 +50,13 @@ object I18n {
         apply(context, saved ?: deviceLanguage())
     }
 
+    /** True setelah pengguna mengganti bahasa di sesi ini (navigasi dibuka ulang di layar Akun). */
+    var changedByUser by mutableStateOf(false)
+        private set
+
     fun change(context: Context, code: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, code).apply()
+        changedByUser = true
         apply(context, code)
     }
 
@@ -89,9 +94,8 @@ object I18n {
         val parts = text.split('|')
         if (parts.size == 1) return text
 
-        val condition = Regex("""^\s*(\{(\d+)}|\[(\d+|\*),\s*(\d+|\*)])\s*""")
         for (part in parts) {
-            val m = condition.find(part) ?: continue
+            val m = PLURAL_CONDITION.find(part) ?: continue
             val (_, exact, from, to) = m.destructured
             val matches = if (exact.isNotEmpty()) {
                 count == exact.toInt()
@@ -100,9 +104,12 @@ object I18n {
             }
             if (matches) return part.substring(m.range.last + 1)
         }
-        val forms = parts.map { condition.replace(it, "") }
+        val forms = parts.map { PLURAL_CONDITION.replace(it, "") }
         return if (count == 1) forms[0] else forms.getOrElse(1) { forms[0] }
     }
+
+    // Semua kurung di-escape: regex ICU di Android menolak "}" dan "]" tanpa escape (JVM menerimanya).
+    private val PLURAL_CONDITION = Regex("""^\s*(\{(\d+)\}|\[(\d+|\*),\s*(\d+|\*)\])\s*""")
 }
 
 /** Terjemahkan teks sumber (bahasa Indonesia) ke bahasa aktif. */

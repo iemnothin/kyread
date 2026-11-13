@@ -603,5 +603,7 @@
     "tanpa batas": "unlimited",
     "tidak ada akun Google di perangkat": "no Google account on this device",
     "via": "via",
-    "| 14 hari terakhir": "| last 14 days"
+    "| 14 hari terakhir": "| last 14 days",
+    "(and :count more error)": "(and :count more error)",
+    "(and :count more errors)": "(and :count more errors)"
 }

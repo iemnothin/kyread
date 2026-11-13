@@ -612,5 +612,7 @@
     "tanpa batas": "제한 없음",
     "tidak ada akun Google di perangkat": "기기에 Google 계정이 없습니다",
     "via": "경유",
-    "| 14 hari terakhir": "| 최근 14일"
+    "| 14 hari terakhir": "| 최근 14일",
+    "(and :count more error)": "(외 :count개 오류)",
+    "(and :count more errors)": "(외 :count개 오류)"
 }

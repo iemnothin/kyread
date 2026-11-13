@@ -612,5 +612,7 @@
     "tanpa batas": "無制限",
     "tidak ada akun Google di perangkat": "端末に Google アカウントがありません",
     "via": "経由",
-    "| 14 hari terakhir": "| 過去 14 日間"
+    "| 14 hari terakhir": "| 過去 14 日間",
+    "(and :count more error)": "（ほか :count 件のエラー）",
+    "(and :count more errors)": "（ほか :count 件のエラー）"
 }

@@ -612,5 +612,7 @@
     "tanpa batas": "不限",
     "tidak ada akun Google di perangkat": "设备上没有 Google 账户",
     "via": "通过",
-    "| 14 hari terakhir": "| 最近 14 天"
+    "| 14 hari terakhir": "| 最近 14 天",
+    "(and :count more error)": "（还有 :count 个错误）",
+    "(and :count more errors)": "（还有 :count 个错误）"
 }

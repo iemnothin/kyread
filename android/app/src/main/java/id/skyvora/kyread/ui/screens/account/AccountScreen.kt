@@ -99,9 +99,8 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
             onPick = { code ->
                 pickLanguage = false
                 if (code != I18n.language.code) {
+                    // Navigasi disusun ulang otomatis (lihat KyreadAppUi) dan kembali ke layar Akun.
                     I18n.change(context, code)
-                    // Buang semua layar lama agar data dari server dimuat ulang dalam bahasa baru.
-                    nav.navigate(Routes.ACCOUNT) { popUpTo(nav.graph.id) { inclusive = true } }
                     scope.launch { runCatching { repo.refreshUser() } }
                 }
             },

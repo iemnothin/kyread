@@ -612,5 +612,7 @@
     "tanpa batas": "tanpa wates",
     "tidak ada akun Google di perangkat": "teu aya akun Google dina alat",
     "via": "ngalangkungan",
-    "| 14 hari terakhir": "| 14 dinten pamungkas"
+    "| 14 hari terakhir": "| 14 dinten pamungkas",
+    "(and :count more error)": "(sareng :count kalepatan sanésna)",
+    "(and :count more errors)": "(sareng :count kalepatan sanésna)"
 }

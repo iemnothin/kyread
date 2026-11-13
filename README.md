@@ -39,7 +39,19 @@ Pembeli bisa mencari buku, memasukkan ke keranjang, checkout dengan pilihan kuri
 - **Voucher toko** di checkout, dengan pratinjau potongan sebelum pesanan dibuat
 - **Notifikasi pesanan** in-app (ikon lonceng) untuk pembeli dan penjual setiap status pesanan berubah
 - **Invoice** siap cetak/simpan PDF untuk setiap pesanan
-- Pesan validasi & halaman error (403/404/419/429/500/503) berbahasa Indonesia
+- **10 bahasa antarmuka** (web & Android): Indonesia, English, Melayu, Jawa, Sunda, العربية (kanan-ke-kiri), 简体中文, 日本語, 한국어, Español. Pesan validasi, notifikasi, dan jawaban Kyra ikut bahasa pengguna
+- Animasi di setiap tombol dan loading screen di setiap halaman
+- Halaman error (403/404/419/429/500/503) dalam bahasa aktif
+
+### Menambah atau mengubah terjemahan
+Teks sumber ditulis dalam bahasa Indonesia dan dipakai sebagai kunci (`__('Keranjang')` di PHP/Blade, `t('…')` di JS, `tr("…")` di Android). Terjemahannya ada di `lang/{kode}.json` dan dipakai bersama oleh web serta aplikasi Android (disalin ke assets saat build). Setelah menambah teks baru, jalankan:
+
+```bash
+php artisan i18n:check            # daftar bahasa yang belum lengkap / placeholder yang tidak cocok
+php artisan i18n:check --missing=ja   # kunci yang belum diterjemahkan untuk satu bahasa (JSON)
+```
+
+Bahasa baru: tambahkan di `config/locales.php`, `lang/{kode}.json` + `lang/{kode}/*.php`, dan daftar `I18n.languages` di Android.
 
 **Penjual (kyreadSeller)**
 - Buka toko langsung dari akun yang sama

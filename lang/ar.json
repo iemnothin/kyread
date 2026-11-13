@@ -612,5 +612,7 @@
     "tanpa batas": "بلا حدود",
     "tidak ada akun Google di perangkat": "لا يوجد حساب Google على الجهاز",
     "via": "عبر",
-    "| 14 hari terakhir": "| آخر 14 يومًا"
+    "| 14 hari terakhir": "| آخر 14 يومًا",
+    "(and :count more error)": "(و:count أخطاء أخرى)",
+    "(and :count more errors)": "(و:count أخطاء أخرى)"
 }
