@@ -1,10 +1,12 @@
 <?php
 
-// Pesan validasi Bahasa Indonesia. Aturan yang tidak tercantum memakai fallback lang/en.
+// Dibuat dari tabel terjemahan; ubah dengan hati-hati agar semua bahasa tetap selaras.
 
 return [
     'accepted' => ':Attribute harus disetujui.',
+    'after' => ':Attribute harus berupa tanggal setelah :date.',
     'alpha_dash' => ':Attribute hanya boleh berisi huruf, angka, tanda hubung, dan garis bawah.',
+    'alpha_num' => ':Attribute hanya boleh berisi huruf dan angka.',
     'array' => ':Attribute harus berupa daftar.',
     'between' => [
         'numeric' => ':Attribute harus antara :min dan :max.',
@@ -21,6 +23,11 @@ return [
     'enum' => ':Attribute yang dipilih tidak valid.',
     'exists' => ':Attribute yang dipilih tidak valid.',
     'file' => ':Attribute harus berupa berkas.',
+    'gt' => [
+        'numeric' => ':Attribute harus lebih besar dari :value.',
+        'file' => ':Attribute harus lebih besar dari :value kilobita.',
+        'string' => ':Attribute harus lebih dari :value karakter.',
+    ],
     'image' => ':Attribute harus berupa gambar.',
     'in' => ':Attribute yang dipilih tidak valid.',
     'integer' => ':Attribute harus berupa bilangan bulat.',
@@ -36,19 +43,12 @@ return [
         'string' => ':Attribute minimal :min karakter.',
     ],
     'numeric' => ':Attribute harus berupa angka.',
-    'password' => [
-        'letters' => ':Attribute harus mengandung setidaknya satu huruf.',
-        'mixed' => ':Attribute harus mengandung huruf besar dan huruf kecil.',
-        'numbers' => ':Attribute harus mengandung setidaknya satu angka.',
-        'symbols' => ':Attribute harus mengandung setidaknya satu simbol.',
-        'uncompromised' => ':Attribute ini pernah bocor di internet. Silakan pilih yang lain.',
-    ],
     'regex' => 'Format :attribute tidak valid.',
     'required' => ':Attribute wajib diisi.',
     'string' => ':Attribute harus berupa teks.',
     'unique' => ':Attribute sudah digunakan.',
     'uploaded' => ':Attribute gagal diunggah.',
-
+    // aturan kata sandi bawaan Laravel memakai fallback
     'attributes' => [
         'name' => 'nama',
         'nickname' => 'nama panggilan',
@@ -77,6 +77,7 @@ return [
         'published_year' => 'tahun terbit',
         'description' => 'deskripsi',
         'price' => 'harga',
+        'compare_at_price' => 'harga sebelum diskon',
         'weight' => 'berat',
         'stock' => 'stok',
         'image' => 'sampul',
@@ -86,5 +87,16 @@ return [
         'tracking_number' => 'nomor resi',
         'login' => 'email atau username',
         'device_name' => 'nama perangkat',
+        'voucher_code' => 'kode voucher',
+        'code' => 'kode',
+        'type' => 'jenis',
+        'value' => 'nilai potongan',
+        'min_spend' => 'minimal belanja',
+        'max_discount' => 'maksimal potongan',
+        'quota' => 'kuota',
+        'starts_at' => 'tanggal mulai',
+        'expires_at' => 'tanggal berakhir',
+        'id_token' => 'token Google',
+        'messages' => 'pesan',
     ],
 ];

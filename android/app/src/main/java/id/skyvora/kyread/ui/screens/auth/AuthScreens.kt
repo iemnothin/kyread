@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.screens.auth
 
+import id.skyvora.kyread.i18n.tr
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -78,12 +79,12 @@ private suspend fun requestGoogleIdToken(context: Context): String? {
         if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             GoogleIdTokenCredential.createFrom(credential.data).idToken
         } else {
-            throw IllegalStateException("Jenis kredensial tidak dikenali.")
+            throw IllegalStateException(tr("Jenis kredensial tidak dikenali."))
         }
     } catch (e: GetCredentialCancellationException) {
         null
     } catch (e: GetCredentialException) {
-        throw IllegalStateException("Login Google gagal: ${e.message ?: "tidak ada akun Google di perangkat"}")
+        throw IllegalStateException(tr("Login Google gagal: :reason", "reason" to (e.message ?: tr("tidak ada akun Google di perangkat"))))
     }
 }
 
@@ -115,11 +116,11 @@ private fun AuthScaffold(
                 OutlinedButton(onClick = onGoogle, enabled = !loading, modifier = Modifier.fillMaxWidth().height(50.dp)) {
                     Image(painterResource(R.drawable.ic_google), null, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(10.dp))
-                    Text("Lanjutkan dengan Google")
+                    Text(tr("Lanjutkan dengan Google"))
                 }
                 Row(Modifier.padding(vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     HorizontalDivider(Modifier.weight(1f))
-                    Text("  atau  ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("  " + tr("atau") + "  ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     HorizontalDivider(Modifier.weight(1f))
                 }
             }
@@ -145,7 +146,7 @@ private fun PasswordField(value: String, onChange: (String) -> Unit, label: Stri
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = imeAction),
         trailingIcon = {
             IconButton(onClick = { visible = !visible }) {
-                Icon(if (visible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, if (visible) "Sembunyikan" else "Tampilkan")
+                Icon(if (visible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, if (visible) tr("Sembunyikan") else tr("Tampilkan"))
             }
         },
     )
@@ -198,23 +199,23 @@ fun LoginScreen(repo: KyreadRepository, nav: NavHostController) {
     var login by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    AuthScaffold(nav, "Masuk ke akunmu", actions.error, actions.loading, onGoogle = actions::google) {
+    AuthScaffold(nav, tr("Masuk ke akunmu"), actions.error, actions.loading, onGoogle = actions::google) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(
                 login, { login = it }, Modifier.fillMaxWidth(),
-                label = { Text("Email atau username") }, singleLine = true,
+                label = { Text(tr("Email atau username")) }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             )
-            PasswordField(password, { password = it }, "Password", ImeAction.Done)
+            PasswordField(password, { password = it }, tr("Password"), ImeAction.Done)
             Button(
                 onClick = { actions.run { repo.login(login.trim(), password) } },
                 enabled = !actions.loading && login.isNotBlank() && password.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().height(50.dp),
             ) {
-                if (actions.loading) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text("Masuk")
+                if (actions.loading) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text(tr("Masuk"))
             }
             TextButton(onClick = { nav.navigate(Routes.REGISTER) { popUpTo(Routes.LOGIN) { inclusive = true } } }, modifier = Modifier.fillMaxWidth()) {
-                Text("Belum punya akun? Daftar")
+                Text(tr("Belum punya akun? Daftar"))
             }
         }
     }
@@ -229,28 +230,28 @@ fun RegisterScreen(repo: KyreadRepository, nav: NavHostController) {
     var password by rememberSaveable { mutableStateOf("") }
     var confirm by rememberSaveable { mutableStateOf("") }
 
-    AuthScaffold(nav, "Buat akun baru", actions.error, actions.loading, onGoogle = actions::google) {
+    AuthScaffold(nav, tr("Buat akun baru"), actions.error, actions.loading, onGoogle = actions::google) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth(), label = { Text("Nama lengkap") }, singleLine = true)
+            OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth(), label = { Text(tr("Nama lengkap")) }, singleLine = true)
             OutlinedTextField(
                 username, { username = it.filter { c -> c.isLetterOrDigit() || c == '_' || c == '-' } }, Modifier.fillMaxWidth(),
-                label = { Text("Username") }, singleLine = true, supportingText = { Text("Huruf, angka, - dan _") },
+                label = { Text(tr("Username")) }, singleLine = true, supportingText = { Text(tr("Huruf, angka, - dan _")) },
             )
             OutlinedTextField(
-                email, { email = it }, Modifier.fillMaxWidth(), label = { Text("Email") }, singleLine = true,
+                email, { email = it }, Modifier.fillMaxWidth(), label = { Text(tr("Email")) }, singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             )
-            PasswordField(password, { password = it }, "Password (min. 8, huruf & angka)")
-            PasswordField(confirm, { confirm = it }, "Ulangi password", ImeAction.Done)
+            PasswordField(password, { password = it }, tr("Password (min. 8, huruf & angka)"))
+            PasswordField(confirm, { confirm = it }, tr("Ulangi password"), ImeAction.Done)
             Button(
                 onClick = { actions.run { repo.register(name.trim(), username.trim(), email.trim(), password, confirm) } },
                 enabled = !actions.loading && listOf(name, username, email, password, confirm).all { it.isNotBlank() },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
             ) {
-                if (actions.loading) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text("Daftar")
+                if (actions.loading) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text(tr("Daftar"))
             }
             TextButton(onClick = { nav.navigate(Routes.LOGIN) { popUpTo(Routes.REGISTER) { inclusive = true } } }, modifier = Modifier.fillMaxWidth()) {
-                Text("Sudah punya akun? Masuk")
+                Text(tr("Sudah punya akun? Masuk"))
             }
         }
     }

@@ -1,5 +1,7 @@
 package id.skyvora.kyread.ui.screens.search
 
+import id.skyvora.kyread.i18n.tr
+import id.skyvora.kyread.i18n.trc
 import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -95,13 +97,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val SortOptions = listOf(
-    "newest" to "Terbaru",
-    "bestseller" to "Terlaris",
-    "price_asc" to "Harga terendah",
-    "price_desc" to "Harga tertinggi",
-    "discount" to "Diskon terbesar",
-    "title" to "Judul A-Z",
+private val SortOptions get() = listOf(
+    "newest" to tr("Terbaru"),
+    "bestseller" to tr("Terlaris"),
+    "price_asc" to tr("Harga terendah"),
+    "price_desc" to tr("Harga tertinggi"),
+    "discount" to tr("Diskon terbesar"),
+    "title" to tr("Judul A-Z"),
 )
 
 class SearchViewModel(
@@ -287,23 +289,23 @@ fun SearchScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .onFocusChanged { focused = it.isFocused },
-                placeholder = { Text("Cari judul, penulis, penerbit…") },
+                placeholder = { Text(tr("Cari judul, penulis, penerbit…")) },
                 leadingIcon = { Icon(Icons.Filled.Search, null) },
                 trailingIcon = {
                     Row {
                         if (vm.query.isNotEmpty()) {
-                            IconButton(onClick = { vm.onQueryChange(""); vm.search() }) { Icon(Icons.Filled.Close, "Hapus") }
+                            IconButton(onClick = { vm.onQueryChange(""); vm.search() }) { Icon(Icons.Filled.Close, tr("Hapus")) }
                         }
                         Box {
-                            IconButton(onClick = { imageMenu = true }) { Icon(Icons.Outlined.PhotoCamera, "Cari dengan gambar") }
+                            IconButton(onClick = { imageMenu = true }) { Icon(Icons.Outlined.PhotoCamera, tr("Cari dengan gambar")) }
                             DropdownMenu(expanded = imageMenu, onDismissRequest = { imageMenu = false }) {
                                 DropdownMenuItem(
-                                    text = { Text("Foto sampul buku") },
+                                    text = { Text(tr("Foto sampul buku")) },
                                     leadingIcon = { Icon(Icons.Outlined.PhotoCamera, null) },
                                     onClick = { imageMenu = false; takePhoto.launch(null) },
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Pilih dari galeri") },
+                                    text = { Text(tr("Pilih dari galeri")) },
                                     leadingIcon = { Icon(Icons.Outlined.PhotoLibrary, null) },
                                     onClick = {
                                         imageMenu = false
@@ -327,7 +329,7 @@ fun SearchScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         item {
-                            FilterChip(selected = vm.category == null, onClick = { vm.selectCategory(null) }, label = { Text("Semua") })
+                            FilterChip(selected = vm.category == null, onClick = { vm.selectCategory(null) }, label = { Text(tr("Semua")) })
                         }
                         items(vm.categories, key = { it.id }) { c ->
                             FilterChip(
@@ -343,8 +345,8 @@ fun SearchScreen(
                     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             when {
-                                vm.loading && vm.identified == null && vm.error == null -> "Mencari…"
-                                else -> "${vm.total} buku"
+                                vm.loading && vm.identified == null && vm.error == null -> tr("Mencari…")
+                                else -> trc(":count buku", vm.total)
                             },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -369,8 +371,8 @@ fun SearchScreen(
                         vm.error != null -> ErrorBox(vm.error!!, onRetry = vm::search)
                         vm.products.isEmpty() -> MessageBox(
                             Icons.Outlined.SearchOff,
-                            "Buku tidak ditemukan",
-                            body = if (vm.identified != null) "Buku di foto belum tersedia di katalog." else "Coba kata kunci atau kategori lain.",
+                            tr("Buku tidak ditemukan"),
+                            body = if (vm.identified != null) tr("Buku di foto belum tersedia di katalog.") else tr("Coba kata kunci atau kategori lain."),
                         )
                         else -> LazyVerticalGrid(
                             columns = GridCells.Adaptive(160.dp),
@@ -418,8 +420,8 @@ private fun SuggestionList(query: String, suggestions: List<Suggestion>, onPick:
         LazyColumn(Modifier.heightIn(max = 360.dp)) {
             items(suggestions, key = { it.type + it.label }) { s ->
                 val (icon, hint) = when (s.type) {
-                    "author" -> Icons.Outlined.PersonOutline to "Penulis"
-                    "category" -> Icons.Outlined.Category to "Kategori"
+                    "author" -> Icons.Outlined.PersonOutline to tr("Penulis")
+                    "category" -> Icons.Outlined.Category to tr("Kategori")
                     else -> Icons.Outlined.Book to null
                 }
                 SuggestionRow(icon, s.label, query, hint) { onPick(s) }
@@ -464,8 +466,8 @@ private fun IdentifiedBanner(book: IdentifiedBook) {
             Icon(Icons.Outlined.AutoAwesome, null, tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(10.dp))
             Column {
-                Text("Terdeteksi dari foto", style = MaterialTheme.typography.labelSmall)
-                Text(book.title ?: "Judul tidak terbaca", fontWeight = FontWeight.Bold)
+                Text(tr("Terdeteksi dari foto"), style = MaterialTheme.typography.labelSmall)
+                Text(book.title ?: tr("Judul tidak terbaca"), fontWeight = FontWeight.Bold)
                 book.author?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                 if (book.description.isNotBlank()) {
                     Text(book.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)

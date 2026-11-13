@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.screens.account
 
+import id.skyvora.kyread.i18n.tr
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Storefront
+import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import id.skyvora.kyread.ui.components.Button
@@ -35,6 +38,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import id.skyvora.kyread.ui.components.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,6 +55,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +63,7 @@ import androidx.navigation.NavHostController
 import id.skyvora.kyread.ui.components.UserAvatar
 import id.skyvora.kyread.BuildConfig
 import id.skyvora.kyread.data.KyreadRepository
+import id.skyvora.kyread.i18n.I18n
 import id.skyvora.kyread.ui.Routes
 import id.skyvora.kyread.ui.navigateTab
 import kotlinx.coroutines.launch
@@ -75,37 +81,53 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var confirmLogout by remember { mutableStateOf(false) }
+    var pickLanguage by remember { mutableStateOf(false) }
     val openWeb: (String) -> Unit = { path -> context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(webBase + path))) }
 
     if (confirmLogout) {
         AlertDialog(
             onDismissRequest = { confirmLogout = false },
-            text = { Text("Keluar dari akunmu?") },
-            confirmButton = { TextButton(onClick = { confirmLogout = false; scope.launch { repo.logout() } }) { Text("Keluar") } },
-            dismissButton = { TextButton(onClick = { confirmLogout = false }) { Text("Batal") } },
+            text = { Text(tr("Keluar dari akunmu?")) },
+            confirmButton = { TextButton(onClick = { confirmLogout = false; scope.launch { repo.logout() } }) { Text(tr("Keluar")) } },
+            dismissButton = { TextButton(onClick = { confirmLogout = false }) { Text(tr("Batal")) } },
+        )
+    }
+
+    if (pickLanguage) {
+        LanguageDialog(
+            onDismiss = { pickLanguage = false },
+            onPick = { code ->
+                pickLanguage = false
+                if (code != I18n.language.code) {
+                    I18n.change(context, code)
+                    // Buang semua layar lama agar data dari server dimuat ulang dalam bahasa baru.
+                    nav.navigate(Routes.ACCOUNT) { popUpTo(nav.graph.id) { inclusive = true } }
+                    scope.launch { runCatching { repo.refreshUser() } }
+                }
+            },
         )
     }
 
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("Akun") }) },
+        topBar = { TopAppBar(title = { Text(tr("Akun")) }) },
     ) { padding ->
         Column(Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             val u = user
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                 if (u == null) {
                     Column(Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Selamat datang di kyread", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(tr("Selamat datang di kyread"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(
-                            "Masuk untuk belanja, melacak pesanan, dan memberi ulasan.",
+                            tr("Masuk untuk belanja, melacak pesanan, dan memberi ulasan."),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Spacer(Modifier.height(16.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { nav.navigate(Routes.REGISTER) }) { Text("Daftar") }
-                            Button(onClick = { nav.navigate(Routes.LOGIN) }) { Text("Masuk") }
+                            OutlinedButton(onClick = { nav.navigate(Routes.REGISTER) }) { Text(tr("Daftar")) }
+                            Button(onClick = { nav.navigate(Routes.LOGIN) }) { Text(tr("Masuk")) }
                         }
                     }
                 } else {
@@ -123,27 +145,29 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
 
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                 if (u != null) {
-                    MenuItem(Icons.Outlined.Receipt, "Pesanan Saya") { nav.navigateTab(Routes.ORDERS) }
+                    MenuItem(Icons.Outlined.Receipt, tr("Pesanan Saya")) { nav.navigateTab(Routes.ORDERS) }
                     HorizontalDivider()
-                    MenuItem(Icons.Outlined.FavoriteBorder, "Wishlist", count = u.wishlistCount, countIsBadge = false) { nav.navigate(Routes.WISHLIST) }
+                    MenuItem(Icons.Outlined.FavoriteBorder, tr("Wishlist"), count = u.wishlistCount, countIsBadge = false) { nav.navigate(Routes.WISHLIST) }
                     HorizontalDivider()
-                    MenuItem(Icons.Outlined.Notifications, "Notifikasi", count = unread) { nav.navigate(Routes.NOTIFICATIONS) }
+                    MenuItem(Icons.Outlined.Notifications, tr("Notifikasi"), count = unread) { nav.navigate(Routes.NOTIFICATIONS) }
                     HorizontalDivider()
-                    MenuItem(Icons.Outlined.Edit, "Edit Profil & Alamat") { nav.navigate(Routes.EDIT_PROFILE) }
+                    MenuItem(Icons.Outlined.Edit, tr("Edit Profil & Alamat")) { nav.navigate(Routes.EDIT_PROFILE) }
                     HorizontalDivider()
                 }
-                MenuItem(Icons.Outlined.AutoAwesome, "Tanya Kyra (asisten AI)") { nav.navigate(Routes.ASSISTANT) }
+                MenuItem(Icons.Outlined.AutoAwesome, tr("Tanya Kyra (asisten AI)")) { nav.navigate(Routes.ASSISTANT) }
                 HorizontalDivider()
                 MenuItem(
                     Icons.Outlined.Storefront,
-                    if (u?.hasStore == true) "Kelola toko di kyreadSeller" else "Mulai jualan di kyreadSeller",
-                    supporting = "Dibuka di browser",
+                    if (u?.hasStore == true) tr("Kelola toko di kyreadSeller") else tr("Mulai jualan di kyreadSeller"),
+                    supporting = tr("Dibuka di browser"),
                 ) { openWeb("/seller") }
                 HorizontalDivider()
-                MenuItem(Icons.AutoMirrored.Outlined.HelpOutline, "Pusat Bantuan") { openWeb("/help") }
+                MenuItem(Icons.Outlined.Translate, tr("Bahasa"), supporting = I18n.language.native) { pickLanguage = true }
+                HorizontalDivider()
+                MenuItem(Icons.AutoMirrored.Outlined.HelpOutline, tr("Pusat Bantuan")) { openWeb("/help") }
                 if (u != null) {
                     HorizontalDivider()
-                    MenuItem(Icons.AutoMirrored.Outlined.Logout, "Keluar", danger = true) { confirmLogout = true }
+                    MenuItem(Icons.AutoMirrored.Outlined.Logout, tr("Keluar"), danger = true) { confirmLogout = true }
                 }
             }
 
@@ -155,6 +179,34 @@ fun AccountScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modi
             )
         }
     }
+}
+
+@Composable
+private fun LanguageDialog(onDismiss: () -> Unit, onPick: (String) -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(tr("Bahasa")) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                I18n.languages.forEach { lang ->
+                    val selected = lang.code == I18n.language.code
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(selected = selected, onClick = { onPick(lang.code) }, role = Role.RadioButton)
+                            .padding(vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = selected, onClick = null)
+                        Spacer(Modifier.width(12.dp))
+                        Text(lang.native, modifier = Modifier.weight(1f))
+                        Text(lang.code.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Tutup")) } },
+    )
 }
 
 @Composable

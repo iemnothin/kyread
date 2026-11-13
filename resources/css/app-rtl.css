@@ -1,0 +1,10 @@
+/* Bundle untuk bahasa kanan-ke-kiri (Arab). */
+@import 'bootstrap/dist/css/bootstrap.rtl.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.min.css';
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/500.css';
+@import '@fontsource/barlow/600.css';
+@import '@fontsource/barlow/700.css';
+@import '@fontsource/barlow/700-italic.css';
+@import './storefront.css';
+@import './rtl.css';

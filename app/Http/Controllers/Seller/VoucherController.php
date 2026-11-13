@@ -30,7 +30,7 @@ class VoucherController extends Controller
     {
         $voucher = $request->user()->store->vouchers()->create($this->validated($request));
 
-        return redirect()->route('seller.vouchers.index')->with('success', "Voucher {$voucher->code} dibuat.");
+        return redirect()->route('seller.vouchers.index')->with('success', __('Voucher :code dibuat.', ['code' => $voucher->code]));
     }
 
     public function edit(Request $request, Voucher $voucher): View
@@ -45,7 +45,7 @@ class VoucherController extends Controller
         $this->authorizeOwner($request, $voucher);
         $voucher->update($this->validated($request, $voucher));
 
-        return redirect()->route('seller.vouchers.index')->with('success', "Voucher {$voucher->code} diperbarui.");
+        return redirect()->route('seller.vouchers.index')->with('success', __('Voucher :code diperbarui.', ['code' => $voucher->code]));
     }
 
     public function destroy(Request $request, Voucher $voucher): RedirectResponse
@@ -53,7 +53,7 @@ class VoucherController extends Controller
         $this->authorizeOwner($request, $voucher);
         $voucher->delete();
 
-        return back()->with('success', "Voucher {$voucher->code} dihapus.");
+        return back()->with('success', __('Voucher :code dihapus.', ['code' => $voucher->code]));
     }
 
     private function authorizeOwner(Request $request, Voucher $voucher): void
@@ -77,8 +77,8 @@ class VoucherController extends Controller
             'starts_at' => ['nullable', 'date'],
             'expires_at' => array_filter(['nullable', 'date', 'after:now', $request->filled('starts_at') ? 'after:starts_at' : null]),
         ], array_filter([
-            'code.alpha_num' => 'Kode voucher hanya boleh berisi huruf dan angka.',
-            'value.max' => $isPercent ? 'Diskon persentase maksimal 90%.' : null,
+            'code.alpha_num' => __('Kode voucher hanya boleh berisi huruf dan angka.'),
+            'value.max' => $isPercent ? __('Diskon persentase maksimal 90%.') : null,
         ]));
 
         $data['min_spend'] ??= 0;

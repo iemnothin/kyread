@@ -46,19 +46,19 @@ class OrderController extends Controller
 
         $this->orders->transition($order, OrderStatus::Paid);
 
-        return back()->with('success', 'Pembayaran berhasil dikonfirmasi. Penjual akan segera memproses pesananmu.');
+        return back()->with('success', __('Pembayaran berhasil dikonfirmasi. Penjual akan segera memproses pesananmu.'));
     }
 
     public function cancel(Order $order): RedirectResponse
     {
         Gate::authorize('view', $order);
         if ($order->status !== OrderStatus::Pending) {
-            return back()->with('error', 'Pesanan yang sudah dibayar hanya bisa dibatalkan oleh penjual.');
+            return back()->with('error', __('Pesanan yang sudah dibayar hanya bisa dibatalkan oleh penjual.'));
         }
 
         $this->orders->transition($order, OrderStatus::Cancelled);
 
-        return back()->with('success', 'Pesanan dibatalkan.');
+        return back()->with('success', __('Pesanan dibatalkan.'));
     }
 
     public function complete(Order $order): RedirectResponse
@@ -67,14 +67,14 @@ class OrderController extends Controller
 
         $this->orders->transition($order, OrderStatus::Completed);
 
-        return back()->with('success', 'Terima kasih! Pesanan selesai. Jangan lupa beri ulasan ya.');
+        return back()->with('success', __('Terima kasih! Pesanan selesai. Jangan lupa beri ulasan ya.'));
     }
 
     public function review(Request $request, Order $order): RedirectResponse
     {
         Gate::authorize('view', $order);
         if ($order->status !== OrderStatus::Completed) {
-            return back()->with('error', 'Ulasan hanya bisa diberikan untuk pesanan yang sudah selesai.');
+            return back()->with('error', __('Ulasan hanya bisa diberikan untuk pesanan yang sudah selesai.'));
         }
 
         $data = $request->validate([
@@ -88,6 +88,6 @@ class OrderController extends Controller
             ['user_id' => $request->user()->id, 'rating' => $data['rating'], 'comment' => $data['comment'] ?? null],
         );
 
-        return back()->with('success', 'Ulasan tersimpan. Terima kasih!');
+        return back()->with('success', __('Ulasan tersimpan. Terima kasih!'));
     }
 }

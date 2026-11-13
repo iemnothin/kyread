@@ -16,7 +16,7 @@ class GoogleController extends Controller
     public function redirect(): SymfonyRedirect|RedirectResponse
     {
         if (! GoogleAuthService::enabled()) {
-            return redirect()->route('login')->with('error', 'Login dengan Google belum diaktifkan.');
+            return redirect()->route('login')->with('error', __('Login dengan Google belum diaktifkan.'));
         }
 
         return Socialite::driver('google')->redirect();
@@ -27,11 +27,11 @@ class GoogleController extends Controller
         try {
             $account = Socialite::driver('google')->user();
         } catch (Throwable) {
-            return redirect()->route('login')->with('loginError', 'Login dengan Google dibatalkan atau gagal. Coba lagi.');
+            return redirect()->route('login')->with('loginError', __('Login dengan Google dibatalkan atau gagal. Coba lagi.'));
         }
 
         if (blank($account->getEmail())) {
-            return redirect()->route('login')->with('loginError', 'Akun Google kamu tidak memiliki email.');
+            return redirect()->route('login')->with('loginError', __('Akun Google kamu tidak memiliki email.'));
         }
 
         $user = $google->findOrCreate($account->getId(), $account->getEmail(), $account->getName(), $account->getAvatar());
@@ -39,6 +39,6 @@ class GoogleController extends Controller
         Auth::login($user, remember: true);
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'))->with('success', "Halo, {$user->display_name}! Kamu masuk dengan Google.");
+        return redirect()->intended(route('home'))->with('success', __('Halo, :name! Kamu masuk dengan Google.', ['name' => $user->display_name]));
     }
 }

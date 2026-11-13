@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ \App\Support\Locales::htmlLang() }}" dir="{{ \App\Support\Locales::dir() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,8 @@
     <meta name="robots" content="noindex">
     <title>@yield('code') · {{ config('app.name') }}</title>
     <link href="{{ asset('img/brand.svg') }}" rel="icon" type="image/svg+xml">
-    @vite('resources/js/app.js')
+    @include('partials.i18n-script')
+    @vite([\App\Support\Locales::isRtl() ? 'resources/css/app-rtl.css' : 'resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body>
@@ -23,8 +24,8 @@
                 <h1 class="h4 fw-bold mt-2">@yield('heading')</h1>
                 <p class="text-secondary">@yield('message')</p>
                 <div class="d-flex gap-2 justify-content-center">
-                    <a class="btn btn-outline-ky" href="javascript:history.back()">Kembali</a>
-                    <a class="btn btn-ky" href="{{ url('/') }}">Ke Beranda</a>
+                    <a class="btn btn-outline-ky" href="javascript:history.back()">{{ __('Kembali') }}</a>
+                    <a class="btn btn-ky" href="{{ url('/') }}">{{ __('Ke Beranda') }}</a>
                 </div>
             </div>
         </div>

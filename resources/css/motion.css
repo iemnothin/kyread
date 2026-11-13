@@ -116,12 +116,15 @@
 html.is-loaded .page-loader {
     opacity: 0;
     visibility: hidden;
+    /* Langsung tembus klik; visibility baru berubah di akhir transisi fade-out. */
+    pointer-events: none;
 }
 
 /* Saat pindah halaman: tampil kembali, setelah jeda singkat agar navigasi cepat tidak berkedip. */
 html.is-navigating .page-loader {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
     animation: none;
     transition-delay: .2s;
 }

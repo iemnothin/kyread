@@ -31,6 +31,6 @@ class WishlistController extends Controller
             return response()->json(['wishlisted' => $added, 'count' => $request->user()->wishlist()->count()]);
         }
 
-        return back()->with('success', $added ? 'Ditambahkan ke wishlist.' : 'Dihapus dari wishlist.');
+        return back()->with('success', $added ? __('Ditambahkan ke wishlist.') : __('Dihapus dari wishlist.'));
     }
 }

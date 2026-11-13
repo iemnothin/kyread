@@ -67,7 +67,7 @@ class CheckoutService
             $cart = $user->cartItems()->get();
 
             if ($cart->isEmpty()) {
-                throw ValidationException::withMessages(['cart' => 'Keranjang belanja kamu masih kosong.']);
+                throw ValidationException::withMessages(['cart' => __('Keranjang belanja kamu masih kosong.')]);
             }
 
             // Kunci baris produk agar stok tidak balapan dengan checkout lain.
@@ -78,13 +78,13 @@ class CheckoutService
                 $product = $products->get($item->product_id);
 
                 if (! $product || ! $product->is_active) {
-                    throw ValidationException::withMessages(['cart' => 'Ada buku di keranjang yang sudah tidak dijual.']);
+                    throw ValidationException::withMessages(['cart' => __('Ada buku di keranjang yang sudah tidak dijual.')]);
                 }
                 if ($product->store_id === $ownStoreId) {
-                    throw ValidationException::withMessages(['cart' => "Kamu tidak bisa membeli buku dari tokomu sendiri ({$product->title})."]);
+                    throw ValidationException::withMessages(['cart' => __('Kamu tidak bisa membeli buku dari tokomu sendiri (:title).', ['title' => $product->title])]);
                 }
                 if ($product->stock < $item->quantity) {
-                    throw ValidationException::withMessages(['cart' => "Stok \"{$product->title}\" tinggal {$product->stock}."]);
+                    throw ValidationException::withMessages(['cart' => __('Stok ":title" tinggal :stock.', ['title' => $product->title, 'stock' => $product->stock])]);
                 }
             }
 

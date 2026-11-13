@@ -14,12 +14,12 @@ enum OrderStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Pending => 'Menunggu Pembayaran',
-            self::Paid => 'Dibayar',
-            self::Processing => 'Diproses Penjual',
-            self::Shipped => 'Dikirim',
-            self::Completed => 'Selesai',
-            self::Cancelled => 'Dibatalkan',
+            self::Pending => __('Menunggu Pembayaran'),
+            self::Paid => __('Dibayar'),
+            self::Processing => __('Diproses Penjual'),
+            self::Shipped => __('Dikirim'),
+            self::Completed => __('Selesai'),
+            self::Cancelled => __('Dibatalkan'),
         };
     }
 

@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Keranjang')
+@section('title', __('Keranjang'))
 
 @section('content')
-    <h1 class="h4 fw-bold mb-3">Keranjang Belanja</h1>
+    <h1 class="h4 fw-bold mb-3">{{ __('Keranjang Belanja') }}</h1>
 
     @if ($groups->isEmpty())
         <div class="card card-soft text-center py-5">
             <div class="card-body">
                 <i class="bi bi-bag display-4 text-ky"></i>
-                <h2 class="h5 mt-3">Keranjangmu masih kosong</h2>
-                <p class="text-secondary">Yuk, cari buku favoritmu sekarang.</p>
-                <a class="btn btn-ky px-4" href="{{ route('books.index') }}">Mulai Belanja</a>
+                <h2 class="h5 mt-3">{{ __('Keranjangmu masih kosong') }}</h2>
+                <p class="text-secondary">{{ __('Yuk, cari buku favoritmu sekarang.') }}</p>
+                <a class="btn btn-ky px-4" href="{{ route('books.index') }}">{{ __('Mulai Belanja') }}</a>
             </div>
         </div>
     @else
@@ -36,20 +36,20 @@
                                             <small class="text-secondary d-block">{{ $product->author }}</small>
                                             <div class="fw-bold text-ky">@rupiah($product->price)</div>
                                             @if (! $product->is_active || $product->stock === 0)
-                                                <small class="text-danger">Tidak tersedia, hapus untuk melanjutkan.</small>
+                                                <small class="text-danger">{{ __('Tidak tersedia, hapus untuk melanjutkan.') }}</small>
                                             @elseif ($item->quantity > $product->stock)
-                                                <small class="text-danger">Stok tinggal {{ $product->stock }}.</small>
+                                                <small class="text-danger">{{ __('Stok tinggal :stock.', ['stock' => $product->stock]) }}</small>
                                             @endif
                                         </div>
                                         <div class="d-flex flex-column align-items-end gap-2">
                                             <form class="d-flex" action="{{ route('cart.update', $item) }}" method="POST">
                                                 @csrf @method('PATCH')
                                                 <input class="form-control form-control-sm text-center" name="quantity" type="number" value="{{ $item->quantity }}"
-                                                    min="1" max="{{ max(1, $product->stock) }}" style="width: 72px" data-autosubmit aria-label="Jumlah">
+                                                    min="1" max="{{ max(1, $product->stock) }}" style="width: 72px" data-autosubmit aria-label="{{ __('Jumlah') }}">
                                             </form>
                                             <form action="{{ route('cart.destroy', $item) }}" method="POST">
                                                 @csrf @method('DELETE')
-                                                <button class="btn btn-link btn-sm text-danger p-0" type="submit"><i class="bi bi-trash"></i> Hapus</button>
+                                                <button class="btn btn-link btn-sm text-danger p-0" type="submit"><i class="bi bi-trash"></i> {{ __('Hapus') }}</button>
                                             </form>
                                         </div>
                                     </div>
@@ -63,18 +63,18 @@
             <div class="col-lg-4">
                 <div class="card card-soft sticky-lg-top" style="top: 90px">
                     <div class="card-body">
-                        <h2 class="h6 fw-bold mb-3">Ringkasan Belanja</h2>
+                        <h2 class="h6 fw-bold mb-3">{{ __('Ringkasan Belanja') }}</h2>
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-secondary">Total harga ({{ $count }} buku)</span>
+                            <span class="text-secondary">{{ trans_choice('Total harga (:count buku)', $count) }}</span>
                             <span>@rupiah($total)</span>
                         </div>
-                        <p class="small text-secondary">Ongkos kirim dihitung saat checkout.</p>
+                        <p class="small text-secondary">{{ __('Ongkos kirim dihitung saat checkout.') }}</p>
                         <hr>
                         <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
-                            <span>Subtotal</span><span class="text-ky">@rupiah($total)</span>
+                            <span>{{ __('Subtotal') }}</span><span class="text-ky">@rupiah($total)</span>
                         </div>
-                        <a class="btn btn-ky w-100 py-2" href="{{ route('checkout.create') }}">Checkout</a>
-                        <a class="btn btn-link w-100 mt-1" href="{{ route('books.index') }}">Lanjut belanja</a>
+                        <a class="btn btn-ky w-100 py-2" href="{{ route('checkout.create') }}">{{ __('Checkout') }}</a>
+                        <a class="btn btn-link w-100 mt-1" href="{{ route('books.index') }}">{{ __('Lanjut belanja') }}</a>
                     </div>
                 </div>
             </div>

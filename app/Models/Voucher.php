@@ -76,12 +76,26 @@ class Voucher extends Model
     {
         return Attribute::get(function () {
             $rp = fn (int $n) => 'Rp '.number_format($n, 0, ',', '.');
-            $text = $this->type === VoucherType::Percent
-                ? "Diskon {$this->value}%".($this->max_discount ? ' s.d. '.$rp($this->max_discount) : '')
-                : 'Potongan '.$rp($this->value);
+            $text = match (true) {
+                $this->type === VoucherType::Fixed => __('Potongan :amount', ['amount' => $rp($this->value)]),
+                (bool) $this->max_discount => __('Diskon :percent% s.d. :max', ['percent' => $this->value, 'max' => $rp($this->max_discount)]),
+                default => __('Diskon :percent%', ['percent' => $this->value]),
+            };
 
-            return $text.($this->min_spend > 0 ? ' · min. belanja '.$rp($this->min_spend) : '');
+            return $text.($this->min_spend > 0 ? ' · '.__('min. belanja :amount', ['amount' => $rp($this->min_spend)]) : '');
         });
+    }
+
+    /** Status untuk ditampilkan, dalam bahasa aktif. status() tetap berbahasa Indonesia untuk logika. */
+    public function statusLabel(): string
+    {
+        return match ($this->status()) {
+            'Nonaktif' => __('Nonaktif'),
+            'Terjadwal' => __('Terjadwal'),
+            'Kedaluwarsa' => __('Kedaluwarsa'),
+            'Kuota habis' => __('Kuota habis'),
+            default => __('Aktif'),
+        };
     }
 
     public function status(): string

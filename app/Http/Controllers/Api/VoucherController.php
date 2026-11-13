@@ -22,7 +22,7 @@ class VoucherController extends Controller
             'store_name' => $voucher->store->name,
             'summary' => $voucher->summary,
             'discount' => $discount,
-            'message' => 'Voucher '.$voucher->code.' dipakai: hemat Rp '.number_format($discount, 0, ',', '.').'.',
+            'message' => __('Voucher :code dipakai: hemat :amount.', ['code' => $voucher->code, 'amount' => 'Rp '.number_format($discount, 0, ',', '.')]),
         ]);
     }
 }

@@ -6,6 +6,7 @@ use Anthropic\Client;
 use Anthropic\Core\Exceptions\APIConnectionException;
 use Anthropic\Core\Exceptions\APIStatusException;
 use App\Models\Product;
+use App\Support\Locales;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -37,7 +38,7 @@ class AiService
             system: 'Kamu membantu toko buku online kyread mengenali buku dari foto. '
                 .'Baca judul dan penulis dari sampul, punggung buku, atau halaman yang terlihat. '
                 .'Jika foto bukan buku, isi title dan author dengan null dan beri kata kunci topik/genre yang relevan dengan isi foto. '
-                .'Tulis description dalam Bahasa Indonesia, maksimal satu kalimat.',
+                .'Tulis description maksimal satu kalimat dalam bahasa: '.$this->replyLanguage().'.',
             messages: [[
                 'role' => 'user',
                 'content' => [
@@ -118,7 +119,7 @@ class AiService
                 [
                     'type' => 'text',
                     'text' => <<<'PROMPT'
-                    Kamu adalah "Kyra", asisten belanja toko buku online kyread. Jawab dalam Bahasa Indonesia yang ramah dan ringkas (maksimal ±120 kata).
+                    Kamu adalah "Kyra", asisten belanja toko buku online kyread. Jawab dengan ramah dan ringkas (maksimal ±120 kata), dalam bahasa yang disebut di bagian akhir.
 
                     Yang bisa kamu bantu:
                     - Merekomendasikan buku dari KATALOG di bawah sesuai selera, mood, umur, atau anggaran pembeli.
@@ -133,6 +134,8 @@ class AiService
                 ],
                 // Katalog di blok terpisah yang di-cache agar percakapan berikutnya lebih cepat & hemat.
                 ['type' => 'text', 'text' => "KATALOG (id | judul | penulis | kategori | harga | stok | rating):\n".$catalog, 'cacheControl' => ['type' => 'ephemeral']],
+                // Setelah blok cache: ganti bahasa tidak membuat cache katalog terbuang.
+                ['type' => 'text', 'text' => 'Bahasa antarmuka pembeli: '.$this->replyLanguage().'. Tulis reply dalam bahasa ini, kecuali pembeli jelas menulis dalam bahasa lain. Judul buku tetap seperti di katalog.'],
             ],
             messages: $history,
             schema: [
@@ -154,6 +157,12 @@ class AiService
             ->values();
 
         return ['reply' => (string) ($data['reply'] ?? ''), 'products' => $products];
+    }
+
+    /** Nama bahasa antarmuka aktif, mis. "日本語 (ja)". */
+    private function replyLanguage(): string
+    {
+        return Locales::current()['native'].' ('.app()->getLocale().')';
     }
 
     /** Ringkasan katalog aktif (maks. 300 judul terlaris), di-cache 10 menit. */
@@ -185,7 +194,7 @@ class AiService
     private function ask(string|array $system, array $messages, array $schema, int $maxTokens): array
     {
         if (! self::enabled()) {
-            throw new RuntimeException('Fitur AI belum diaktifkan di server.');
+            throw new RuntimeException(__('Fitur AI belum diaktifkan di server.'));
         }
 
         $client = $this->client ?? new Client(apiKey: config('services.anthropic.key'));
@@ -204,17 +213,17 @@ class AiService
             );
         } catch (APIConnectionException $e) {
             Log::warning('Claude API connection failed', ['error' => $e->getMessage()]);
-            throw new RuntimeException('Asisten AI sedang tidak dapat dihubungi. Coba lagi sebentar.');
+            throw new RuntimeException(__('Asisten AI sedang tidak dapat dihubungi. Coba lagi sebentar.'));
         } catch (APIStatusException $e) {
             Log::warning('Claude API error', ['status' => $e->getCode(), 'type' => $e->type?->value, 'error' => $e->getMessage()]);
             throw new RuntimeException(match ($e->type?->value) {
-                'rate_limit_error', 'overloaded_error' => 'Asisten AI sedang sibuk. Coba lagi beberapa saat lagi.',
-                default => 'Asisten AI gagal memproses permintaan.',
+                'rate_limit_error', 'overloaded_error' => __('Asisten AI sedang sibuk. Coba lagi beberapa saat lagi.'),
+                default => __('Asisten AI gagal memproses permintaan.'),
             });
         }
 
         if ($message->stopReason === 'refusal') {
-            throw new RuntimeException('Maaf, permintaan ini tidak bisa diproses oleh asisten.');
+            throw new RuntimeException(__('Maaf, permintaan ini tidak bisa diproses oleh asisten.'));
         }
 
         foreach ($message->content as $block) {
@@ -226,6 +235,6 @@ class AiService
             }
         }
 
-        throw new RuntimeException('Asisten AI tidak memberikan jawaban. Coba ulangi.');
+        throw new RuntimeException(__('Asisten AI tidak memberikan jawaban. Coba ulangi.'));
     }
 }

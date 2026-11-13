@@ -1,8 +1,8 @@
-import '../css/app.css';
 import * as bootstrap from 'bootstrap';
 import { initCommon, initPageLoader, initRipple, initWishlist } from './common';
 import { initImageSearch, initSuggestions } from './search';
 import { initAssistant } from './assistant';
+import { t } from './i18n';
 
 window.bootstrap = bootstrap;
 
@@ -69,7 +69,7 @@ function initCheckout() {
             });
             const data = await res.json();
             if (!res.ok) {
-                errorEl.textContent = data.errors?.voucher_code?.[0] ?? data.message ?? 'Voucher tidak bisa dipakai.';
+                errorEl.textContent = data.errors?.voucher_code?.[0] ?? data.message ?? t('Voucher tidak bisa dipakai.');
                 input.classList.add('is-invalid');
             } else {
                 discount = data.discount;
@@ -78,7 +78,7 @@ function initCheckout() {
                 okEl.classList.remove('d-none');
             }
         } catch {
-            errorEl.textContent = 'Gagal memeriksa voucher. Coba lagi.';
+            errorEl.textContent = t('Gagal memeriksa voucher. Coba lagi.');
             input.classList.add('is-invalid');
         } finally {
             applyBtn.disabled = false;

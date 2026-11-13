@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ \App\Support\Locales::htmlLang() }}" dir="{{ \App\Support\Locales::dir() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>Invoice {{ $order->code }} · {{ config('app.name') }}</title>
+    <title>{{ __('Invoice :code', ['code' => $order->code]) }} · {{ config('app.name') }}</title>
     <link rel="icon" href="{{ asset('img/brand.svg') }}" type="image/svg+xml">
     <style>
         * { box-sizing: border-box; }
@@ -41,9 +41,9 @@
 <body>
     <div class="actions">
         @auth
-            <a class="btn light" href="{{ auth()->user()->can('manage', $order) ? route('seller.orders.show', $order) : route('orders.show', $order) }}">Kembali</a>
+            <a class="btn light" href="{{ auth()->user()->can('manage', $order) ? route('seller.orders.show', $order) : route('orders.show', $order) }}">{{ __('Kembali') }}</a>
         @endauth
-        <button class="btn" type="button" onclick="window.print()">Cetak / Simpan PDF</button>
+        <button class="btn" type="button" onclick="window.print()">{{ __('Cetak / Simpan PDF') }}</button>
     </div>
 
     <main class="sheet">
@@ -57,27 +57,27 @@
 
         <div class="grid">
             <div>
-                <div class="label">Penjual</div>
+                <div class="label">{{ __('Penjual') }}</div>
                 <b>{{ $order->store->name }}</b><br>
                 <span class="muted">{{ $order->store->city }}</span>
             </div>
             <div>
-                <div class="label">Pembeli</div>
+                <div class="label">{{ __('Pembeli') }}</div>
                 <b>{{ $order->recipient_name }}</b> · {{ $order->recipient_phone }}<br>
                 <span class="muted">{{ $order->full_address }}</span>
             </div>
             <div>
-                <div class="label">Tanggal pesanan</div>
-                {{ $order->created_at->translatedFormat('d F Y, H:i') }} WIB
-                <div class="label" style="margin-top: 8px">Status</div>
+                <div class="label">{{ __('Tanggal pesanan') }}</div>
+                {{ __(':date WIB', ['date' => $order->created_at->translatedFormat('d F Y, H:i')]) }}
+                <div class="label" style="margin-top: 8px">{{ __('Status') }}</div>
                 <span class="status {{ $order->status->value }}">{{ $order->status->label() }}</span>
-                @if ($order->paid_at)<div class="muted">Dibayar {{ $order->paid_at->translatedFormat('d M Y H:i') }}</div>@endif
+                @if ($order->paid_at)<div class="muted">{{ __('Dibayar :date', ['date' => $order->paid_at->translatedFormat('d M Y H:i')]) }}</div>@endif
             </div>
         </div>
 
         <table>
             <thead>
-                <tr><th>Buku</th><th class="num">Harga</th><th class="num">Jumlah</th><th class="num">Subtotal</th></tr>
+                <tr><th>{{ __('Buku') }}</th><th class="num">{{ __('Harga') }}</th><th class="num">{{ __('Jumlah') }}</th><th class="num">{{ __('Subtotal') }}</th></tr>
             </thead>
             <tbody>
                 @foreach ($order->items as $item)
@@ -90,21 +90,21 @@
                 @endforeach
             </tbody>
             <tfoot>
-                <tr><td colspan="3" class="num muted">Subtotal</td><td class="num">@rupiah($order->subtotal)</td></tr>
-                <tr><td colspan="3" class="num muted">Ongkos kirim ({{ $order->courier->label() }})</td><td class="num">@rupiah($order->shipping_cost)</td></tr>
+                <tr><td colspan="3" class="num muted">{{ __('Subtotal') }}</td><td class="num">@rupiah($order->subtotal)</td></tr>
+                <tr><td colspan="3" class="num muted">{{ __('Ongkos kirim (:courier)', ['courier' => $order->courier->label()]) }}</td><td class="num">@rupiah($order->shipping_cost)</td></tr>
                 @if ($order->discount > 0)
-                    <tr><td colspan="3" class="num muted">Voucher {{ $order->voucher_code }}</td><td class="num">−@rupiah($order->discount)</td></tr>
+                    <tr><td colspan="3" class="num muted">{{ __('Voucher :code', ['code' => $order->voucher_code]) }}</td><td class="num">−@rupiah($order->discount)</td></tr>
                 @endif
-                <tr class="total"><td colspan="3" class="num">Total</td><td class="num">@rupiah($order->total)</td></tr>
+                <tr class="total"><td colspan="3" class="num">{{ __('Total') }}</td><td class="num">@rupiah($order->total)</td></tr>
             </tfoot>
         </table>
 
         <div class="grid">
-            <div><div class="label">Metode pembayaran</div>{{ $order->payment_method->label() }}</div>
-            <div><div class="label">Kurir</div>{{ $order->courier->label() }}@if ($order->tracking_number) · resi <b>{{ $order->tracking_number }}</b>@endif</div>
+            <div><div class="label">{{ __('Metode pembayaran') }}</div>{{ $order->payment_method->label() }}</div>
+            <div><div class="label">{{ __('Kurir') }}</div>{{ $order->courier->label() }}@if ($order->tracking_number) · {{ __('resi') }} <b>{{ $order->tracking_number }}</b>@endif</div>
         </div>
 
-        <footer>Invoice ini dibuat otomatis oleh {{ config('app.name') }} dan sah tanpa tanda tangan.</footer>
+        <footer>{{ __('Invoice ini dibuat otomatis oleh :app dan sah tanpa tanda tangan.', ['app' => config('app.name')]) }}</footer>
     </main>
 </body>
 </html>

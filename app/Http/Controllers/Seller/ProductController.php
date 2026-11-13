@@ -43,7 +43,7 @@ class ProductController extends Controller
 
         $request->user()->store->products()->create($data);
 
-        return redirect()->route('seller.products.index')->with('success', 'Buku berhasil ditambahkan.');
+        return redirect()->route('seller.products.index')->with('success', __('Buku berhasil ditambahkan.'));
     }
 
     public function edit(Product $product): View
@@ -76,7 +76,7 @@ class ProductController extends Controller
 
         $product->update($data);
 
-        return redirect()->route('seller.products.index')->with('success', 'Buku berhasil diperbarui.');
+        return redirect()->route('seller.products.index')->with('success', __('Buku berhasil diperbarui.'));
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -86,7 +86,7 @@ class ProductController extends Controller
         $this->deleteImage($product);
         $product->delete();
 
-        return back()->with('success', 'Buku dihapus dari toko.');
+        return back()->with('success', __('Buku dihapus dari toko.'));
     }
 
     private function validated(Request $request): array

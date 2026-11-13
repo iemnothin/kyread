@@ -74,6 +74,8 @@ class EcommerceFeaturesTest extends TestCase
 
         $this->actingAs($user)->postJson(route('wishlist.toggle', $product))->assertJson(['wishlisted' => true]);
         $this->actingAs($user)->get(route('wishlist.index'))->assertOk()->assertSee('Buku Impian');
+        // Variabel $label milik halaman (opsi urutan) tidak boleh bocor ke tombol hati di kartu buku.
+        $this->actingAs($user)->get('/books')->assertOk()->assertDontSee('<span class="ms-1">Judul A-Z</span>', false);
         $this->actingAs($user)->postJson(route('wishlist.toggle', $product))->assertJson(['wishlisted' => false]);
         $this->assertSame(0, $user->wishlist()->count());
 

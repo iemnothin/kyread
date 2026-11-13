@@ -34,12 +34,12 @@ class AuthController extends Controller
         if (Auth::attempt([$field => $credentials['login'], 'password' => $credentials['password']], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('home'))->with('success', 'Selamat datang kembali!');
+            return redirect()->intended(route('home'))->with('success', __('Selamat datang kembali!'));
         }
 
         return back()
             ->withInput($request->only('login', 'remember'))
-            ->with('loginError', 'Email/username atau password salah.');
+            ->with('loginError', __('Email/username atau password salah.'));
     }
 
     public function register(Request $request): RedirectResponse
@@ -56,7 +56,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('home')->with('success', 'Registrasi berhasil! Selamat berbelanja di kyread.');
+        return redirect()->route('home')->with('success', __('Registrasi berhasil! Selamat berbelanja di kyread.'));
     }
 
     public function logout(Request $request): RedirectResponse
@@ -66,6 +66,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home')->with('success', 'Kamu sudah keluar.');
+        return redirect()->route('home')->with('success', __('Kamu sudah keluar.'));
     }
 }

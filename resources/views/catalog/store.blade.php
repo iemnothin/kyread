@@ -9,13 +9,13 @@
             <div class="flex-grow-1">
                 <h1 class="h3 fw-bold mb-1">{{ $store->name }}</h1>
                 <div class="small text-secondary mb-2">
-                    <i class="bi bi-geo-alt"></i> {{ $store->city }} · <i class="bi bi-book"></i> {{ $store->products_count }} buku ·
-                    Bergabung {{ $store->created_at->translatedFormat('F Y') }}
+                    <i class="bi bi-geo-alt"></i> {{ $store->city }} · <i class="bi bi-book"></i> {{ trans_choice(':count buku', $store->products_count) }} ·
+                    {{ __('Bergabung :date', ['date' => $store->created_at->translatedFormat('F Y')]) }}
                 </div>
                 @if ($store->description)<p class="mb-0">{{ $store->description }}</p>@endif
             </div>
             <form class="search-box d-flex mt-3 mt-md-0" action="{{ route('stores.show', $store) }}" method="GET">
-                <input class="form-control" name="q" type="search" value="{{ request('q') }}" placeholder="Cari di toko ini">
+                <input class="form-control" name="q" type="search" value="{{ request('q') }}" placeholder="{{ __('Cari di toko ini') }}">
                 <button class="btn btn-ky" type="submit"><i class="bi bi-search"></i></button>
             </form>
         </div>
@@ -23,7 +23,7 @@
 
     @if ($vouchers->isNotEmpty())
         <div class="mb-4">
-            <h2 class="h6 fw-bold mb-2"><i class="bi bi-ticket-perforated text-ky"></i> Voucher Toko</h2>
+            <h2 class="h6 fw-bold mb-2"><i class="bi bi-ticket-perforated text-ky"></i> {{ __('Voucher Toko') }}</h2>
             <div class="d-flex flex-wrap gap-2">
                 @foreach ($vouchers as $voucher)
                     <span class="voucher-chip">
@@ -32,7 +32,7 @@
                     </span>
                 @endforeach
             </div>
-            <small class="text-secondary">Masukkan kodenya saat checkout.</small>
+            <small class="text-secondary">{{ __('Masukkan kodenya saat checkout.') }}</small>
         </div>
     @endif
 
@@ -40,7 +40,7 @@
         @forelse ($products as $product)
             <div class="col">@include('partials.product-card')</div>
         @empty
-            <p class="text-secondary">Belum ada buku di toko ini.</p>
+            <p class="text-secondary">{{ __('Belum ada buku di toko ini.') }}</p>
         @endforelse
     </div>
     <div class="mt-4">{{ $products->links() }}</div>

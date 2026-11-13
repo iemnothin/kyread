@@ -1,13 +1,13 @@
 {{-- @include('partials.product-card', ['product' => $product]) --}}
 <div class="card book-card position-relative">
     <div class="cover">
-        <img src="{{ $product->image_url }}" alt="Sampul {{ $product->title }}" loading="lazy">
+        <img src="{{ $product->image_url }}" alt="{{ __('Sampul :title', ['title' => $product->title]) }}" loading="lazy">
         @if ($product->discount_percent > 0)
             <span class="discount-badge">-{{ $product->discount_percent }}%</span>
         @endif
     </div>
     @auth
-        @include('partials.wishlist-button', ['product' => $product, 'active' => isset($wishlistIds[$product->id]), 'class' => 'wish-btn-card'])
+        @include('partials.wishlist-button', ['product' => $product, 'active' => isset($wishlistIds[$product->id]), 'class' => 'wish-btn-card', 'label' => null])
     @endauth
     <div class="card-body p-3 d-flex flex-column">
         <span class="badge bg-ky align-self-start mb-2">{{ $product->category->name }}</span>
@@ -22,10 +22,10 @@
                 @if ($product->reviews_avg_rating)
                     <i class="bi bi-star-fill rating-stars"></i> {{ number_format($product->reviews_avg_rating, 1) }} ·
                 @endif
-                {{ $product->sold_count }} terjual
+                {{ trans_choice(':count terjual', $product->sold_count) }}
             </span>
             @if ($product->stock === 0)
-                <span class="text-danger">Habis</span>
+                <span class="text-danger">{{ __('Habis') }}</span>
             @endif
         </div>
         @if ($product->relationLoaded('store'))

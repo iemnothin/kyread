@@ -31,7 +31,7 @@ class ProfileController extends Controller
 
         $user->update($data);
 
-        return back()->with('success', 'Profil berhasil diperbarui.');
+        return back()->with('success', __('Profil berhasil diperbarui.'));
     }
 
     public function password(Request $request): RedirectResponse
@@ -46,7 +46,7 @@ class ProfileController extends Controller
 
         $request->user()->update(['password' => $data['password']]);
 
-        return back()->with('success', $hasPassword ? 'Password berhasil diganti.' : 'Password berhasil dibuat. Sekarang kamu juga bisa masuk dengan email/username.');
+        return back()->with('success', $hasPassword ? __('Password berhasil diganti.') : __('Password berhasil dibuat. Sekarang kamu juga bisa masuk dengan email/username.'));
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -62,6 +62,6 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home')->with('success', 'Akunmu sudah dihapus.');
+        return redirect()->route('home')->with('success', __('Akunmu sudah dihapus.'));
     }
 }

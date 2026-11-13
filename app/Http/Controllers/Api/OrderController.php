@@ -59,7 +59,7 @@ class OrderController extends Controller
     public function cancel(Order $order): OrderResource
     {
         if ($order->status !== OrderStatus::Pending) {
-            throw ValidationException::withMessages(['status' => 'Pesanan yang sudah dibayar hanya bisa dibatalkan oleh penjual.']);
+            throw ValidationException::withMessages(['status' => __('Pesanan yang sudah dibayar hanya bisa dibatalkan oleh penjual.')]);
         }
 
         return $this->transition($order, OrderStatus::Cancelled);
@@ -75,7 +75,7 @@ class OrderController extends Controller
         Gate::authorize('view', $order);
 
         if ($order->status !== OrderStatus::Completed) {
-            throw ValidationException::withMessages(['status' => 'Ulasan hanya bisa diberikan untuk pesanan yang sudah selesai.']);
+            throw ValidationException::withMessages(['status' => __('Ulasan hanya bisa diberikan untuk pesanan yang sudah selesai.')]);
         }
 
         $data = $request->validate([

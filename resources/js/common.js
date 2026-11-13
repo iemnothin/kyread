@@ -1,4 +1,5 @@
 /** Perilaku yang dipakai storefront dan panel penjual. */
+import { t } from './i18n';
 export function initCommon() {
     // <form data-confirm="Yakin?"> meminta konfirmasi sebelum dikirim.
     document.addEventListener('submit', (e) => {
@@ -49,11 +50,11 @@ export function initWishlist() {
             document.querySelectorAll(`form[data-wishlist][action="${form.action}"] button`).forEach((b) => {
                 b.classList.toggle('active', wishlisted);
                 b.setAttribute('aria-pressed', String(wishlisted));
-                b.title = wishlisted ? 'Hapus dari wishlist' : 'Simpan ke wishlist';
+                b.title = wishlisted ? t('Hapus dari wishlist') : t('Simpan ke wishlist');
                 const icon = b.querySelector('i');
                 icon.className = `bi ${wishlisted ? 'bi-heart-fill' : 'bi-heart'}`;
                 const label = b.querySelector('span');
-                if (label) label.textContent = wishlisted ? 'Tersimpan' : 'Wishlist';
+                if (label) label.textContent = wishlisted ? t('Tersimpan') : t('Wishlist');
             });
         } catch {
             form.submit(); // fallback: kirim biasa

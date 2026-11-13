@@ -53,7 +53,7 @@ class AuthController extends Controller
     public function google(Request $request, GoogleAuthService $google): JsonResponse
     {
         if (! GoogleAuthService::enabled()) {
-            return response()->json(['message' => 'Login dengan Google belum diaktifkan.'], 503);
+            return response()->json(['message' => __('Login dengan Google belum diaktifkan.')], 503);
         }
 
         $data = $request->validate([
@@ -93,7 +93,7 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Berhasil keluar.']);
+        return response()->json(['message' => __('Berhasil keluar.')]);
     }
 
     private function tokenResponse(User $user, string $device, int $status = 200): JsonResponse

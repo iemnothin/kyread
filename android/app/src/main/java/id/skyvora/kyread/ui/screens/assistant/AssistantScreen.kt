@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.screens.assistant
 
+import id.skyvora.kyread.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,11 +67,11 @@ import kotlinx.coroutines.launch
 
 data class ChatEntry(val role: String, val text: String, val products: List<Product> = emptyList(), val error: Boolean = false)
 
-private val Starters = listOf(
-    "Rekomendasi novel misteri yang seru",
-    "Buku hadiah di bawah Rp 100.000",
-    "Novel Tere Liye apa saja yang ada?",
-    "Bagaimana cara membayar pesanan?",
+private val Starters get() = listOf(
+    tr("Rekomendasi novel misteri yang seru"),
+    tr("Buku hadiah di bawah Rp 100.000"),
+    tr("Novel Tere Liye apa saja yang ada?"),
+    tr("Bagaimana cara membayar pesanan?"),
 )
 
 class AssistantViewModel(private val repo: KyreadRepository) : ViewModel() {
@@ -90,7 +91,7 @@ class AssistantViewModel(private val repo: KyreadRepository) : ViewModel() {
             val history = entries.filter { !it.error }.map { ChatMessage(it.role, it.text) }
             runCatching { repo.askAssistant(history) }
                 .onSuccess { entries += ChatEntry("assistant", it.reply, it.products) }
-                .onFailure { entries += ChatEntry("assistant", it.message ?: "Kyra gagal menjawab.", error = true) }
+                .onFailure { entries += ChatEntry("assistant", it.message ?: tr("Kyra gagal menjawab."), error = true) }
             thinking = false
         }
     }
@@ -119,14 +120,14 @@ fun AssistantScreen(repo: KyreadRepository, nav: NavHostController) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Avatar()
                         Column(Modifier.padding(start = 10.dp)) {
-                            Text("Tanya Kyra", fontWeight = FontWeight.Bold)
-                            Text("Asisten buku AI", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(tr("Tanya Kyra"), fontWeight = FontWeight.Bold)
+                            Text(tr("Asisten buku AI"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 },
                 navigationIcon = { BackIcon { nav.popBackStack() } },
                 actions = {
-                    if (vm.entries.isNotEmpty()) IconButton(onClick = vm::reset) { Icon(Icons.Outlined.RestartAlt, "Mulai ulang") }
+                    if (vm.entries.isNotEmpty()) IconButton(onClick = vm::reset) { Icon(Icons.Outlined.RestartAlt, tr("Mulai ulang")) }
                 },
             )
         },
@@ -140,13 +141,13 @@ fun AssistantScreen(repo: KyreadRepository, nav: NavHostController) {
                         value = vm.input,
                         onValueChange = { if (it.length <= 2000) vm.input = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Tulis pertanyaanmu…") },
+                        placeholder = { Text(tr("Tulis pertanyaanmu…")) },
                         maxLines = 4,
                         shape = RoundedCornerShape(24.dp),
                     )
                     Spacer(Modifier.width(8.dp))
                     FilledIconButton(onClick = { vm.send() }, enabled = vm.input.isNotBlank() && !vm.thinking) {
-                        Icon(Icons.AutoMirrored.Filled.Send, "Kirim")
+                        Icon(Icons.AutoMirrored.Filled.Send, tr("Kirim"))
                     }
                 }
             }
@@ -165,7 +166,7 @@ fun AssistantScreen(repo: KyreadRepository, nav: NavHostController) {
                 if (entry.role == "user") UserBubble(entry.text) else BotBubble(entry, nav)
             }
             if (vm.thinking) {
-                item { BotBubble(ChatEntry("assistant", "Kyra sedang mencari…"), nav, muted = true) }
+                item { BotBubble(ChatEntry("assistant", tr("Kyra sedang mencari…")), nav, muted = true) }
             }
         }
     }
@@ -185,7 +186,7 @@ private fun Intro(onPick: (String) -> Unit) {
     Column(Modifier.fillMaxWidth().padding(vertical = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Avatar(64)
         Text(
-            "Halo! Aku Kyra. Ceritakan buku seperti apa yang kamu cari, nanti aku carikan dari katalog kyread.",
+            tr("Halo! Aku Kyra. Ceritakan buku seperti apa yang kamu cari, nanti aku carikan dari katalog kyread."),
             modifier = Modifier.padding(16.dp),
             style = MaterialTheme.typography.bodyLarge,
         )
@@ -193,7 +194,7 @@ private fun Intro(onPick: (String) -> Unit) {
             Starters.forEach { s -> AssistChip(onClick = { onPick(s) }, label = { Text(s) }) }
         }
         Text(
-            "Kyra bisa keliru. Cek kembali detail buku sebelum membeli.",
+            tr("Kyra bisa keliru. Cek kembali detail buku sebelum membeli."),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 16.dp),

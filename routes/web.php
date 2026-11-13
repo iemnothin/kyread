@@ -10,6 +10,7 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
@@ -48,6 +49,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+
+// Ganti bahasa antarmuka.
+Route::get('/locale/{locale}', LocaleController::class)->name('locale.switch');
 
 // Invoice: pembeli/penjual yang login, atau tautan bertanda tangan dari aplikasi Android.
 Route::get('/orders/{order}/invoice', InvoiceController::class)->name('orders.invoice');

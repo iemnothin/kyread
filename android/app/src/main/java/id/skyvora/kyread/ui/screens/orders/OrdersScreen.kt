@@ -1,5 +1,7 @@
 package id.skyvora.kyread.ui.screens.orders
 
+import id.skyvora.kyread.i18n.tr
+import id.skyvora.kyread.i18n.trc
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -117,18 +119,18 @@ fun OrdersScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modif
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("Pesanan Saya") }) },
+        topBar = { TopAppBar(title = { Text(tr("Pesanan Saya")) }) },
     ) { padding ->
         if (user == null) {
             MessageBox(
-                Icons.Outlined.LockPerson, "Masuk untuk melihat pesanan", Modifier.padding(padding),
-                actionLabel = "Masuk", onAction = { nav.navigate(Routes.LOGIN) },
+                Icons.Outlined.LockPerson, tr("Masuk untuk melihat pesanan"), Modifier.padding(padding),
+                actionLabel = tr("Masuk"), onAction = { nav.navigate(Routes.LOGIN) },
             )
             return@Scaffold
         }
         Column(Modifier.padding(padding)) {
             LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                item { FilterChip(vm.status == null, { vm.select(null) }, label = { Text("Semua") }) }
+                item { FilterChip(vm.status == null, { vm.select(null) }, label = { Text(tr("Semua")) }) }
                 items(OrderStatus.entries) { s ->
                     FilterChip(vm.status == s.value, { vm.select(s.value) }, label = { Text(s.label) })
                 }
@@ -136,7 +138,7 @@ fun OrdersScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modif
             when {
                 vm.loading -> LoadingBox()
                 vm.error != null -> ErrorBox(vm.error!!, onRetry = { vm.load() })
-                vm.orders.isEmpty() -> MessageBox(Icons.Outlined.Receipt, "Belum ada pesanan", body = "Pesanan yang kamu buat akan muncul di sini.")
+                vm.orders.isEmpty() -> MessageBox(Icons.Outlined.Receipt, tr("Belum ada pesanan"), body = tr("Pesanan yang kamu buat akan muncul di sini."))
                 else -> PullToRefreshBox(isRefreshing = vm.refreshing, onRefresh = { vm.load(pull = true) }) {
                     LazyColumn(state = list, contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(vm.orders, key = { it.code }) { order ->
@@ -172,18 +174,18 @@ private fun OrderCard(order: Order, onClick: () -> Unit) {
                         Text(first.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text("${first.quantity} × ${rupiah(first.price)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (order.items.size > 1) {
-                            Text("+${order.items.size - 1} buku lainnya", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(trc("+:count buku lainnya", order.items.size - 1), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("Total", style = MaterialTheme.typography.labelSmall)
+                        Text(tr("Total"), style = MaterialTheme.typography.labelSmall)
                         Text(rupiah(order.total), fontWeight = FontWeight.Bold)
                     }
                 }
             }
             if (order.can.pay) {
                 Text(
-                    "Selesaikan pembayaran sebelum batas waktu",
+                    tr("Selesaikan pembayaran sebelum batas waktu"),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 8.dp),

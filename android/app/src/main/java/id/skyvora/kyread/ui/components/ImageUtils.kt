@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.components
 
+import id.skyvora.kyread.i18n.tr
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -31,7 +32,7 @@ fun Context.readImageForUpload(uri: Uri): ByteArray {
         }
     } else {
         contentResolver.openInputStream(uri).use { BitmapFactory.decodeStream(it) }
-            ?: throw IllegalArgumentException("Gambar tidak bisa dibaca.")
+            ?: throw IllegalArgumentException(tr("Gambar tidak bisa dibaca."))
     }
     return bitmap.toUploadJpeg()
 }

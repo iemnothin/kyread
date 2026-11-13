@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Notifications\OrderUpdated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
@@ -16,8 +17,8 @@ class NotificationController extends Controller
         return response()->json([
             'data' => $page->getCollection()->map(fn (DatabaseNotification $n) => [
                 'id' => $n->id,
-                'title' => $n->data['title'] ?? '',
-                'body' => $n->data['body'] ?? '',
+                'title' => OrderUpdated::titleFor($n->data),
+                'body' => OrderUpdated::bodyFor($n->data),
                 'order_code' => $n->data['order_code'] ?? null,
                 'audience' => $n->data['audience'] ?? 'buyer',
                 'read' => $n->read_at !== null,

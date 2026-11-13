@@ -26,7 +26,7 @@ class AssistantController extends Controller
             $history->shift();
         }
         if ($history->isEmpty() || $history->last()['role'] !== 'user') {
-            return response()->json(['message' => 'Pesan terakhir harus dari pengguna.'], 422);
+            return response()->json(['message' => __('Pesan terakhir harus dari pengguna.')], 422);
         }
 
         try {

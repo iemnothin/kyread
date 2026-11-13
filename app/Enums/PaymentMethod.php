@@ -14,12 +14,12 @@ enum PaymentMethod: string
     public function label(): string
     {
         return match ($this) {
-            self::Bca => 'BCA Virtual Account',
-            self::Bni => 'BNI Virtual Account',
-            self::Bri => 'BRI Virtual Account',
-            self::Mandiri => 'Mandiri Virtual Account',
-            self::Mastercard => 'Kartu Kredit (Mastercard)',
-            self::Paypal => 'PayPal',
+            self::Bca => __('BCA Virtual Account'),
+            self::Bni => __('BNI Virtual Account'),
+            self::Bri => __('BRI Virtual Account'),
+            self::Mandiri => __('Mandiri Virtual Account'),
+            self::Mastercard => __('Kartu Kredit (Mastercard)'),
+            self::Paypal => __('PayPal'),
         };
     }
 

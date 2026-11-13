@@ -1,5 +1,7 @@
 package id.skyvora.kyread.ui.screens.cart
 
+import id.skyvora.kyread.i18n.tr
+import id.skyvora.kyread.i18n.trc
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -77,7 +79,7 @@ class CartViewModel(private val repo: KyreadRepository) : ViewModel() {
 
     fun load(silent: Boolean = false) = viewModelScope.launch {
         if (!silent) _state.value = Load.Loading
-        _state.value = runCatching { repo.cart() }.fold({ Load.Ready(it) }, { Load.Error(it.message ?: "Terjadi kesalahan") })
+        _state.value = runCatching { repo.cart() }.fold({ Load.Ready(it) }, { Load.Error(it.message ?: tr("Terjadi kesalahan")) })
     }
 
     fun setQuantity(item: CartItem, quantity: Int) = mutate {
@@ -85,14 +87,14 @@ class CartViewModel(private val repo: KyreadRepository) : ViewModel() {
     }
 
     fun remove(item: CartItem) = mutate {
-        repo.removeCartItem(item.id).also { _messages.tryEmit("\"${item.product.title}\" dihapus.") }
+        repo.removeCartItem(item.id).also { _messages.tryEmit(tr("\":title\" dihapus.", "title" to item.product.title)) }
     }
 
     private fun mutate(block: suspend () -> Cart) = viewModelScope.launch {
         busy = true
         runCatching { block() }
             .onSuccess { _state.value = Load.Ready(it) }
-            .onFailure { _messages.tryEmit(it.message ?: "Gagal memperbarui keranjang") }
+            .onFailure { _messages.tryEmit(it.message ?: tr("Gagal memperbarui keranjang")) }
         busy = false
     }
 }
@@ -111,7 +113,7 @@ fun CartScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifie
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("Keranjang") }) },
+        topBar = { TopAppBar(title = { Text(tr("Keranjang")) }) },
         snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             val cart = (state as? Load.Ready)?.data
@@ -119,13 +121,13 @@ fun CartScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifie
                 Surface(tonalElevation = 3.dp, shadowElevation = 8.dp) {
                     Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("Total (${cart.count} buku)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(trc("Total (:count buku)", cart.count), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(rupiah(cart.total), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                         }
                         Button(
                             onClick = { nav.navigate(Routes.CHECKOUT) },
                             enabled = !vm.busy && cart.groups.all { g -> g.items.all { it.available } },
-                        ) { Text("Checkout") }
+                        ) { Text(tr("Checkout")) }
                     }
                 }
             }
@@ -134,18 +136,18 @@ fun CartScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifie
         val inner = Modifier.padding(padding)
         when {
             user == null -> MessageBox(
-                Icons.Outlined.LockPerson, "Masuk untuk melihat keranjang", inner,
-                body = "Simpan buku incaranmu dan checkout kapan saja.",
-                actionLabel = "Masuk", onAction = { nav.navigate(Routes.LOGIN) },
+                Icons.Outlined.LockPerson, tr("Masuk untuk melihat keranjang"), inner,
+                body = tr("Simpan buku incaranmu dan checkout kapan saja."),
+                actionLabel = tr("Masuk"), onAction = { nav.navigate(Routes.LOGIN) },
             )
             else -> when (val s = state) {
                 Load.Loading -> LoadingBox(inner)
                 is Load.Error -> ErrorBox(s.message, onRetry = { vm.load() }, modifier = inner)
                 is Load.Ready -> if (s.data.count == 0) {
                     MessageBox(
-                        Icons.Outlined.ShoppingBag, "Keranjangmu masih kosong", inner,
-                        body = "Yuk, cari buku favoritmu.",
-                        actionLabel = "Mulai Belanja", onAction = { nav.navigateTab(Routes.search()) },
+                        Icons.Outlined.ShoppingBag, tr("Keranjangmu masih kosong"), inner,
+                        body = tr("Yuk, cari buku favoritmu."),
+                        actionLabel = tr("Mulai Belanja"), onAction = { nav.navigateTab(Routes.search()) },
                     )
                 } else {
                     PullToRefreshBox(isRefreshing = false, onRefresh = { vm.load(silent = true) }, modifier = inner) {
@@ -191,7 +193,7 @@ private fun CartRow(item: CartItem, vm: CartViewModel, onOpen: () -> Unit) {
             Text(rupiah(p.price), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
             if (!item.available) {
                 Text(
-                    if (p.stock == 0) "Stok habis, hapus untuk lanjut" else "Stok tinggal ${p.stock}",
+                    if (p.stock == 0) tr("Stok habis, hapus untuk lanjut") else tr("Stok tinggal :stock.", "stock" to p.stock),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -201,7 +203,7 @@ private fun CartRow(item: CartItem, vm: CartViewModel, onOpen: () -> Unit) {
                 QuantityStepper(item.quantity, maxOf(1, p.stock), onChange = { vm.setQuantity(item, it) })
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { vm.remove(item) }, enabled = !vm.busy) {
-                    Icon(Icons.Outlined.Delete, "Hapus", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Outlined.Delete, tr("Hapus"), tint = MaterialTheme.colorScheme.error)
                 }
             }
         }

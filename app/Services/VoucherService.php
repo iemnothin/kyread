@@ -29,16 +29,16 @@ class VoucherService
         $fail = fn (string $message) => throw ValidationException::withMessages(['voucher_code' => $message]);
 
         if (! $voucher || $voucher->status() !== 'Aktif') {
-            $fail('Kode voucher tidak ditemukan atau sudah tidak berlaku.');
+            $fail(__('Kode voucher tidak ditemukan atau sudah tidak berlaku.'));
         }
 
         $subtotal = $subtotals->get($voucher->store_id);
         if ($subtotal === null) {
-            $fail("Voucher {$voucher->code} hanya berlaku untuk buku dari toko {$voucher->store->name}.");
+            $fail(__('Voucher :code hanya berlaku untuk buku dari toko :store.', ['code' => $voucher->code, 'store' => $voucher->store->name]));
         }
 
         if ($subtotal < $voucher->min_spend) {
-            $fail('Minimal belanja di '.$voucher->store->name.' Rp '.number_format($voucher->min_spend, 0, ',', '.').' untuk memakai voucher ini.');
+            $fail(__('Minimal belanja di :store :amount untuk memakai voucher ini.', ['store' => $voucher->store->name, 'amount' => 'Rp '.number_format($voucher->min_spend, 0, ',', '.')]));
         }
 
         $alreadyUsed = Order::where('user_id', $user->id)
@@ -46,7 +46,7 @@ class VoucherService
             ->where('status', '!=', OrderStatus::Cancelled)
             ->exists();
         if ($alreadyUsed) {
-            $fail('Kamu sudah pernah memakai voucher ini.');
+            $fail(__('Kamu sudah pernah memakai voucher ini.'));
         }
 
         return ['voucher' => $voucher, 'store_id' => $voucher->store_id, 'discount' => $voucher->discountFor($subtotal)];

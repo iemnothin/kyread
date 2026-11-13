@@ -51,11 +51,11 @@ class OrderController extends Controller
 
         $to = OrderStatus::from($data['status']);
         if ($to === OrderStatus::Cancelled && $order->status === OrderStatus::Pending) {
-            return back()->with('error', 'Pesanan yang belum dibayar akan dibatalkan otomatis setelah 24 jam.');
+            return back()->with('error', __('Pesanan yang belum dibayar akan dibatalkan otomatis setelah 24 jam.'));
         }
 
         $service->transition($order, $to, $data['tracking_number'] ?? null);
 
-        return back()->with('success', "Status pesanan {$order->code} diubah menjadi \"{$to->label()}\".");
+        return back()->with('success', __('Status pesanan :code diubah menjadi ":status".', ['code' => $order->code, 'status' => $to->label()]));
     }
 }

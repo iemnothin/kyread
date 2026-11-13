@@ -35,7 +35,7 @@ class CheckoutRequest extends FormRequest
 
     public function messages(): array
     {
-        return ['recipient_phone.regex' => 'Format nomor HP tidak valid (contoh: 081234567890).'];
+        return ['recipient_phone.regex' => __('Format nomor HP tidak valid (contoh: 081234567890).')];
     }
 
     /** Simpan alamat pengiriman sebagai alamat utama di profil bila diminta. */

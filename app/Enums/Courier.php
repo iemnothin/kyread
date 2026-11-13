@@ -14,12 +14,12 @@ enum Courier: string
     public function label(): string
     {
         return match ($this) {
-            self::Jne => 'JNE Reguler',
-            self::Jnt => 'J&T Express',
-            self::SiCepat => 'SiCepat REG',
-            self::Tiki => 'TIKI Reguler',
-            self::GoSend => 'GoSend Same Day',
-            self::GrabExpress => 'GrabExpress Same Day',
+            self::Jne => __('JNE Reguler'),
+            self::Jnt => __('J&T Express'),
+            self::SiCepat => __('SiCepat REG'),
+            self::Tiki => __('TIKI Reguler'),
+            self::GoSend => __('GoSend Same Day'),
+            self::GrabExpress => __('GrabExpress Same Day'),
         };
     }
 
@@ -44,9 +44,9 @@ enum Courier: string
     public function estimate(): string
     {
         return match ($this) {
-            self::GoSend, self::GrabExpress => 'Hari ini',
-            self::SiCepat, self::Jnt => '2-3 hari',
-            self::Jne, self::Tiki => '2-4 hari',
+            self::GoSend, self::GrabExpress => __('Hari ini'),
+            self::SiCepat, self::Jnt => __('2-3 hari'),
+            self::Jne, self::Tiki => __('2-4 hari'),
         };
     }
 

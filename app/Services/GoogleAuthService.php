@@ -61,7 +61,7 @@ class GoogleAuthService
             && (int) ($claims['exp'] ?? 0) > time();
 
         if (! $valid || empty($claims['sub']) || empty($claims['email'])) {
-            throw ValidationException::withMessages(['id_token' => 'Login Google gagal diverifikasi. Coba lagi.']);
+            throw ValidationException::withMessages(['id_token' => __('Login Google gagal diverifikasi. Coba lagi.')]);
         }
 
         return [

@@ -12,7 +12,7 @@ class EnsureUserHasStore
     {
         if (! $request->user()?->store) {
             return redirect()->route('seller.store.create')
-                ->with('info', 'Buka toko dulu sebelum mulai berjualan di kyreadSeller.');
+                ->with('info', __('Buka toko dulu sebelum mulai berjualan di kyreadSeller.'));
         }
 
         return $next($request);

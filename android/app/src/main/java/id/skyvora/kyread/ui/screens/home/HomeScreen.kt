@@ -1,5 +1,7 @@
 package id.skyvora.kyread.ui.screens.home
 
+import id.skyvora.kyread.i18n.tr
+import id.skyvora.kyread.i18n.trc
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -110,7 +112,7 @@ class HomeViewModel(private val repo: KyreadRepository) : ViewModel() {
             val latest = async { repo.products(sort = "newest", perPage = 10) }
             val deals = async { repo.products(sort = "discount", promo = true, perPage = 10) }
             HomeData(meta.await().banners, categories.await(), best.await().data, latest.await().data, deals.await().data)
-        }.fold({ Load.Ready(it) }, { Load.Error(it.message ?: "Terjadi kesalahan") })
+        }.fold({ Load.Ready(it) }, { Load.Error(it.message ?: tr("Terjadi kesalahan")) })
         refreshing = false
     }
 }
@@ -138,12 +140,12 @@ fun HomeScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifie
                 actions = {
                     TextButton(onClick = { nav.navigate(Routes.ASSISTANT) }) {
                         Icon(Icons.Filled.AutoAwesome, null, modifier = Modifier.size(18.dp))
-                        Text(" Tanya Kyra")
+                        Text(" " + tr("Tanya Kyra"))
                     }
                     if (user != null) {
                         IconButton(onClick = { nav.navigate(Routes.NOTIFICATIONS) }) {
                             BadgedBox(badge = { if (unread > 0) Badge { Text(if (unread > 99) "99+" else "$unread") } }) {
-                                Icon(Icons.Outlined.Notifications, "Notifikasi")
+                                Icon(Icons.Outlined.Notifications, tr("Notifikasi"))
                             }
                         }
                     }
@@ -183,7 +185,7 @@ private fun HomeContent(data: HomeData, nav: NavHostController) {
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column {
-                SectionTitle("Kategori")
+                SectionTitle(tr("Kategori"))
                 Spacer(Modifier.height(8.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(data.categories, key = { it.id }) { category ->
@@ -195,7 +197,7 @@ private fun HomeContent(data: HomeData, nav: NavHostController) {
         if (data.deals.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Column {
-                    SectionTitle("Sedang Diskon", Modifier.padding(top = 8.dp), "Lihat semua") { nav.navigate(Routes.search(sort = "discount")) }
+                    SectionTitle(tr("Sedang Diskon"), Modifier.padding(top = 8.dp), tr("Lihat semua")) { nav.navigate(Routes.search(sort = "discount")) }
                     Spacer(Modifier.height(8.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(data.deals, key = { "deal-${it.id}" }) { BookCard(it, onClick = { open(it) }, modifier = Modifier.width(150.dp)) }
@@ -204,11 +206,11 @@ private fun HomeContent(data: HomeData, nav: NavHostController) {
             }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            SectionTitle("Terlaris", Modifier.padding(top = 8.dp), "Lihat semua") { nav.navigate(Routes.search(sort = "bestseller")) }
+            SectionTitle(tr("Terlaris"), Modifier.padding(top = 8.dp), tr("Lihat semua")) { nav.navigate(Routes.search(sort = "bestseller")) }
         }
         items(data.bestsellers, key = { "best-${it.id}" }) { BookCard(it, onClick = { open(it) }) }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            SectionTitle("Baru Masuk", Modifier.padding(top = 8.dp), "Lihat semua") { nav.navigate(Routes.search(sort = "newest")) }
+            SectionTitle(tr("Baru Masuk"), Modifier.padding(top = 8.dp), tr("Lihat semua")) { nav.navigate(Routes.search(sort = "newest")) }
         }
         items(data.latest, key = { "new-${it.id}" }) { BookCard(it, onClick = { open(it) }) }
     }
@@ -226,7 +228,7 @@ private fun SearchPill(onClick: () -> Unit) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Filled.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.width(8.dp))
-            Text("Cari judul, penulis, penerbit…", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr("Cari judul, penulis, penerbit…"), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -245,7 +247,7 @@ private fun BannerCarousel(banners: List<String>) {
         HorizontalPager(pager, modifier = Modifier.clip(MaterialTheme.shapes.large)) { page ->
             AsyncImage(
                 model = banners[page],
-                contentDescription = "Promo ${page + 1}",
+                contentDescription = tr("Promo :n", "n" to page + 1),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxWidth().aspectRatio(2.6f),
             )
@@ -282,7 +284,7 @@ private fun CategoryChip(category: Category, onClick: () -> Unit) {
         Spacer(Modifier.height(4.dp))
         Text(category.name, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, maxLines = 1)
         category.productsCount?.let {
-            Text("$it buku", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(trc(":count buku", it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

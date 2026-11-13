@@ -52,7 +52,7 @@ class SearchController extends Controller
     {
         $request->validate([
             'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
-        ], ['image.max' => 'Ukuran foto maksimal 5 MB.']);
+        ], ['image.max' => __('Ukuran foto maksimal 5 MB.')]);
 
         try {
             $identified = $ai->identifyBook($request->file('image'));

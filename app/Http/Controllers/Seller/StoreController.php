@@ -25,7 +25,7 @@ class StoreController extends Controller
     public function store(Request $request): RedirectResponse
     {
         if ($request->user()->store) {
-            return redirect()->route('seller.dashboard')->with('info', 'Kamu sudah punya toko.');
+            return redirect()->route('seller.dashboard')->with('info', __('Kamu sudah punya toko.'));
         }
 
         $data = $this->validated($request);
@@ -33,7 +33,7 @@ class StoreController extends Controller
 
         $request->user()->store()->create($data);
 
-        return redirect()->route('seller.dashboard')->with('success', 'Toko berhasil dibuka. Yuk tambahkan buku pertamamu!');
+        return redirect()->route('seller.dashboard')->with('success', __('Toko berhasil dibuka. Yuk tambahkan buku pertamamu!'));
     }
 
     public function edit(Request $request): View
@@ -59,7 +59,7 @@ class StoreController extends Controller
 
         $store->update($data);
 
-        return back()->with('success', 'Profil toko diperbarui.');
+        return back()->with('success', __('Profil toko diperbarui.'));
     }
 
     private function validated(Request $request, ?Store $store = null): array
@@ -70,7 +70,7 @@ class StoreController extends Controller
             'city' => ['required', 'string', 'max:64'],
             'phone' => ['nullable', 'regex:/^(\+62|62|0)8[0-9]{7,12}$/'],
             'logo' => ['nullable', 'image', 'max:1024'],
-        ], ['phone.regex' => 'Format nomor HP tidak valid (contoh: 081234567890).']);
+        ], ['phone.regex' => __('Format nomor HP tidak valid (contoh: 081234567890).')]);
     }
 
     private function uniqueSlug(string $name, ?int $ignoreId = null): string

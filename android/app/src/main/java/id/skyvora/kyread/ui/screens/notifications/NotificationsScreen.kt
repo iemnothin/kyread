@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.screens.notifications
 
+import id.skyvora.kyread.i18n.tr
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -64,7 +65,7 @@ class NotificationsViewModel(private val repo: KyreadRepository) : ViewModel() {
     fun load(pull: Boolean = false) = viewModelScope.launch {
         if (pull) refreshing = true else state = Load.Loading
         state = runCatching { repo.notifications().data }
-            .fold({ Load.Ready(it) }, { Load.Error(it.message ?: "Terjadi kesalahan") })
+            .fold({ Load.Ready(it) }, { Load.Error(it.message ?: tr("Terjadi kesalahan")) })
         refreshing = false
         if ((state as? Load.Ready)?.data?.any { !it.read } == true) runCatching { repo.markNotificationsRead() }
     }
@@ -88,7 +89,7 @@ fun NotificationsScreen(repo: KyreadRepository, nav: NavHostController) {
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Notifikasi") }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
+        topBar = { TopAppBar(title = { Text(tr("Notifikasi")) }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
     ) { padding ->
         when (val s = vm.state) {
             Load.Loading -> LoadingBox(Modifier.padding(padding))
@@ -97,8 +98,8 @@ fun NotificationsScreen(repo: KyreadRepository, nav: NavHostController) {
                 if (s.data.isEmpty()) {
                     MessageBox(
                         Icons.Outlined.NotificationsNone,
-                        "Belum ada notifikasi",
-                        body = "Kabar tentang pesananmu akan muncul di sini.",
+                        tr("Belum ada notifikasi"),
+                        body = tr("Kabar tentang pesananmu akan muncul di sini."),
                     )
                 } else {
                     LazyColumn {

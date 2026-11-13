@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.screens.wishlist
 
+import id.skyvora.kyread.i18n.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -42,7 +43,7 @@ class WishlistViewModel(private val repo: KyreadRepository) : ViewModel() {
     fun load() = viewModelScope.launch {
         if (state !is Load.Ready) state = Load.Loading
         state = runCatching { repo.wishlist().data }
-            .fold({ Load.Ready(it) }, { Load.Error(it.message ?: "Terjadi kesalahan") })
+            .fold({ Load.Ready(it) }, { Load.Error(it.message ?: tr("Terjadi kesalahan")) })
     }
 }
 
@@ -53,7 +54,7 @@ fun WishlistScreen(repo: KyreadRepository, nav: NavHostController) {
     LaunchedEffect(Unit) { vm.load() }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Wishlist") }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
+        topBar = { TopAppBar(title = { Text(tr("Wishlist")) }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
     ) { padding ->
         when (val s = vm.state) {
             Load.Loading -> LoadingBox(Modifier.padding(padding))
@@ -61,10 +62,10 @@ fun WishlistScreen(repo: KyreadRepository, nav: NavHostController) {
             is Load.Ready -> if (s.data.isEmpty()) {
                 MessageBox(
                     Icons.Outlined.FavoriteBorder,
-                    "Wishlist masih kosong",
+                    tr("Wishlist masih kosong"),
                     Modifier.padding(padding),
-                    body = "Tekan ikon hati di halaman buku untuk menyimpannya di sini.",
-                    actionLabel = "Jelajahi Katalog",
+                    body = tr("Tekan ikon hati di halaman buku untuk menyimpannya di sini."),
+                    actionLabel = tr("Jelajahi Katalog"),
                     onAction = { nav.navigate(Routes.search()) },
                 )
             } else {

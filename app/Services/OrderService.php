@@ -20,12 +20,12 @@ class OrderService
 
             if (! $order->status->canTransitionTo($to)) {
                 throw ValidationException::withMessages([
-                    'status' => "Pesanan berstatus \"{$order->status->label()}\" tidak bisa diubah menjadi \"{$to->label()}\".",
+                    'status' => __('Pesanan berstatus ":from" tidak bisa diubah menjadi ":to".', ['from' => $order->status->label(), 'to' => $to->label()]),
                 ]);
             }
 
             if ($to === OrderStatus::Shipped && blank($trackingNumber)) {
-                throw ValidationException::withMessages(['tracking_number' => 'Nomor resi wajib diisi saat mengirim pesanan.']);
+                throw ValidationException::withMessages(['tracking_number' => __('Nomor resi wajib diisi saat mengirim pesanan.')]);
             }
 
             $order->status = $to;

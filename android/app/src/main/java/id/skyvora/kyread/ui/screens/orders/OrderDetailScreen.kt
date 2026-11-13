@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.screens.orders
 
+import id.skyvora.kyread.i18n.tr
 import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
@@ -82,23 +83,23 @@ class OrderDetailViewModel(private val repo: KyreadRepository, private val code:
 
     fun load() = viewModelScope.launch {
         state = Load.Loading
-        state = runCatching { repo.order(code) }.fold({ Load.Ready(it) }, { Load.Error(it.message ?: "Terjadi kesalahan") })
+        state = runCatching { repo.order(code) }.fold({ Load.Ready(it) }, { Load.Error(it.message ?: tr("Terjadi kesalahan")) })
     }
 
     /** Jalankan aksi pesanan; kembalikan pesan untuk snackbar. */
     suspend fun act(success: String, block: suspend () -> Order): String {
         busy = true
         val message = runCatching { block() }
-            .fold({ state = Load.Ready(it); success }, { it.message ?: "Gagal" })
+            .fold({ state = Load.Ready(it); success }, { it.message ?: tr("Gagal") })
         busy = false
         return message
     }
 
-    suspend fun pay() = act("Pembayaran dikonfirmasi. Penjual akan segera memproses pesananmu.") { repo.payOrder(code) }
-    suspend fun cancel() = act("Pesanan dibatalkan.") { repo.cancelOrder(code) }
-    suspend fun complete() = act("Pesanan selesai. Jangan lupa beri ulasan ya!") { repo.completeOrder(code) }
+    suspend fun pay() = act(tr("Pembayaran dikonfirmasi. Penjual akan segera memproses pesananmu.")) { repo.payOrder(code) }
+    suspend fun cancel() = act(tr("Pesanan dibatalkan.")) { repo.cancelOrder(code) }
+    suspend fun complete() = act(tr("Pesanan selesai. Jangan lupa beri ulasan ya!")) { repo.completeOrder(code) }
     suspend fun review(productId: Int, rating: Int, comment: String) =
-        act("Ulasan tersimpan. Terima kasih!") { repo.reviewOrder(code, productId, rating, comment.ifBlank { null }) }
+        act(tr("Ulasan tersimpan. Terima kasih!")) { repo.reviewOrder(code, productId, rating, comment.ifBlank { null }) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,8 +117,8 @@ fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: Stri
         AlertDialog(
             onDismissRequest = { confirm = null },
             text = { Text(text) },
-            confirmButton = { TextButton(onClick = { confirm = null; run(action) }) { Text("Ya") } },
-            dismissButton = { TextButton(onClick = { confirm = null }) { Text("Batal") } },
+            confirmButton = { TextButton(onClick = { confirm = null; run(action) }) { Text(tr("Ya")) } },
+            dismissButton = { TextButton(onClick = { confirm = null }) { Text(tr("Batal")) } },
         )
     }
 
@@ -130,7 +131,7 @@ fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: Stri
                     // Invoice dibuka di browser lewat tautan bertanda tangan (berlaku 1 jam).
                     (vm.state as? Load.Ready)?.data?.invoiceUrl?.let { url ->
                         IconButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }) {
-                            Icon(Icons.Outlined.Description, "Invoice")
+                            Icon(Icons.Outlined.Description, tr("Invoice"))
                         }
                     }
                 },
@@ -156,28 +157,28 @@ fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: Stri
                                 order = order,
                                 busy = vm.busy,
                                 onPay = { run { vm.pay() } },
-                                onCancel = { confirm = "Batalkan pesanan ini?" to { vm.cancel() } },
+                                onCancel = { confirm = tr("Batalkan pesanan ini?") to { vm.cancel() } },
                             )
                         }
                     }
 
                     if (order.status == OrderStatus.Shipped.value) {
                         item {
-                            Block("Pengiriman") {
-                                Text("Nomor resi ${order.courier.label}", style = MaterialTheme.typography.bodySmall)
+                            Block(tr("Pengiriman")) {
+                                Text(tr("Nomor resi :courier", "courier" to order.courier.label), style = MaterialTheme.typography.bodySmall)
                                 Text(order.trackingNumber.orEmpty(), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(8.dp))
                                 Button(
-                                    onClick = { confirm = "Pastikan buku sudah kamu terima. Selesaikan pesanan?" to { vm.complete() } },
+                                    onClick = { confirm = tr("Pastikan buku sudah kamu terima. Selesaikan pesanan?") to { vm.complete() } },
                                     enabled = !vm.busy,
                                     modifier = Modifier.fillMaxWidth(),
-                                ) { Text("Pesanan Diterima") }
+                                ) { Text(tr("Pesanan Diterima")) }
                             }
                         }
                     }
 
                     item {
-                        Block(order.store?.name ?: "Buku") {
+                        Block(order.store?.name ?: tr("Buku")) {
                             order.items.forEachIndexed { i, item ->
                                 if (i > 0) HorizontalDivider(Modifier.padding(vertical = 8.dp))
                                 ItemRow(
@@ -192,24 +193,24 @@ fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: Stri
                     }
 
                     item {
-                        Block("Alamat Pengiriman") {
+                        Block(tr("Alamat Pengiriman")) {
                             Text("${order.recipient.name} · ${order.recipient.phone}", fontWeight = FontWeight.SemiBold)
                             Text(order.recipient.address, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text("Kurir: ${order.courier.label}", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
-                            order.notes?.let { Text("Catatan: $it", style = MaterialTheme.typography.bodySmall) }
+                            Text(tr("Kurir: :courier", "courier" to order.courier.label), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
+                            order.notes?.let { Text(tr("Catatan: :notes", "notes" to it), style = MaterialTheme.typography.bodySmall) }
                         }
                     }
 
                     item {
-                        Block("Rincian Pembayaran") {
-                            SummaryRow("Metode", order.paymentMethod.label)
-                            SummaryRow("Subtotal", rupiah(order.subtotal))
-                            SummaryRow("Ongkos kirim", rupiah(order.shippingCost))
+                        Block(tr("Rincian Pembayaran")) {
+                            SummaryRow(tr("Metode"), order.paymentMethod.label)
+                            SummaryRow(tr("Subtotal"), rupiah(order.subtotal))
+                            SummaryRow(tr("Ongkos kirim"), rupiah(order.shippingCost))
                             if (order.discount > 0) {
-                                SummaryRow("Voucher ${order.voucherCode.orEmpty()}", "−" + rupiah(order.discount), valueColor = Color(0xFF16A34A))
+                                SummaryRow(tr("Voucher :code", "code" to order.voucherCode.orEmpty()), "−" + rupiah(order.discount), valueColor = Color(0xFF16A34A))
                             }
                             HorizontalDivider(Modifier.padding(vertical = 6.dp))
-                            SummaryRow("Total", rupiah(order.total), bold = true, valueColor = MaterialTheme.colorScheme.primary)
+                            SummaryRow(tr("Total"), rupiah(order.total), bold = true, valueColor = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -231,15 +232,15 @@ private fun Block(title: String, content: @Composable () -> Unit) {
 
 @Composable
 private fun StatusCard(order: Order) {
-    Block("Status Pesanan") {
+    Block(tr("Status Pesanan")) {
         StatusChip(order.status, order.statusLabel)
         Spacer(Modifier.height(8.dp))
         listOf(
-            "Dibuat" to order.createdAt,
-            "Dibayar" to order.paidAt,
-            "Dikirim" to order.shippedAt,
-            "Selesai" to order.completedAt,
-            "Dibatalkan" to order.cancelledAt,
+            tr("Dibuat") to order.createdAt,
+            tr("Dibayar") to order.paidAt,
+            tr("Dikirim") to order.shippedAt,
+            tr("Selesai") to order.completedAt,
+            tr("Dibatalkan") to order.cancelledAt,
         ).filter { it.second != null }.forEach { (label, time) ->
             SummaryRow(label, formatDateTime(time))
         }
@@ -250,26 +251,26 @@ private fun StatusCard(order: Order) {
 private fun PaymentCard(order: Order, busy: Boolean, onPay: () -> Unit, onCancel: () -> Unit) {
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
-    Block("Selesaikan Pembayaran") {
-        Text("Bayar sebelum ${formatDateTime(order.paymentDeadline)} via ${order.paymentMethod.label}.")
+    Block(tr("Selesaikan Pembayaran")) {
+        Text(tr("Bayar sebelum :date via :method.", "date" to formatDateTime(order.paymentDeadline), "method" to order.paymentMethod.label))
         Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Nomor pembayaran", style = MaterialTheme.typography.bodySmall)
+                Text(tr("Nomor pembayaran"), style = MaterialTheme.typography.bodySmall)
                 Text(order.virtualAccount.orEmpty(), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
             }
             IconButton(onClick = {
                 scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("VA", order.virtualAccount.orEmpty()))) }
-            }) { Icon(Icons.Outlined.ContentCopy, "Salin") }
+            }) { Icon(Icons.Outlined.ContentCopy, tr("Salin")) }
         }
-        SummaryRow("Jumlah", rupiah(order.total), bold = true)
+        SummaryRow(tr("Jumlah"), rupiah(order.total), bold = true)
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onCancel, enabled = !busy, modifier = Modifier.weight(1f)) { Text("Batalkan") }
-            Button(onClick = onPay, enabled = !busy, modifier = Modifier.weight(1f)) { Text("Saya Sudah Bayar") }
+            OutlinedButton(onClick = onCancel, enabled = !busy, modifier = Modifier.weight(1f)) { Text(tr("Batalkan")) }
+            Button(onClick = onPay, enabled = !busy, modifier = Modifier.weight(1f)) { Text(tr("Saya Sudah Bayar")) }
         }
         Text(
-            "Mode demo: pembayaran disimulasikan.",
+            tr("Mode demo: pembayaran disimulasikan."),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 8.dp),
@@ -296,16 +297,16 @@ private fun ItemRow(item: OrderItem, order: Order, busy: Boolean, onOpen: () -> 
         var rating by remember(existing) { mutableStateOf(existing?.rating ?: 5) }
         var comment by remember(existing) { mutableStateOf(existing?.comment.orEmpty()) }
         Column(Modifier.padding(top = 8.dp)) {
-            Text(if (existing != null) "Ulasanmu" else "Beri ulasan", style = MaterialTheme.typography.labelLarge)
+            Text(if (existing != null) tr("Ulasanmu") else tr("Beri ulasan"), style = MaterialTheme.typography.labelLarge)
             RatingStars(rating, size = 28, onChange = { rating = it })
             OutlinedTextField(
                 comment, { comment = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Bagaimana bukunya?") },
+                placeholder = { Text(tr("Bagaimana bukunya?")) },
                 minLines = 2,
             )
             TextButton(onClick = { onReview(rating, comment) }, enabled = !busy, modifier = Modifier.align(Alignment.End)) {
-                Text(if (existing != null) "Perbarui Ulasan" else "Kirim Ulasan")
+                Text(if (existing != null) tr("Perbarui Ulasan") else tr("Kirim Ulasan"))
             }
         }
     }

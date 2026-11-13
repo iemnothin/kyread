@@ -17,7 +17,7 @@ class CheckoutController extends Controller
         $groups = $checkout->groupedCart($request->user());
 
         if ($groups->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang kamu masih kosong.');
+            return redirect()->route('cart.index')->with('error', __('Keranjang kamu masih kosong.'));
         }
 
         return view('checkout.create', [
@@ -34,8 +34,8 @@ class CheckoutController extends Controller
         $request->saveAddressIfRequested();
 
         $message = $orders->count() > 1
-            ? "Berhasil membuat {$orders->count()} pesanan (dipisah per toko). Silakan selesaikan pembayaran."
-            : 'Pesanan berhasil dibuat. Silakan selesaikan pembayaran.';
+            ? __('Berhasil membuat :count pesanan (dipisah per toko). Silakan selesaikan pembayaran.', ['count' => $orders->count()])
+            : __('Pesanan berhasil dibuat. Silakan selesaikan pembayaran.');
 
         return $orders->count() === 1
             ? redirect()->route('orders.show', $orders->first())->with('success', $message)

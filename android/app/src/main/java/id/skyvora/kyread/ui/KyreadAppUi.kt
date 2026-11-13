@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui
 
+import id.skyvora.kyread.i18n.tr
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -78,12 +79,12 @@ object Routes {
 
 private data class Tab(val route: String, val target: String, val label: String, val icon: ImageVector, val selectedIcon: ImageVector)
 
-private val tabs = listOf(
-    Tab(Routes.HOME, Routes.HOME, "Beranda", Icons.Outlined.Home, Icons.Filled.Home),
-    Tab(Routes.SEARCH, Routes.search(), "Cari", Icons.Outlined.Search, Icons.Filled.Search),
-    Tab(Routes.CART, Routes.CART, "Keranjang", Icons.Outlined.ShoppingBag, Icons.Filled.ShoppingBag),
-    Tab(Routes.ORDERS, Routes.ORDERS, "Pesanan", Icons.Outlined.Receipt, Icons.Filled.Receipt),
-    Tab(Routes.ACCOUNT, Routes.ACCOUNT, "Akun", Icons.Outlined.Person, Icons.Filled.Person),
+private val tabs get() = listOf(
+    Tab(Routes.HOME, Routes.HOME, tr("Beranda"), Icons.Outlined.Home, Icons.Filled.Home),
+    Tab(Routes.SEARCH, Routes.search(), tr("Cari"), Icons.Outlined.Search, Icons.Filled.Search),
+    Tab(Routes.CART, Routes.CART, tr("Keranjang"), Icons.Outlined.ShoppingBag, Icons.Filled.ShoppingBag),
+    Tab(Routes.ORDERS, Routes.ORDERS, tr("Pesanan"), Icons.Outlined.Receipt, Icons.Filled.Receipt),
+    Tab(Routes.ACCOUNT, Routes.ACCOUNT, tr("Akun"), Icons.Outlined.Person, Icons.Filled.Person),
 )
 
 /** Pindah tab tanpa menumpuk back stack. */

@@ -50,7 +50,7 @@ class CartController extends Controller
         $data = $request->validate(['quantity' => ['required', 'integer', 'min:1']]);
         $adjusted = $this->cart->update($item, (int) $data['quantity']);
 
-        return back()->with($adjusted ? 'error' : 'success', $adjusted ?? 'Keranjang diperbarui.');
+        return back()->with($adjusted ? 'error' : 'success', $adjusted ?? __('Keranjang diperbarui.'));
     }
 
     public function destroy(Request $request, CartItem $item): RedirectResponse
@@ -59,6 +59,6 @@ class CartController extends Controller
 
         $item->delete();
 
-        return back()->with('success', 'Buku dihapus dari keranjang.');
+        return back()->with('success', __('Buku dihapus dari keranjang.'));
     }
 }

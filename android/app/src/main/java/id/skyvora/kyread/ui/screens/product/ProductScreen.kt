@@ -1,5 +1,7 @@
 package id.skyvora.kyread.ui.screens.product
 
+import id.skyvora.kyread.i18n.tr
+import id.skyvora.kyread.i18n.trc
 import android.content.ClipData
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
@@ -109,7 +111,7 @@ class ProductViewModel(private val repo: KyreadRepository, private val slug: Str
         _state.value = Load.Loading
         _state.value = runCatching { repo.product(slug) }
             .onSuccess { wishlisted = it.data.isWishlisted }
-            .fold({ Load.Ready(it) }, { Load.Error(it.message ?: "Terjadi kesalahan") })
+            .fold({ Load.Ready(it) }, { Load.Error(it.message ?: tr("Terjadi kesalahan")) })
     }
 
     /** Mengembalikan pesan untuk snackbar. */
@@ -118,15 +120,15 @@ class ProductViewModel(private val repo: KyreadRepository, private val slug: Str
         wishlisted = target
         return runCatching { repo.setWishlisted(slug, target) }
             .fold(
-                { if (target) "Disimpan ke wishlist." else "Dihapus dari wishlist." },
-                { wishlisted = !target; it.message ?: "Gagal memperbarui wishlist" },
+                { if (target) tr("Disimpan ke wishlist.") else tr("Dihapus dari wishlist.") },
+                { wishlisted = !target; it.message ?: tr("Gagal memperbarui wishlist") },
             )
     }
 
     /** Mengembalikan pesan untuk snackbar. */
     suspend fun addToCart(product: Product, quantity: Int): Result<String> {
         adding = true
-        return runCatching { repo.addToCart(product.id, quantity); "\"${product.title}\" ditambahkan ke keranjang." }
+        return runCatching { repo.addToCart(product.id, quantity); tr("\":title\" ditambahkan ke keranjang.", "title" to product.title) }
             .also { adding = false }
     }
 }
@@ -156,7 +158,7 @@ fun ProductScreen(repo: KyreadRepository, nav: NavHostController, slug: String) 
                         IconButton(onClick = { scope.launch { snackbar.showSnackbar(vm.toggleWishlist()) } }) {
                             Icon(
                                 if (wished) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                                contentDescription = if (wished) "Hapus dari wishlist" else "Simpan ke wishlist",
+                                contentDescription = if (wished) tr("Hapus dari wishlist") else tr("Simpan ke wishlist"),
                                 tint = if (wished) Color(0xFFEF4444) else LocalContentColor.current,
                             )
                         }
@@ -166,13 +168,13 @@ fun ProductScreen(repo: KyreadRepository, nav: NavHostController, slug: String) 
                         context.startActivity(
                             Intent.createChooser(
                                 Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, webUrl),
-                                "Bagikan buku",
+                                tr("Bagikan buku"),
                             ),
                         )
-                    }) { Icon(Icons.Filled.Share, "Bagikan") }
+                    }) { Icon(Icons.Filled.Share, tr("Bagikan")) }
                     IconButton(onClick = { nav.navigateTab(Routes.CART) }) {
                         BadgedBox(badge = { if (cartCount > 0) Badge { Text("$cartCount") } }) {
-                            Icon(Icons.Outlined.ShoppingBag, "Keranjang")
+                            Icon(Icons.Outlined.ShoppingBag, tr("Keranjang"))
                         }
                     }
                 },
@@ -185,18 +187,18 @@ fun ProductScreen(repo: KyreadRepository, nav: NavHostController, slug: String) 
                 Column(Modifier.navigationBarsPadding().padding(16.dp)) {
                     when {
                         user == null -> Button(onClick = { nav.navigate(Routes.LOGIN) }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Masuk untuk membeli")
+                            Text(tr("Masuk untuk membeli"))
                         }
                         product.isOwnProduct -> Text(
-                            "Ini buku dari tokomu sendiri. Kelola lewat kyreadSeller di web.",
+                            tr("Ini buku dari tokomu sendiri. Kelola lewat kyreadSeller di web."),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        product.stock == 0 -> Button(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) { Text("Stok habis") }
+                        product.stock == 0 -> Button(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) { Text(tr("Stok habis")) }
                         else -> {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 QuantityStepper(quantity, product.stock, onChange = { quantity = it })
                                 Spacer(Modifier.width(12.dp))
-                                Text("Stok ${product.stock}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(tr("Stok :stock", "stock" to product.stock), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Spacer(Modifier.height(10.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -205,23 +207,23 @@ fun ProductScreen(repo: KyreadRepository, nav: NavHostController, slug: String) 
                                         scope.launch {
                                             vm.addToCart(product, quantity)
                                                 .onSuccess { snackbar.showSnackbar(it) }
-                                                .onFailure { snackbar.showSnackbar(it.message ?: "Gagal") }
+                                                .onFailure { snackbar.showSnackbar(it.message ?: tr("Gagal")) }
                                         }
                                     },
                                     enabled = !vm.adding,
                                     modifier = Modifier.weight(1f),
-                                ) { Text("+ Keranjang") }
+                                ) { Text(tr("+ Keranjang")) }
                                 Button(
                                     onClick = {
                                         scope.launch {
                                             vm.addToCart(product, quantity)
                                                 .onSuccess { nav.navigate(Routes.CHECKOUT) }
-                                                .onFailure { snackbar.showSnackbar(it.message ?: "Gagal") }
+                                                .onFailure { snackbar.showSnackbar(it.message ?: tr("Gagal")) }
                                         }
                                     },
                                     enabled = !vm.adding,
                                     modifier = Modifier.weight(1f),
-                                ) { Text("Beli Sekarang") }
+                                ) { Text(tr("Beli Sekarang")) }
                             }
                         }
                     }
@@ -235,7 +237,7 @@ fun ProductScreen(repo: KyreadRepository, nav: NavHostController, slug: String) 
             is Load.Ready -> ProductContent(s.data, nav, Modifier.padding(padding)) { code ->
                 scope.launch {
                     clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Voucher", code)))
-                    snackbar.showSnackbar("Kode $code disalin. Tempel di halaman checkout.")
+                    snackbar.showSnackbar(tr("Kode :code disalin. Tempel di halaman checkout.", "code" to code))
                 }
             }
         }
@@ -253,14 +255,14 @@ private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifi
             Column(Modifier.padding(horizontal = 16.dp)) {
                 p.category?.let { Text(it.name, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge) }
                 Text(p.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Text("oleh ${p.author}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("oleh :author", "author" to p.author), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (p.rating != null) {
                         Icon(Icons.Filled.Star, null, tint = KyStar, modifier = Modifier.size(18.dp))
-                        Text(" ${p.rating} (${p.reviewsCount} ulasan) · ", style = MaterialTheme.typography.bodySmall)
+                        Text(" ${p.rating} (" + trc(":count ulasan", p.reviewsCount) + ") · ", style = MaterialTheme.typography.bodySmall)
                     }
-                    Text("${p.soldCount} terjual", style = MaterialTheme.typography.bodySmall)
+                    Text(trc(":count terjual", p.soldCount), style = MaterialTheme.typography.bodySmall)
                 }
                 Spacer(Modifier.height(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -276,7 +278,7 @@ private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifi
                 }
                 if (p.vouchers.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
-                    Text("Voucher toko · ketuk untuk menyalin", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(tr("Voucher toko · ketuk untuk menyalin"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(6.dp))
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         p.vouchers.forEach { v ->
@@ -292,7 +294,7 @@ private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifi
                                     Text(v.code, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                                     Spacer(Modifier.width(8.dp))
                                     Text(v.summary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                                    Icon(Icons.Outlined.ContentCopy, "Salin", modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Outlined.ContentCopy, tr("Salin"), modifier = Modifier.size(16.dp))
                                 }
                             }
                         }
@@ -322,18 +324,18 @@ private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifi
         }
         item {
             Column(Modifier.padding(horizontal = 16.dp)) {
-                Text("Deskripsi", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(tr("Deskripsi"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(4.dp))
                 Text(p.description.orEmpty())
                 Spacer(Modifier.height(16.dp))
-                Text("Detail Buku", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(tr("Detail Buku"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 listOfNotNull(
-                    "Penulis" to p.author,
-                    p.publisher?.let { "Penerbit" to it },
-                    p.publishedYear?.let { "Tahun terbit" to "$it" },
-                    p.pages?.let { "Halaman" to "$it" },
+                    tr("Penulis") to p.author,
+                    p.publisher?.let { tr("Penerbit") to it },
+                    p.publishedYear?.let { tr("Tahun terbit") to "$it" },
+                    p.pages?.let { tr("Halaman") to "$it" },
                     p.isbn?.let { "ISBN" to it },
-                    "Berat" to "${p.weight} gram",
+                    tr("Berat") to tr(":weight gram", "weight" to p.weight),
                 ).forEach { (k, v) ->
                     Row(Modifier.padding(vertical = 4.dp)) {
                         Text(k, modifier = Modifier.width(120.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -345,19 +347,19 @@ private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifi
         }
         item {
             Text(
-                "Ulasan Pembeli",
+                tr("Ulasan Pembeli"),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 4.dp),
             )
         }
         if (detail.reviews.isEmpty()) {
-            item { Text("Belum ada ulasan.", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp)) }
+            item { Text(tr("Belum ada ulasan."), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp)) }
         }
         items(detail.reviews, key = { it.id }) { r ->
             Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(r.userName ?: "Pembeli", fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                    Text(r.userName ?: tr("Pembeli"), fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     Text(formatDate(r.createdAt), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 RatingStars(r.rating, size = 14)
@@ -367,7 +369,7 @@ private fun ProductContent(detail: ProductDetail, nav: NavHostController, modifi
         if (detail.related.isNotEmpty()) {
             item {
                 Text(
-                    "Buku Serupa",
+                    tr("Buku Serupa"),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 8.dp),

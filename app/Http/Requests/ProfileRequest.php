@@ -33,6 +33,6 @@ class ProfileRequest extends FormRequest
 
     public function messages(): array
     {
-        return ['phone.regex' => 'Format nomor HP tidak valid (contoh: 081234567890).'];
+        return ['phone.regex' => __('Format nomor HP tidak valid (contoh: 081234567890).')];
     }
 }

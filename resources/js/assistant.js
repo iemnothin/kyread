@@ -1,4 +1,5 @@
 /** Halaman chat "Tanya Kyra". Riwayat disimpan di sessionStorage agar bertahan saat berpindah halaman. */
+import { t } from './i18n';
 
 const STORAGE_KEY = 'kyra-chat';
 const rupiah = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
@@ -54,7 +55,7 @@ export function initAssistant() {
             'beforeend',
             messages.map((m) => `<div data-msg>${bubble(m)}</div>`).join('') +
                 (pending
-                    ? '<div data-msg class="d-flex gap-2 mb-3"><div class="chat-avatar"><i class="bi bi-stars"></i></div><div class="chat-bubble chat-bot text-secondary"><span class="spinner-grow spinner-grow-sm me-1"></span>Kyra sedang mengetik…</div></div>'
+                    ? '<div data-msg class="d-flex gap-2 mb-3"><div class="chat-avatar"><i class="bi bi-stars"></i></div><div class="chat-bubble chat-bot text-secondary"><span class="spinner-grow spinner-grow-sm me-1"></span>' + t('Kyra sedang mengetik…') + '</div></div>'
                     : ''),
         );
         root.querySelector('[data-intro]')?.classList.toggle('d-none', messages.length > 0);
@@ -80,7 +81,7 @@ export function initAssistant() {
                 body: JSON.stringify({ messages: messages.map(({ role, content }) => ({ role, content })) }),
             });
             const json = await res.json();
-            if (!res.ok) throw new Error(json.message ?? 'Kyra gagal menjawab.');
+            if (!res.ok) throw new Error(json.message ?? t('Kyra gagal menjawab.'));
             messages.push({ role: 'assistant', content: json.reply, products: json.products });
         } catch (err) {
             messages.pop(); // biarkan pengguna mengirim ulang

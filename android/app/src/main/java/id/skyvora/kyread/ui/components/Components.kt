@@ -1,5 +1,7 @@
 package id.skyvora.kyread.ui.components
 
+import id.skyvora.kyread.i18n.tr
+import id.skyvora.kyread.i18n.trc
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -160,7 +162,7 @@ fun BookCard(product: Product, onClick: () -> Unit, modifier: Modifier = Modifie
                     Text(" $it · ", style = MaterialTheme.typography.labelSmall)
                 }
                 Text(
-                    if (product.stock == 0) "Stok habis" else "${product.soldCount} terjual",
+                    if (product.stock == 0) tr("Stok habis") else trc(":count terjual", product.soldCount),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (product.stock == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -175,7 +177,7 @@ fun RatingStars(rating: Int, modifier: Modifier = Modifier, size: Int = 16, onCh
         (1..5).forEach { i ->
             val icon = if (i <= rating) Icons.Filled.Star else Icons.Filled.StarBorder
             val m = Modifier.size(size.dp).let { if (onChange != null) it.clickable { onChange(i) } else it }
-            Icon(icon, contentDescription = "$i bintang", tint = KyStar, modifier = m)
+            Icon(icon, contentDescription = tr(":n bintang", "n" to i), tint = KyStar, modifier = m)
         }
     }
 }
@@ -184,11 +186,11 @@ fun RatingStars(rating: Int, modifier: Modifier = Modifier, size: Int = 16, onCh
 fun QuantityStepper(value: Int, max: Int, onChange: (Int) -> Unit, modifier: Modifier = Modifier) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         FilledTonalIconButton(onClick = { onChange(value - 1) }, enabled = value > 1, modifier = Modifier.size(34.dp)) {
-            Icon(Icons.Filled.Remove, "Kurangi", modifier = Modifier.size(18.dp))
+            Icon(Icons.Filled.Remove, tr("Kurangi"), modifier = Modifier.size(18.dp))
         }
         Text("$value", modifier = Modifier.width(36.dp), textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold)
         FilledTonalIconButton(onClick = { onChange(value + 1) }, enabled = value < max, modifier = Modifier.size(34.dp)) {
-            Icon(Icons.Filled.Add, "Tambah", modifier = Modifier.size(18.dp))
+            Icon(Icons.Filled.Add, tr("Tambah"), modifier = Modifier.size(18.dp))
         }
     }
 }
@@ -210,7 +212,7 @@ fun StatusChip(status: String, label: String) {
 }
 
 @Composable
-fun LoadingBox(modifier: Modifier = Modifier, message: String = "Memuat…") {
+fun LoadingBox(modifier: Modifier = Modifier, message: String = tr("Memuat…")) {
     val pulse = rememberInfiniteTransition(label = "loading")
     val scale by pulse.animateFloat(
         initialValue = 0.9f,
@@ -276,7 +278,7 @@ fun MessageBox(
 
 @Composable
 fun ErrorBox(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
-    MessageBox(Icons.Outlined.CloudOff, "Gagal memuat", modifier, body = message, actionLabel = "Coba lagi", onAction = onRetry)
+    MessageBox(Icons.Outlined.CloudOff, tr("Gagal memuat"), modifier, body = message, actionLabel = tr("Coba lagi"), onAction = onRetry)
 }
 
 @Composable
@@ -323,6 +325,6 @@ fun UserAvatar(name: String, url: String?, modifier: Modifier = Modifier, size: 
 @Composable
 fun BackIcon(onBack: () -> Unit) {
     IconButton(onClick = onBack) {
-        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = tr("Kembali"))
     }
 }

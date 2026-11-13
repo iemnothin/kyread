@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\EnsureUserHasStore;
+use App\Http\Middleware\SetLocale;
+use App\Support\Locales;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'seller' => EnsureUserHasStore::class,
         ]);
         $middleware->redirectUsersTo(fn () => route('home'));
+        // Bahasa antarmuka (session/cookie di web, header X-Locale di API).
+        $middleware->web(append: [SetLocale::class]);
+        $middleware->api(append: [SetLocale::class]);
+        $middleware->encryptCookies(except: [Locales::COOKIE]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

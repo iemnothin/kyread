@@ -18,10 +18,10 @@ class CartService
     public function add(User $user, Product $product, int $quantity = 1): CartItem
     {
         if (! $product->is_active || ! $product->isInStock()) {
-            throw ValidationException::withMessages(['cart' => 'Maaf, buku ini sedang tidak tersedia.']);
+            throw ValidationException::withMessages(['cart' => __('Maaf, buku ini sedang tidak tersedia.')]);
         }
         if ($product->store_id === $user->store?->id) {
-            throw ValidationException::withMessages(['cart' => 'Kamu tidak bisa membeli buku dari tokomu sendiri.']);
+            throw ValidationException::withMessages(['cart' => __('Kamu tidak bisa membeli buku dari tokomu sendiri.')]);
         }
 
         $item = $user->cartItems()->firstOrNew(['product_id' => $product->id]);
@@ -39,6 +39,6 @@ class CartService
         $stock = $item->product->stock;
         $item->update(['quantity' => max(1, min($quantity, $stock))]);
 
-        return $quantity > $stock ? "Jumlah disesuaikan dengan stok tersedia ({$stock})." : null;
+        return $quantity > $stock ? __('Jumlah disesuaikan dengan stok tersedia (:stock).', ['stock' => $stock]) : null;
     }
 }

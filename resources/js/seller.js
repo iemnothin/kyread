@@ -1,7 +1,7 @@
-import '../css/seller.css';
 import * as bootstrap from 'bootstrap';
 import ApexCharts from 'apexcharts';
 import { initCommon, initPageLoader, initRipple } from './common';
+import { t } from './i18n';
 
 window.bootstrap = bootstrap;
 
@@ -31,15 +31,15 @@ if (chartEl) {
     const data = JSON.parse(chartEl.dataset.chart);
     new ApexCharts(chartEl, {
         chart: { type: 'area', height: 300, toolbar: { show: false }, fontFamily: 'Barlow, sans-serif' },
-        series: [{ name: 'Penjualan', data: data.map((d) => d.total) }],
+        series: [{ name: t('Penjualan'), data: data.map((d) => d.total) }],
         xaxis: { categories: data.map((d) => d.date) },
-        yaxis: { labels: { formatter: (v) => 'Rp ' + Math.round(v / 1000) + 'rb' } },
+        yaxis: { labels: { formatter: (v) => t('Rp :amount rb', { amount: Math.round(v / 1000) }) } },
         tooltip: { y: { formatter: (v) => 'Rp ' + v.toLocaleString('id-ID') } },
         colors: ['#43aaff'],
         dataLabels: { enabled: false },
         stroke: { curve: 'smooth', width: 2 },
         fill: { type: 'gradient', gradient: { opacityFrom: 0.35, opacityTo: 0.05 } },
-        noData: { text: 'Belum ada penjualan' },
+        noData: { text: t('Belum ada penjualan') },
     }).render();
 }
 

@@ -5,7 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import id.skyvora.kyread.i18n.I18n
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import id.skyvora.kyread.ui.KyreadAppUi
@@ -33,11 +37,14 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
         setContent {
             KyreadTheme {
-                KyreadAppUi(
-                    repository = repository,
-                    deepLinkSlug = deepLinkSlug.value,
-                    onDeepLinkHandled = { deepLinkSlug.value = null },
-                )
+                val direction = if (I18n.language.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+                CompositionLocalProvider(LocalLayoutDirection provides direction) {
+                    KyreadAppUi(
+                        repository = repository,
+                        deepLinkSlug = deepLinkSlug.value,
+                        onDeepLinkHandled = { deepLinkSlug.value = null },
+                    )
+                }
             }
         }
     }

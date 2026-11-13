@@ -5,7 +5,15 @@ export default defineConfig({
     plugins: [
         laravel({
             // Storefront & panel penjual punya bundle terpisah agar halaman toko tidak ikut memuat ApexCharts.
-            input: ['resources/js/app.js', 'resources/js/seller.js'],
+            input: [
+                'resources/js/app.js',
+                'resources/js/seller.js',
+                // CSS dipisah per arah tulisan; layout memilih sesuai bahasa aktif.
+                'resources/css/app.css',
+                'resources/css/app-rtl.css',
+                'resources/css/seller.css',
+                'resources/css/seller-rtl.css',
+            ],
             refresh: true,
         }),
     ],

@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.screens.checkout
 
+import id.skyvora.kyread.i18n.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -196,14 +197,14 @@ fun CheckoutScreen(repo: KyreadRepository, nav: NavHostController) {
     LaunchedEffect(cart) { if (cart != null && cart.count == 0) nav.popBackStack() }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Checkout") }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
+        topBar = { TopAppBar(title = { Text(tr("Checkout")) }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
         snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             if (cart != null && meta != null) {
                 Surface(tonalElevation = 3.dp, shadowElevation = 8.dp) {
                     Row(Modifier.navigationBarsPadding().fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("Total tagihan", style = MaterialTheme.typography.bodySmall)
+                            Text(tr("Total tagihan"), style = MaterialTheme.typography.bodySmall)
                             Text(
                                 rupiah(vm.grandTotal()),
                                 style = MaterialTheme.typography.titleLarge,
@@ -220,11 +221,11 @@ fun CheckoutScreen(repo: KyreadRepository, nav: NavHostController) {
                                             val target = if (orders.size == 1) Routes.order(orders.first().code) else Routes.ORDERS
                                             nav.navigate(target) { popUpTo(Routes.CHECKOUT) { inclusive = true } }
                                         }
-                                        .onFailure { snackbar.showSnackbar(it.message ?: "Gagal membuat pesanan") }
+                                        .onFailure { snackbar.showSnackbar(it.message ?: tr("Gagal membuat pesanan")) }
                                 }
                             },
                         ) {
-                            if (vm.submitting) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Buat Pesanan")
+                            if (vm.submitting) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text(tr("Buat Pesanan"))
                         }
                     }
                 }
@@ -239,21 +240,21 @@ fun CheckoutScreen(repo: KyreadRepository, nav: NavHostController) {
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                item { Section("Alamat Pengiriman") { AddressForm(vm) } }
+                item { Section(tr("Alamat Pengiriman")) { AddressForm(vm) } }
                 item {
-                    Section("Ringkasan Pesanan") {
+                    Section(tr("Ringkasan Pesanan")) {
                         cart.groups.forEach { g ->
                             Text(g.store.name, fontWeight = FontWeight.SemiBold)
                             g.items.forEach { item ->
                                 SummaryRow("${item.quantity}× ${item.product.title}", rupiah(item.subtotal))
                             }
                             val c = meta.couriers.firstOrNull { it.code == vm.courier }
-                            SummaryRow("Ongkir (${"%.1f".format(g.weight / 1000.0)} kg)", rupiah(c?.costFor(g.weight) ?: 0))
+                            SummaryRow(tr("Ongkir (:weight kg)", "weight" to "%.1f".format(g.weight / 1000.0)), rupiah(c?.costFor(g.weight) ?: 0))
                             Spacer(Modifier.height(8.dp))
                         }
                         if (cart.groups.size > 1) {
                             Text(
-                                "Pesanan dipisah per toko, masing-masing dengan ongkos kirim sendiri.",
+                                tr("Pesanan dipisah per toko, masing-masing dengan ongkos kirim sendiri."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -261,7 +262,7 @@ fun CheckoutScreen(repo: KyreadRepository, nav: NavHostController) {
                     }
                 }
                 item {
-                    Section("Kurir") {
+                    Section(tr("Kurir")) {
                         meta.couriers.forEach { c ->
                             OptionRow(
                                 selected = vm.courier == c.code,
@@ -274,26 +275,26 @@ fun CheckoutScreen(repo: KyreadRepository, nav: NavHostController) {
                     }
                 }
                 item {
-                    Section("Metode Pembayaran") {
+                    Section(tr("Metode Pembayaran")) {
                         meta.paymentMethods.forEach { p ->
                             OptionRow(selected = vm.payment == p.code, onSelect = { vm.payment = p.code }, logo = p.logoUrl, title = p.label)
                         }
                     }
                 }
                 item {
-                    Section("Catatan untuk penjual") {
-                        OutlinedTextField(vm.notes, { vm.notes = it }, Modifier.fillMaxWidth(), placeholder = { Text("Opsional") })
+                    Section(tr("Catatan untuk penjual")) {
+                        OutlinedTextField(vm.notes, { vm.notes = it }, Modifier.fillMaxWidth(), placeholder = { Text(tr("Opsional")) })
                     }
                 }
-                item { Section("Voucher Toko") { VoucherField(vm) } }
+                item { Section(tr("Voucher Toko")) { VoucherField(vm) } }
                 item {
-                    Section("Rincian Pembayaran") {
-                        SummaryRow("Total harga", rupiah(cart.total))
-                        SummaryRow("Ongkos kirim", rupiah(vm.shippingTotal()))
-                        vm.voucher?.let { SummaryRow("Voucher ${it.code}", "−" + rupiah(it.discount)) }
-                        SummaryRow("Total tagihan", rupiah(vm.grandTotal()), bold = true)
+                    Section(tr("Rincian Pembayaran")) {
+                        SummaryRow(tr("Total harga"), rupiah(cart.total))
+                        SummaryRow(tr("Ongkos kirim"), rupiah(vm.shippingTotal()))
+                        vm.voucher?.let { SummaryRow(tr("Voucher :code", "code" to it.code), "−" + rupiah(it.discount)) }
+                        SummaryRow(tr("Total tagihan"), rupiah(vm.grandTotal()), bold = true)
                         Text(
-                            "Selesaikan pembayaran dalam 24 jam atau pesanan dibatalkan otomatis.",
+                            tr("Selesaikan pembayaran dalam 24 jam atau pesanan dibatalkan otomatis."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -323,7 +324,7 @@ private fun VoucherField(vm: CheckoutViewModel) {
             value = vm.voucherInput,
             onValueChange = vm::onVoucherInput,
             modifier = Modifier.weight(1f),
-            placeholder = { Text("Masukkan kode") },
+            placeholder = { Text(tr("Masukkan kode")) },
             leadingIcon = { Icon(Icons.Outlined.ConfirmationNumber, null) },
             singleLine = true,
             isError = vm.voucherError != null,
@@ -334,10 +335,10 @@ private fun VoucherField(vm: CheckoutViewModel) {
             keyboardActions = KeyboardActions(onDone = { vm.applyVoucher() }),
         )
         if (applied != null) {
-            OutlinedButton(onClick = vm::removeVoucher, modifier = Modifier.padding(top = 8.dp)) { Text("Hapus") }
+            OutlinedButton(onClick = vm::removeVoucher, modifier = Modifier.padding(top = 8.dp)) { Text(tr("Hapus")) }
         } else {
             Button(onClick = { vm.applyVoucher() }, enabled = !vm.checkingVoucher && vm.voucherInput.isNotBlank(), modifier = Modifier.padding(top = 8.dp)) {
-                if (vm.checkingVoucher) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp) else Text("Pakai")
+                if (vm.checkingVoucher) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp) else Text(tr("Pakai"))
             }
         }
     }
@@ -348,25 +349,25 @@ private val KySuccess = androidx.compose.ui.graphics.Color(0xFF16A34A)
 @Composable
 private fun AddressForm(vm: CheckoutViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(vm.name, { vm.name = it }, Modifier.fillMaxWidth(), label = { Text("Nama penerima") }, singleLine = true)
+        OutlinedTextField(vm.name, { vm.name = it }, Modifier.fillMaxWidth(), label = { Text(tr("Nama penerima")) }, singleLine = true)
         OutlinedTextField(
             vm.phone, { vm.phone = it }, Modifier.fillMaxWidth(),
-            label = { Text("No. HP") }, singleLine = true,
+            label = { Text(tr("No. HP")) }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         )
-        OutlinedTextField(vm.street, { vm.street = it }, Modifier.fillMaxWidth(), label = { Text("Alamat lengkap") }, minLines = 2)
+        OutlinedTextField(vm.street, { vm.street = it }, Modifier.fillMaxWidth(), label = { Text(tr("Alamat lengkap")) }, minLines = 2)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(vm.city, { vm.city = it }, Modifier.weight(1f), label = { Text("Kota") }, singleLine = true)
-            OutlinedTextField(vm.province, { vm.province = it }, Modifier.weight(1f), label = { Text("Provinsi") }, singleLine = true)
+            OutlinedTextField(vm.city, { vm.city = it }, Modifier.weight(1f), label = { Text(tr("Kota")) }, singleLine = true)
+            OutlinedTextField(vm.province, { vm.province = it }, Modifier.weight(1f), label = { Text(tr("Provinsi")) }, singleLine = true)
         }
         OutlinedTextField(
             vm.zipcode, { if (it.length <= 5) vm.zipcode = it.filter(Char::isDigit) }, Modifier.width(160.dp),
-            label = { Text("Kode pos") }, singleLine = true,
+            label = { Text(tr("Kode pos")) }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(vm.saveAddress, { vm.saveAddress = it })
-            Text("Simpan sebagai alamat utama", style = MaterialTheme.typography.bodyMedium)
+            Text(tr("Simpan sebagai alamat utama"), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

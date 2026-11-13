@@ -78,9 +78,13 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'id'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    // Bahasa default yang tetap; 'locale' di atas diubah App::setLocale() selama request.
+    'default_locale' => env('APP_LOCALE', 'id'),
+
+    // Teks sumber berbahasa Indonesia: kunci yang belum diterjemahkan tampil apa adanya.
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'id'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 

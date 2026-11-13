@@ -19,6 +19,14 @@ val keystoreProps = Properties().apply {
     if (file.exists()) file.inputStream().use { load(it) }
 }
 
+// Terjemahan dipakai bersama web: lang/*.json di root repo -> assets/i18n/*.json.
+val i18nAssets = layout.buildDirectory.dir("generated/i18n")
+val copyTranslations by tasks.registering(Sync::class) {
+    from(rootProject.file("../lang")) { include("*.json") }
+    into(i18nAssets.map { it.dir("i18n") })
+}
+tasks.named("preBuild") { dependsOn(copyTranslations) }
+
 android {
     namespace = "id.skyvora.kyread"
     compileSdk = 36
@@ -70,6 +78,8 @@ android {
         compose = true
         buildConfig = true
     }
+
+    sourceSets["main"].assets.srcDir(i18nAssets)
 
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"

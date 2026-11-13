@@ -1,5 +1,7 @@
 package id.skyvora.kyread.data
 
+import id.skyvora.kyread.i18n.I18n
+import id.skyvora.kyread.i18n.tr
 import id.skyvora.kyread.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -96,6 +98,7 @@ class ApiClient(
         val request = Request.Builder()
             .url(url)
             .header("Accept", "application/json")
+            .header("X-Locale", I18n.language.code)
             .apply { if (token != null) header("Authorization", "Bearer $token") }
             .method(method, rawBody ?: body?.toRequestBody(JSON_MEDIA))
             .build()
@@ -104,14 +107,14 @@ class ApiClient(
             try {
                 http.newCall(request).execute().use { it.code to (it.body?.string().orEmpty()) }
             } catch (e: IOException) {
-                throw ApiException("Tidak dapat terhubung ke server. Periksa koneksi internetmu.")
+                throw ApiException(tr("Tidak dapat terhubung ke server. Periksa koneksi internetmu."))
             }
         }
 
         if (code in 200..299) return text
         if (code == 401) {
             onUnauthorized()
-            throw ApiException("Sesi kamu berakhir. Silakan masuk lagi.", code)
+            throw ApiException(tr("Sesi kamu berakhir. Silakan masuk lagi."), code)
         }
         throw ApiException(errorMessage(code, text), code)
     }
@@ -125,10 +128,10 @@ class ApiClient(
         val message = runCatching { obj?.get("message")?.jsonPrimitive?.content }.getOrNull()
 
         return firstError ?: message?.takeIf { it.isNotBlank() && code != 500 } ?: when (code) {
-            403 -> "Kamu tidak punya akses untuk tindakan ini."
-            404 -> "Data tidak ditemukan."
-            429 -> "Terlalu banyak percobaan. Tunggu sebentar."
-            else -> "Terjadi kesalahan di server ($code)."
+            403 -> tr("Kamu tidak punya akses untuk tindakan ini.")
+            404 -> tr("Data tidak ditemukan.")
+            429 -> tr("Terlalu banyak percobaan. Tunggu sebentar.")
+            else -> tr("Terjadi kesalahan di server (:code).", "code" to code)
         }
     }
 

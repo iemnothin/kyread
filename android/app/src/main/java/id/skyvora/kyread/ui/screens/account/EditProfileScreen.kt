@@ -1,5 +1,6 @@
 package id.skyvora.kyread.ui.screens.account
 
+import id.skyvora.kyread.i18n.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -58,28 +59,28 @@ fun EditProfileScreen(repo: KyreadRepository, nav: NavHostController) {
     var zipcode by rememberSaveable { mutableStateOf(user.address.zipcode.orEmpty()) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Edit Profil") }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
+        topBar = { TopAppBar(title = { Text(tr("Edit Profil")) }, navigationIcon = { BackIcon { nav.popBackStack() } }) },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         Column(
             Modifier.padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text("Data Diri", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Field(name, { name = it }, "Nama lengkap")
-            Field(nickname, { nickname = it }, "Nama panggilan")
-            Field(username, { username = it }, "Username")
-            Field(email, { email = it }, "Email", KeyboardType.Email)
-            Field(phone, { phone = it }, "No. HP", KeyboardType.Phone)
-            Field(about, { about = it }, "Bio singkat")
+            Text(tr("Data Diri"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Field(name, { name = it }, tr("Nama lengkap"))
+            Field(nickname, { nickname = it }, tr("Nama panggilan"))
+            Field(username, { username = it }, tr("Username"))
+            Field(email, { email = it }, tr("Email"), KeyboardType.Email)
+            Field(phone, { phone = it }, tr("No. HP"), KeyboardType.Phone)
+            Field(about, { about = it }, tr("Bio singkat"))
 
-            Text("Alamat Utama", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
-            OutlinedTextField(street, { street = it }, Modifier.fillMaxWidth(), label = { Text("Alamat lengkap") }, minLines = 2)
+            Text(tr("Alamat Utama"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
+            OutlinedTextField(street, { street = it }, Modifier.fillMaxWidth(), label = { Text(tr("Alamat lengkap")) }, minLines = 2)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(city, { city = it }, Modifier.weight(1f), label = { Text("Kota") }, singleLine = true)
-                OutlinedTextField(province, { province = it }, Modifier.weight(1f), label = { Text("Provinsi") }, singleLine = true)
+                OutlinedTextField(city, { city = it }, Modifier.weight(1f), label = { Text(tr("Kota")) }, singleLine = true)
+                OutlinedTextField(province, { province = it }, Modifier.weight(1f), label = { Text(tr("Provinsi")) }, singleLine = true)
             }
-            Field(zipcode, { if (it.length <= 5) zipcode = it.filter(Char::isDigit) }, "Kode pos", KeyboardType.Number)
+            Field(zipcode, { if (it.length <= 5) zipcode = it.filter(Char::isDigit) }, tr("Kode pos"), KeyboardType.Number)
 
             Button(
                 enabled = !saving,
@@ -102,13 +103,13 @@ fun EditProfileScreen(repo: KyreadRepository, nav: NavHostController) {
                                     zipcode = zipcode.trim().ifBlank { null },
                                 ),
                             )
-                        }.onSuccess { snackbar.showSnackbar("Profil berhasil diperbarui.") }
-                            .onFailure { snackbar.showSnackbar(it.message ?: "Gagal menyimpan") }
+                        }.onSuccess { snackbar.showSnackbar(tr("Profil berhasil diperbarui.")) }
+                            .onFailure { snackbar.showSnackbar(it.message ?: tr("Gagal menyimpan")) }
                         saving = false
                     }
                 },
             ) {
-                if (saving) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text("Simpan")
+                if (saving) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text(tr("Simpan"))
             }
         }
     }

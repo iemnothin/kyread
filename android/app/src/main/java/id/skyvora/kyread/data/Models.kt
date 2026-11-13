@@ -1,5 +1,6 @@
 package id.skyvora.kyread.data
 
+import id.skyvora.kyread.i18n.tr
 import kotlinx.serialization.Serializable
 
 // Model mengikuti JSON dari /api/v1 (snake_case dipetakan otomatis oleh JsonNamingStrategy.SnakeCase).
@@ -239,7 +240,7 @@ data class Order(
 )
 
 /** Status pesanan (nilai sama dengan App\Enums\OrderStatus). */
-enum class OrderStatus(val value: String, val label: String) {
+enum class OrderStatus(val value: String, private val labelKey: String) {
     Pending("pending", "Menunggu Pembayaran"),
     Paid("paid", "Dibayar"),
     Processing("processing", "Diproses"),
@@ -247,6 +248,9 @@ enum class OrderStatus(val value: String, val label: String) {
     Completed("completed", "Selesai"),
     Cancelled("cancelled", "Dibatalkan"),
     ;
+
+    /** Label dalam bahasa aktif. */
+    val label: String get() = tr(labelKey)
 
     companion object {
         fun from(value: String) = entries.firstOrNull { it.value == value }

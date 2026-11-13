@@ -1,0 +1,26 @@
+/* Penyesuaian tata letak kanan-ke-kiri yang tidak ditangani bootstrap.rtl. */
+[dir=rtl] .bi-arrow-right,
+[dir=rtl] .bi-arrow-left,
+[dir=rtl] .bi-chevron-right,
+[dir=rtl] .bi-chevron-left {
+    display: inline-block;
+    transform: scaleX(-1);
+}
+
+/* NiceAdmin: sidebar pindah ke kanan. */
+[dir=rtl] .sidebar { left: auto; right: 0; }
+[dir=rtl] .sidebar-nav .nav-link i { margin-right: 0; margin-left: 10px; }
+[dir=rtl] .header .toggle-sidebar-btn { padding-left: 0; padding-right: 10px; }
+
+@media (min-width: 1200px) {
+    [dir=rtl] #main,
+    [dir=rtl] #footer { margin-left: 0; margin-right: 300px; }
+    [dir=rtl] .toggle-sidebar #main,
+    [dir=rtl] .toggle-sidebar #footer { margin-right: 0; }
+    [dir=rtl] .toggle-sidebar .sidebar { right: -300px; left: auto; }
+}
+
+@media (max-width: 1199px) {
+    [dir=rtl] .sidebar { right: -300px; }
+    [dir=rtl] .toggle-sidebar .sidebar { right: 0; left: auto; }
+}

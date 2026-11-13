@@ -1,4 +1,5 @@
 /** Saran kata per huruf & cari dengan gambar di kolom pencarian header. */
+import { t } from './i18n';
 
 const csrf = () => document.querySelector('meta[name=csrf-token]')?.content ?? '';
 const rupiah = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
@@ -43,7 +44,7 @@ export function initSuggestions() {
                 (s, i) => `<li><a class="dropdown-item d-flex align-items-center gap-2 py-2" role="option" id="sugg-${i}" href="${urlFor(s)}">
                     <i class="bi ${ICONS[s.type] ?? 'bi-search'} text-secondary"></i>
                     <span class="text-truncate">${highlight(s.label, q)}</span>
-                    <small class="ms-auto text-secondary">${s.type === 'author' ? 'Penulis' : s.type === 'category' ? 'Kategori' : ''}</small>
+                    <small class="ms-auto text-secondary">${s.type === 'author' ? t('Penulis') : s.type === 'category' ? t('Kategori') : ''}</small>
                 </a></li>`,
             )
             .join('');
@@ -109,14 +110,14 @@ export function initImageSearch() {
         const [file] = input.files;
         if (!file) return;
         if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran foto maksimal 5 MB.');
+            alert(t('Ukuran foto maksimal 5 MB.'));
             return;
         }
 
         preview.src = URL.createObjectURL(file);
         results.innerHTML = '';
         allLink.classList.add('d-none');
-        status.innerHTML = '<div class="d-flex align-items-center gap-2 text-secondary"><span class="spinner-border spinner-border-sm"></span> Mengenali buku dari foto…</div>';
+        status.innerHTML = '<div class="d-flex align-items-center gap-2 text-secondary"><span class="spinner-border spinner-border-sm"></span> ' + t('Mengenali buku dari foto…') + '</div>';
         modal.show();
 
         const body = new FormData();
@@ -130,12 +131,12 @@ export function initImageSearch() {
                 body,
             });
             const json = await res.json();
-            if (!res.ok) throw new Error(json.errors?.image?.[0] ?? json.message ?? 'Gagal memproses foto.');
+            if (!res.ok) throw new Error(json.errors?.image?.[0] ?? json.message ?? t('Gagal memproses foto.'));
 
             const id = json.identified;
             status.innerHTML = `
-                <div class="small text-secondary">Terdeteksi</div>
-                <div class="fw-bold">${escapeHtml(id.title ?? 'Judul tidak terbaca')}</div>
+                <div class="small text-secondary">${t('Terdeteksi')}</div>
+                <div class="fw-bold">${escapeHtml(id.title ?? t('Judul tidak terbaca'))}</div>
                 ${id.author ? `<div class="text-secondary">${escapeHtml(id.author)}</div>` : ''}
                 <div class="small mt-1">${escapeHtml(id.description)}</div>
                 <div class="mt-2">${id.keywords.map((k) => `<span class="badge text-bg-light border me-1">${escapeHtml(k)}</span>`).join('')}</div>`;
@@ -149,7 +150,7 @@ export function initImageSearch() {
                             <div class="price small">${rupiah(p.price)}</div></div></a></div>`,
                       )
                       .join('')
-                : '<p class="text-secondary mb-0">Belum ada buku yang cocok di katalog. Coba foto lain atau cari dengan kata kunci di atas.</p>';
+                : `<p class="text-secondary mb-0">${t('Belum ada buku yang cocok di katalog. Coba foto lain atau cari dengan kata kunci di atas.')}</p>`;
 
             if (json.query) {
                 allLink.href = `/books?q=${encodeURIComponent(json.query)}`;
