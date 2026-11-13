@@ -163,3 +163,9 @@ html.is-loaded #main {
         transition-duration: .01ms !important;
     }
 }
+
+/* ---------- Lottie ---------- */
+.lottie { display: flex; align-items: center; justify-content: center; }
+.lottie > svg { width: 100% !important; height: 100% !important; }
+.page-loader .loader-lottie { width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+.page-loader .loader-lottie.lottie-loaded + .bar { display: none; } /* animasi buku sudah cukup jadi indikator */

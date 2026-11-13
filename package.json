@@ -18,5 +18,8 @@
     },
     "optionalDependencies": {
         "@laravel/multiplex": "^0.4.1"
+    },
+    "dependencies": {
+        "lottie-web": "^5.12.2"
     }
 }

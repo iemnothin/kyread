@@ -213,32 +213,12 @@ fun StatusChip(status: String, label: String) {
 
 @Composable
 fun LoadingBox(modifier: Modifier = Modifier, message: String = tr("Memuat…")) {
-    val pulse = rememberInfiniteTransition(label = "loading")
-    val scale by pulse.animateFloat(
-        initialValue = 0.9f,
-        targetValue = 1.08f,
-        animationSpec = infiniteRepeatable(tween(700, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "logo-scale",
-    )
-    val alpha by pulse.animateFloat(
-        initialValue = 0.6f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
-        label = "logo-alpha",
-    )
     Column(
         modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painterResource(R.drawable.ic_splash),
-            contentDescription = null,
-            modifier = Modifier.size(72.dp).graphicsLayer { scaleX = scale; scaleY = scale; this.alpha = alpha },
-        )
-        Spacer(Modifier.height(12.dp))
-        LinearProgressIndicator(Modifier.width(120.dp).clip(RoundedCornerShape(50)))
-        Spacer(Modifier.height(10.dp))
+        KyLottie("loading", Modifier.size(140.dp))
         Text(message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -251,17 +231,22 @@ fun MessageBox(
     body: String? = null,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
+    animation: String? = null,
 ) {
     Column(
         modifier.fillMaxSize().padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            Modifier.size(88.dp).clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(44.dp))
+        if (animation != null) {
+            KyLottie(animation, Modifier.size(180.dp))
+        } else {
+            Box(
+                Modifier.size(88.dp).clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(44.dp))
+            }
         }
         Spacer(Modifier.height(16.dp))
         Text(title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
@@ -278,7 +263,7 @@ fun MessageBox(
 
 @Composable
 fun ErrorBox(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
-    MessageBox(Icons.Outlined.CloudOff, tr("Gagal memuat"), modifier, body = message, actionLabel = tr("Coba lagi"), onAction = onRetry)
+    MessageBox(Icons.Outlined.CloudOff, tr("Gagal memuat"), modifier, body = message, actionLabel = tr("Coba lagi"), onAction = onRetry, animation = "error")
 }
 
 @Composable

@@ -19,7 +19,7 @@
                 <img src="{{ asset('img/brand.svg') }}" alt=""> {{ config('app.name') }}
             </a>
             <div class="card card-soft p-4 p-md-5">
-                <i class="bi @yield('icon', 'bi-emoji-frown') display-3 text-ky"></i>
+                @include('partials.lottie', ['name' => 'error', 'size' => 160, 'icon' => 'bi-emoji-frown display-3 text-ky', 'class' => 'mx-auto'])
                 <div class="display-5 fw-bold mt-2">@yield('code')</div>
                 <h1 class="h4 fw-bold mt-2">@yield('heading')</h1>
                 <p class="text-secondary">@yield('message')</p>

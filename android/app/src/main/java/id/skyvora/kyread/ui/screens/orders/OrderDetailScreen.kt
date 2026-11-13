@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +66,7 @@ import id.skyvora.kyread.ui.components.Load
 import id.skyvora.kyread.ui.components.LoadingBox
 import id.skyvora.kyread.ui.components.RatingStars
 import id.skyvora.kyread.ui.components.StatusChip
+import id.skyvora.kyread.ui.components.SuccessDialog
 import id.skyvora.kyread.ui.components.SummaryRow
 import id.skyvora.kyread.ui.components.formatDateTime
 import id.skyvora.kyread.ui.components.rupiah
@@ -104,12 +106,15 @@ class OrderDetailViewModel(private val repo: KyreadRepository, private val code:
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: String) {
+fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: String, celebrate: Boolean = false) {
     val vm = kyViewModel(key = "order-$code") { OrderDetailViewModel(repo, code) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var confirm by remember { mutableStateOf<Pair<String, suspend () -> String>?>(null) }
+    // Dialog animasi sukses: setelah checkout (celebrate) dan setelah pembayaran berhasil.
+    var celebration by rememberSaveable { mutableStateOf(if (celebrate) tr("Pesanan berhasil dibuat. Silakan selesaikan pembayaran.") else null) }
+    celebration?.let { SuccessDialog(it) { celebration = null } }
 
     fun run(action: suspend () -> String) = scope.launch { snackbar.showSnackbar(action()) }
 
@@ -156,7 +161,13 @@ fun OrderDetailScreen(repo: KyreadRepository, nav: NavHostController, code: Stri
                             PaymentCard(
                                 order = order,
                                 busy = vm.busy,
-                                onPay = { run { vm.pay() } },
+                                onPay = {
+                                    scope.launch {
+                                        val message = vm.pay()
+                                        val paid = (vm.state as? Load.Ready)?.data?.status == OrderStatus.Paid.value
+                                        if (paid) celebration = message else snackbar.showSnackbar(message)
+                                    }
+                                },
                                 onCancel = { confirm = tr("Batalkan pesanan ini?") to { vm.cancel() } },
                             )
                         }

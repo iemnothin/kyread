@@ -1,7 +1,10 @@
 @foreach (['success' => 'success', 'error' => 'danger', 'info' => 'info'] as $key => $type)
     @if (session($key))
-        <div class="alert alert-{{ $type }} alert-dismissible fade show" role="alert">
-            {{ session($key) }}
+        <div class="alert alert-{{ $type }} alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+            @if ($key === 'success')
+                @include('partials.lottie', ['name' => 'success', 'size' => 30, 'repeat' => false, 'icon' => 'bi-check-circle-fill', 'class' => 'flex-shrink-0'])
+            @endif
+            <span>{{ session($key) }}</span>
             <button class="btn-close" data-bs-dismiss="alert" type="button" aria-label="{{ __('Tutup') }}"></button>
         </div>
     @endif

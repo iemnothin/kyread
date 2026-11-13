@@ -2,6 +2,7 @@ import * as bootstrap from 'bootstrap';
 import ApexCharts from 'apexcharts';
 import { initCommon, initPageLoader, initRipple } from './common';
 import { t } from './i18n';
+import { initLottie } from './lottie';
 
 window.bootstrap = bootstrap;
 
@@ -46,3 +47,4 @@ if (chartEl) {
 initCommon();
 initRipple();
 initPageLoader();
+initLottie();

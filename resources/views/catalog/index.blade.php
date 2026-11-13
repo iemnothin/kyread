@@ -77,7 +77,7 @@
                     <div class="col">@include('partials.product-card')</div>
                 @empty
                     <div class="col-12 text-center py-5">
-                        <i class="bi bi-search display-5 text-secondary"></i>
+                        @include('partials.lottie', ['name' => 'empty', 'size' => 170, 'icon' => 'bi-search display-5 text-secondary', 'class' => 'mx-auto'])
                         <p class="mt-3 text-secondary">{{ __('Buku yang kamu cari belum tersedia. Coba kata kunci lain.') }}</p>
                     </div>
                 @endforelse

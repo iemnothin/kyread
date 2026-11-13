@@ -41,6 +41,7 @@ Pembeli bisa mencari buku, memasukkan ke keranjang, checkout dengan pilihan kuri
 - **Invoice** siap cetak/simpan PDF untuk setiap pesanan
 - **10 bahasa antarmuka** (web & Android): Indonesia, English, Melayu, Jawa, Sunda, العربية (kanan-ke-kiri), 简体中文, 日本語, 한국어, Español. Pesan validasi, notifikasi, dan jawaban Kyra ikut bahasa pengguna
 - Animasi di setiap tombol dan loading screen di setiap halaman
+- **Animasi Lottie** (web & Android): buku membalik halaman saat memuat, kaca pembesar untuk halaman kosong, centang hijau saat berhasil (pesan sukses, setelah checkout & bayar), dan buku sedih untuk halaman error. File ada di `resources/lottie/*.json` (dibuat oleh `resources/lottie/generate.py`; bisa ditimpa dengan animasi dari lottiefiles.com bernama sama)
 - Halaman error (403/404/419/429/500/503) dalam bahasa aktif
 
 ### Menambah atau mengubah terjemahan

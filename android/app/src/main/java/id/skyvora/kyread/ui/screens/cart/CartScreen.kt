@@ -148,6 +148,7 @@ fun CartScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modifie
                         Icons.Outlined.ShoppingBag, tr("Keranjangmu masih kosong"), inner,
                         body = tr("Yuk, cari buku favoritmu."),
                         actionLabel = tr("Mulai Belanja"), onAction = { nav.navigateTab(Routes.search()) },
+                        animation = "empty",
                     )
                 } else {
                     PullToRefreshBox(isRefreshing = false, onRefresh = { vm.load(silent = true) }, modifier = inner) {

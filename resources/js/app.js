@@ -3,6 +3,7 @@ import { initCommon, initPageLoader, initRipple, initWishlist } from './common';
 import { initImageSearch, initSuggestions } from './search';
 import { initAssistant } from './assistant';
 import { t } from './i18n';
+import { initLottie } from './lottie';
 
 window.bootstrap = bootstrap;
 
@@ -110,6 +111,7 @@ initCommon();
 initWishlist();
 initRipple();
 initPageLoader();
+initLottie();
 initQuantitySteppers();
 initCheckout();
 initSuggestions();

@@ -8,7 +8,7 @@
     @if ($groups->isEmpty())
         <div class="card card-soft text-center py-5">
             <div class="card-body">
-                <i class="bi bi-bag display-4 text-ky"></i>
+                @include('partials.lottie', ['name' => 'empty', 'size' => 170, 'icon' => 'bi-bag display-4 text-ky', 'class' => 'mx-auto'])
                 <h2 class="h5 mt-3">{{ __('Keranjangmu masih kosong') }}</h2>
                 <p class="text-secondary">{{ __('Yuk, cari buku favoritmu sekarang.') }}</p>
                 <a class="btn btn-ky px-4" href="{{ route('books.index') }}">{{ __('Mulai Belanja') }}</a>

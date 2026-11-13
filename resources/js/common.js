@@ -1,5 +1,6 @@
 /** Perilaku yang dipakai storefront dan panel penjual. */
 import { t } from './i18n';
+import { setLottiePlaying } from './lottie';
 export function initCommon() {
     // <form data-confirm="Yakin?"> meminta konfirmasi sebelum dikirim.
     document.addEventListener('submit', (e) => {
@@ -88,7 +89,11 @@ export function initRipple() {
  */
 export function initPageLoader() {
     const html = document.documentElement;
-    const done = () => html.classList.add('is-loaded');
+    const loader = document.getElementById('page-loader');
+    const done = () => {
+        html.classList.add('is-loaded');
+        setLottiePlaying(loader, false); // jangan memutar animasi yang tidak terlihat
+    };
     document.readyState === 'complete' ? done() : window.addEventListener('load', done);
     setTimeout(done, 2500); // jangan menunggu gambar yang lambat terlalu lama
 
@@ -99,7 +104,10 @@ export function initPageLoader() {
         document.querySelectorAll('.btn.is-loading').forEach(resetButton);
     });
 
-    const navigating = () => html.classList.add('is-navigating');
+    const navigating = () => {
+        html.classList.add('is-navigating');
+        setLottiePlaying(loader, true);
+    };
 
     document.addEventListener('click', (e) => {
         const a = e.target.closest('a[href]');

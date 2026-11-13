@@ -63,7 +63,7 @@ object Routes {
     const val CART = "cart"
     const val CHECKOUT = "checkout"
     const val ORDERS = "orders"
-    const val ORDER = "order/{code}"
+    const val ORDER = "order/{code}?celebrate={celebrate}"
     const val ACCOUNT = "account"
     const val EDIT_PROFILE = "account/edit"
     const val LOGIN = "login"
@@ -76,7 +76,7 @@ object Routes {
         "search?category=${category.orEmpty()}&q=${q.orEmpty()}&sort=${sort.orEmpty()}"
 
     fun product(slug: String) = "product/$slug"
-    fun order(code: String) = "order/$code"
+    fun order(code: String, celebrate: Boolean = false) = "order/$code?celebrate=$celebrate"
 }
 
 private data class Tab(val route: String, val target: String, val label: String, val icon: ImageVector, val selectedIcon: ImageVector)
@@ -179,8 +179,17 @@ private fun KyreadNavigation(repository: KyreadRepository, deepLinkSlug: String?
             composable(Routes.CART) { CartScreen(repository, nav, tabPadding) }
             composable(Routes.CHECKOUT) { CheckoutScreen(repository, nav) }
             composable(Routes.ORDERS) { OrdersScreen(repository, nav, tabPadding) }
-            composable(Routes.ORDER, arguments = listOf(navArgument("code") { type = NavType.StringType })) { entry ->
-                OrderDetailScreen(repository, nav, entry.arguments?.getString("code").orEmpty())
+            composable(
+                Routes.ORDER,
+                arguments = listOf(
+                    navArgument("code") { type = NavType.StringType },
+                    navArgument("celebrate") { type = NavType.BoolType; defaultValue = false },
+                ),
+            ) { entry ->
+                OrderDetailScreen(
+                    repository, nav, entry.arguments?.getString("code").orEmpty(),
+                    celebrate = entry.arguments?.getBoolean("celebrate") == true,
+                )
             }
             composable(Routes.ACCOUNT) { AccountScreen(repository, nav, tabPadding) }
             composable(Routes.EDIT_PROFILE) { EditProfileScreen(repository, nav) }

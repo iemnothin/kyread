@@ -67,6 +67,7 @@ fun WishlistScreen(repo: KyreadRepository, nav: NavHostController) {
                     body = tr("Tekan ikon hati di halaman buku untuk menyimpannya di sini."),
                     actionLabel = tr("Jelajahi Katalog"),
                     onAction = { nav.navigate(Routes.search()) },
+                    animation = "empty"
                 )
             } else {
                 LazyVerticalGrid(

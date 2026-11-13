@@ -25,7 +25,12 @@ val copyTranslations by tasks.registering(Sync::class) {
     from(rootProject.file("../lang")) { include("*.json") }
     into(i18nAssets.map { it.dir("i18n") })
 }
-tasks.named("preBuild") { dependsOn(copyTranslations) }
+// Animasi Lottie dipakai bersama web: resources/lottie/*.json -> assets/lottie/*.json.
+val copyLottie by tasks.registering(Sync::class) {
+    from(rootProject.file("../resources/lottie")) { include("*.json") }
+    into(i18nAssets.map { it.dir("lottie") })
+}
+tasks.named("preBuild") { dependsOn(copyTranslations, copyLottie) }
 
 android {
     namespace = "id.skyvora.kyread"
@@ -115,4 +120,5 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play)
     implementation(libs.googleid)
+    implementation(libs.lottie.compose)
 }

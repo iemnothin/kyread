@@ -53,7 +53,7 @@
     @empty
         <div class="card card-soft text-center py-5">
             <div class="card-body">
-                <i class="bi bi-receipt display-4 text-ky"></i>
+                @include('partials.lottie', ['name' => 'empty', 'size' => 170, 'icon' => 'bi-receipt display-4 text-ky', 'class' => 'mx-auto'])
                 <p class="mt-3 text-secondary">{{ $status ? __('Belum ada pesanan dengan status ini.') : __('Belum ada pesanan.') }}</p>
                 <a class="btn btn-ky" href="{{ route('books.index') }}">{{ __('Belanja Sekarang') }}</a>
             </div>

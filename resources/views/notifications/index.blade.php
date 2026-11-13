@@ -28,7 +28,7 @@
                 </a>
             @empty
                 <div class="text-center py-5">
-                    <i class="bi bi-bell-slash display-5 text-secondary"></i>
+                    @include('partials.lottie', ['name' => 'empty', 'size' => 150, 'icon' => 'bi-bell-slash display-5 text-secondary', 'class' => 'mx-auto'])
                     <p class="mt-3 mb-0 text-secondary">{{ __('Belum ada notifikasi. Kabar tentang pesananmu akan muncul di sini.') }}</p>
                 </div>
             @endforelse

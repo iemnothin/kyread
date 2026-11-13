@@ -11,7 +11,7 @@
     @if ($products->isEmpty())
         <div class="card card-soft">
             <div class="card-body text-center py-5">
-                <i class="bi bi-heart display-4 text-secondary"></i>
+                @include('partials.lottie', ['name' => 'empty', 'size' => 170, 'icon' => 'bi-heart display-4 text-secondary', 'class' => 'mx-auto'])
                 <p class="mt-3 mb-1 fw-semibold">{{ __('Wishlist kamu masih kosong') }}</p>
                 <p class="text-secondary small">{{ __('Tekan ikon hati pada buku yang ingin kamu simpan untuk nanti.') }}</p>
                 <a class="btn btn-ky" href="{{ route('books.index') }}">{{ __('Jelajahi Katalog') }}</a>

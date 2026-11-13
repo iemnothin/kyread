@@ -100,6 +100,7 @@ fun NotificationsScreen(repo: KyreadRepository, nav: NavHostController) {
                         Icons.Outlined.NotificationsNone,
                         tr("Belum ada notifikasi"),
                         body = tr("Kabar tentang pesananmu akan muncul di sini."),
+                        animation = "empty"
                     )
                 } else {
                     LazyColumn {

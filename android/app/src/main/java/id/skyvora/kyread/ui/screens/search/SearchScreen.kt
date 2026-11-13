@@ -373,6 +373,7 @@ fun SearchScreen(
                             Icons.Outlined.SearchOff,
                             tr("Buku tidak ditemukan"),
                             body = if (vm.identified != null) tr("Buku di foto belum tersedia di katalog.") else tr("Coba kata kunci atau kategori lain."),
+                            animation = "empty",
                         )
                         else -> LazyVerticalGrid(
                             columns = GridCells.Adaptive(160.dp),

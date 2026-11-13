@@ -218,7 +218,7 @@ fun CheckoutScreen(repo: KyreadRepository, nav: NavHostController) {
                                 scope.launch {
                                     vm.submit()
                                         .onSuccess { orders ->
-                                            val target = if (orders.size == 1) Routes.order(orders.first().code) else Routes.ORDERS
+                                            val target = if (orders.size == 1) Routes.order(orders.first().code, celebrate = true) else Routes.ORDERS
                                             nav.navigate(target) { popUpTo(Routes.CHECKOUT) { inclusive = true } }
                                         }
                                         .onFailure { snackbar.showSnackbar(it.message ?: tr("Gagal membuat pesanan")) }

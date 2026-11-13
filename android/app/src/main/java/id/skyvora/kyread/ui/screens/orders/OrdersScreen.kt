@@ -138,7 +138,7 @@ fun OrdersScreen(repo: KyreadRepository, nav: NavHostController, modifier: Modif
             when {
                 vm.loading -> LoadingBox()
                 vm.error != null -> ErrorBox(vm.error!!, onRetry = { vm.load() })
-                vm.orders.isEmpty() -> MessageBox(Icons.Outlined.Receipt, tr("Belum ada pesanan"), body = tr("Pesanan yang kamu buat akan muncul di sini."))
+                vm.orders.isEmpty() -> MessageBox(Icons.Outlined.Receipt, tr("Belum ada pesanan"), body = tr("Pesanan yang kamu buat akan muncul di sini."), animation = "empty")
                 else -> PullToRefreshBox(isRefreshing = vm.refreshing, onRefresh = { vm.load(pull = true) }) {
                     LazyColumn(state = list, contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(vm.orders, key = { it.code }) { order ->
