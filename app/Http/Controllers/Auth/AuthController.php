@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
@@ -44,12 +46,7 @@ class AuthController extends Controller
 
     public function register(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:60'],
-            'username' => ['required', 'alpha_dash', 'min:4', 'max:30', 'unique:users'],
-            'email' => ['required', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
-        ]);
+        $data = $request->validate(static::registerRules());
 
         $user = User::create($data);
 
@@ -57,6 +54,31 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return redirect()->route('home')->with('success', __('Registrasi berhasil! Selamat berbelanja di kyread.'));
+    }
+
+    /** Aturan pendaftaran; dipakai juga oleh pengecekan langsung di form. */
+    public static function registerRules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:60'],
+            'username' => ['required', 'alpha_dash', 'min:4', 'max:30', 'unique:users'],
+            'email' => ['required', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+        ];
+    }
+
+    /** Cek langsung username/email di form daftar: {ok, message}. */
+    public function check(Request $request): JsonResponse
+    {
+        $field = $request->query('field');
+        abort_unless(in_array($field, ['username', 'email'], true), 404);
+
+        $validator = Validator::make([$field => (string) $request->query('value')], [$field => static::registerRules()[$field]]);
+
+        return response()->json([
+            'ok' => $validator->passes(),
+            'message' => $validator->passes() ? __('Bisa dipakai') : $validator->errors()->first($field),
+        ]);
     }
 
     public function logout(Request $request): RedirectResponse

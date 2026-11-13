@@ -2,6 +2,7 @@ import * as bootstrap from 'bootstrap';
 import { initCommon, initPageLoader, initRipple, initWishlist } from './common';
 import { initImageSearch, initSuggestions } from './search';
 import { initAssistant } from './assistant';
+import { initAuth } from './auth';
 import { t } from './i18n';
 import { initLottie } from './lottie';
 
@@ -117,3 +118,4 @@ initCheckout();
 initSuggestions();
 initImageSearch();
 initAssistant();
+initAuth();

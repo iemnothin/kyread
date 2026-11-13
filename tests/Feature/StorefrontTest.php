@@ -87,4 +87,28 @@ class StorefrontTest extends TestCase
         $this->get('/')->assertSee('env-badge', false)->assertSee('<title>[Staging]', false);
         $this->actingAs(User::firstWhere('email', 'seller@kyread.test'))->get('/seller')->assertSee('env-badge', false);
     }
+
+    public function test_auth_page_renders_both_forms_with_mascot(): void
+    {
+        // Kedua form dirender agar tab bisa berpindah tanpa reload; yang tidak aktif disembunyikan.
+        $login = $this->get('/login')->assertOk()->assertSee('data-mascot', false)->getContent();
+        $this->assertMatchesRegularExpression('/data-auth-panel="login"\s*>/', $login);
+        $this->assertMatchesRegularExpression('/data-auth-panel="register"\s+hidden/', $login);
+        $this->assertMatchesRegularExpression('/data-auth-panel="login"\s+hidden/', $this->get('/register')->assertOk()->getContent());
+
+        // Login gagal: kartu ditandai error (bergetar, maskot sedih).
+        $this->from('/login')->post('/login', ['login' => 'buyer@kyread.test', 'password' => 'salah'])->assertRedirect('/login');
+        $this->get('/login')->assertSee('is-error', false);
+    }
+
+    public function test_register_live_check_uses_registration_rules(): void
+    {
+        $this->getJson('/register/check?field=username&value=pembeli')->assertJson(['ok' => false]);
+        $this->getJson('/register/check?field=username&value=ab')->assertJson(['ok' => false]);
+        $this->getJson('/register/check?field=username&value=pembaca_baru')->assertJson(['ok' => true, 'message' => 'Bisa dipakai']);
+        $this->getJson('/register/check?field=email&value=buyer@kyread.test')->assertJsonPath('ok', false);
+        $this->getJson('/register/check?field=email&value=bukan-email')->assertJsonPath('ok', false);
+        $this->getJson('/register/check?field=email&value=baru@example.com')->assertJsonPath('ok', true);
+        $this->getJson('/register/check?field=password&value=x')->assertNotFound();
+    }
 }
