@@ -1,0 +1,4 @@
+/* Bundle kyreadSeller untuk bahasa kanan-ke-kiri (Arab). */
+@import 'bootstrap/dist/css/bootstrap.rtl.min.css';
+@import './seller-base.css';
+@import './rtl.css';

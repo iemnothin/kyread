@@ -1,0 +1,68 @@
+/* Gaya kyreadSeller (dipakai seller.css dan seller-rtl.css). */
+@import 'bootstrap-icons/font/bootstrap-icons.min.css';
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/600.css';
+@import '@fontsource/barlow/700-italic.css';
+@import './vendor/niceadmin.css';
+@import './motion.css';
+
+/* Seragamkan font dengan storefront (NiceAdmin aslinya Open Sans/Nunito/Poppins dari Google Fonts). */
+body,
+.sidebar-nav .nav-link,
+.card-title,
+.pagetitle h1,
+.header-nav .nav-profile span {
+    font-family: 'Barlow', system-ui, sans-serif;
+}
+
+.logo span.brand-text {
+    color: #43aaff;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.btn-ky {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #43aaff;
+    --bs-btn-border-color: #43aaff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #1f8ae6;
+    --bs-btn-hover-border-color: #1f8ae6;
+    --bs-btn-active-bg: #1f8ae6;
+}
+
+.thumb-sm {
+    width: 46px;
+    height: 62px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #eef3f9;
+}
+
+.sidebar-nav .nav-link.active-page {
+    color: #4154f1;
+    background: #f6f9ff;
+}
+
+.sidebar-nav .nav-link.active-page i {
+    color: #4154f1;
+}
+
+/* ---------- Penanda staging ---------- */
+.env-badge,
+.logo span.env-badge {
+    display: inline-block;
+    margin-left: .5rem;
+    padding: .15rem .5rem;
+    border-radius: 6px;
+    background: #f59e0b;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    line-height: 1.4;
+}

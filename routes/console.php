@@ -1,19 +1,12 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
+use App\Services\OrderService;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-/*
-|--------------------------------------------------------------------------
-| Console Routes
-|--------------------------------------------------------------------------
-|
-| This file is where you may define all of your Closure based console
-| commands. Each Closure is bound to a command instance allowing a
-| simple approach to interacting with each command's IO methods.
-|
-*/
+Artisan::command('orders:expire', function (OrderService $orders) {
+    $count = $orders->expireUnpaid();
+    $this->info("{$count} pesanan belum dibayar dibatalkan otomatis.");
+})->purpose('Batalkan pesanan yang belum dibayar lebih dari 24 jam');
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Schedule::command('orders:expire')->hourly();

@@ -1,0 +1,13 @@
+{
+    "Showing": "Menampilkan",
+    "to": "sampai",
+    "of": "dari",
+    "results": "hasil",
+    "Pagination Navigation": "Navigasi halaman",
+    "Go to page :page": "Ke halaman :page",
+    "Too Many Requests": "Terlalu banyak permintaan",
+    "This action is unauthorized.": "Kamu tidak berhak melakukan tindakan ini.",
+    "Unauthenticated.": "Silakan masuk terlebih dahulu.",
+    "(and :count more error)": "(dan :count kesalahan lainnya)",
+    "(and :count more errors)": "(dan :count kesalahan lainnya)"
+}

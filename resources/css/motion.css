@@ -1,0 +1,171 @@
+/*
+ * Animasi bersama storefront & kyreadSeller:
+ * tombol (hover, tekan, riak), spinner tombol submit, dan loading screen halaman.
+ */
+
+/* ---------- Tombol ---------- */
+.btn,
+.header-icon,
+.wish-btn,
+.page-link,
+.dropdown-item,
+.list-group-item-action,
+.option-card label,
+.nav-pills .nav-link {
+    transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.btn:not(:disabled):not(.disabled):not(.btn-link):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, .14);
+}
+
+/* Spesifisitas disamakan dengan aturan :hover di atas agar efek tekan selalu menang. */
+.btn:not(:disabled):not(.disabled):not(.btn-link):active,
+.btn-link:active,
+.header-icon:active,
+.page-link:active,
+.nav-pills .nav-link:active {
+    transform: scale(.95);
+    box-shadow: none;
+}
+
+.header-icon:hover { transform: translateY(-2px); }
+.option-card label:active { transform: scale(.98); }
+.dropdown-item:active,
+.list-group-item-action:active { transform: scale(.99); }
+
+/* Efek riak saat diklik (elemen <span class="ripple"> ditambahkan oleh JS). */
+.btn .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .25;
+    transform: scale(0);
+    pointer-events: none;
+    z-index: -1;
+    animation: ky-ripple .55s ease-out forwards;
+}
+
+@keyframes ky-ripple {
+    to { transform: scale(2.6); opacity: 0; }
+}
+
+/* Tombol submit yang sedang memproses. */
+.btn.is-loading { pointer-events: none; opacity: .85; }
+
+/* Ikon hati memantul saat ditambahkan ke wishlist. */
+.wish-btn.active i { animation: ky-pop .35s ease; }
+
+@keyframes ky-pop {
+    40% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+
+/* ---------- Loading screen halaman ---------- */
+.page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: rgba(245, 247, 251, .96);
+    transition: opacity .3s ease, visibility .3s ease;
+    /* Pengaman: tetap hilang sendiri walau JavaScript gagal dimuat. */
+    animation: ky-loader-failsafe 0s linear 6s forwards;
+}
+
+.page-loader .loader-logo {
+    width: 64px;
+    height: 64px;
+    animation: ky-pulse .9s ease-in-out infinite alternate;
+}
+
+.page-loader .bar {
+    width: 140px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(67, 170, 255, .2);
+    overflow: hidden;
+}
+
+.page-loader .bar::after {
+    content: "";
+    display: block;
+    width: 40%;
+    height: 100%;
+    border-radius: 4px;
+    background: #43aaff;
+    animation: ky-bar 1s ease-in-out infinite;
+}
+
+.page-loader .label {
+    font-size: .8rem;
+    color: #6b7280;
+}
+
+html.is-loaded .page-loader {
+    opacity: 0;
+    visibility: hidden;
+    /* Langsung tembus klik; visibility baru berubah di akhir transisi fade-out. */
+    pointer-events: none;
+}
+
+/* Saat pindah halaman: tampil kembali, setelah jeda singkat agar navigasi cepat tidak berkedip. */
+html.is-navigating .page-loader {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    animation: none;
+    transition-delay: .2s;
+}
+
+@keyframes ky-pulse {
+    from { transform: scale(.9); opacity: .65; }
+    to { transform: scale(1.06); opacity: 1; }
+}
+
+@keyframes ky-bar {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(250%); }
+}
+
+@keyframes ky-loader-failsafe {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* Konten halaman masuk dengan halus. */
+html.is-loaded main,
+html.is-loaded #main {
+    animation: ky-fade-up .35s ease both;
+}
+
+@keyframes ky-fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/* ---------- Lottie ---------- */
+.lottie { display: flex; align-items: center; justify-content: center; }
+.lottie > svg { width: 100% !important; height: 100% !important; }
+.page-loader .loader-lottie { width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+.page-loader .loader-lottie.lottie-loaded + .bar { display: none; } /* animasi buku sudah cukup jadi indikator */

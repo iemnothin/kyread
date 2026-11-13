@@ -1,64 +1,115 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PosController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\AssistantController;
+use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\VoucherController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Seller;
+use App\Http\Controllers\WishlistController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Storefront (publik)
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
+Route::get('/', HomeController::class)->name('home');
+Route::get('/books', [CatalogController::class, 'index'])->name('books.index');
+Route::get('/books/{product}', [CatalogController::class, 'show'])->name('books.show');
+Route::get('/store/{store}', [CatalogController::class, 'store'])->name('stores.show');
+Route::view('/help', 'pages.help')->name('help');
 
-// Route::get('/home', function () {
-//     return view('home');
-// });
+// Saran kata, cari dengan gambar, dan asisten AI (JSON, dipanggil dari JS halaman).
+Route::get('/search/suggest', [SearchController::class, 'suggest'])->middleware('throttle:120,1')->name('search.suggest');
+Route::post('/search/image', [SearchController::class, 'image'])->middleware('throttle:10,1')->name('search.image');
+Route::view('/assistant', 'assistant.index')->name('assistant');
+Route::post('/assistant', AssistantController::class)->middleware('throttle:20,1')->name('assistant.ask');
 
-Route::get('/home', [HomeController::class, 'index'])->middleware('auth')->name('home');
+/*
+|--------------------------------------------------------------------------
+| Autentikasi
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+    Route::get('/register/check', [AuthController::class, 'check'])->middleware('throttle:60,1')->name('register.check');
+    Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('auth.google');
+    Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
+});
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-//Profile Routes
-Route::get('/edit-profile', [UserController::class, 'edit'])->name('profile');
-Route::put('/update-profile/{user}', [UserController::class, 'update'])->name('profile.update');
-Route::delete('/delete-profile/{user}', [UserController::class, 'destroy'])->name('profile.delete');
+// Ganti bahasa antarmuka.
+Route::get('/locale/{locale}', LocaleController::class)->name('locale.switch');
 
-Route::get('/cart', [CartController::class, 'index']);
+// Invoice: pembeli/penjual yang login, atau tautan bertanda tangan dari aplikasi Android.
+Route::get('/orders/{order}/invoice', InvoiceController::class)->name('orders.invoice');
 
-//Authentication Routes
-///Login
-Route::get('/', [LoginController::class, 'index'])->name('login')->middleware('guest');
-Route::post('/login', [LoginController::class, 'authenticate']);
+/*
+|--------------------------------------------------------------------------
+| Pembeli (wajib login)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-///register
-Route::get('/register', [RegisterController::class, 'index'])->name('register')->middleware('guest');
-Route::post('/register', [RegisterController::class, 'store']);
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/{product}', [CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/items/{item}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/items/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-///logout
-Route::post('/logout', [LoginController::class, 'logout']);
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 
-//POS Pages Routes
-Route::get('/dashboard', [PosController::class, 'dashboard']);
-Route::get('/add-product', [PosController::class, 'addproduct']);
-Route::post('/add-product', [PosController::class, 'storeproduct']);
-Route::resource('/products', PosController::class);
-Route::get('/faq', [PosController::class, 'faq']);
-Route::get('/contact', [PosController::class, 'contact']);
-Route::get('/store-profile', [PosController::class, 'storeprofile']);
-Route::get('/transaction', [PosController::class, 'transaction']);
-Route::get('/feature-locked', [PosController::class, 'locked']);
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
+    Route::post('/notifications/read', [NotificationController::class, 'readAll'])->name('notifications.read');
 
-//POS Access Routes
-// Route::get('/shop-register', [PosController::class, 'createRegister']);
-// Route::post('/shop-register', [PosController::class, 'store']);
-// Route::get('/shop-login', [PosController::class, 'createLogin']);
-// Route::post('/shop-login', [PosController::class, 'authenticate']);
-// Route::post('/shop-logout', [PosController::class, 'shoplogout']);
+    Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
+    Route::post('/checkout/voucher', VoucherController::class)->middleware('throttle:30,1')->name('checkout.voucher');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/complete', [OrderController::class, 'complete'])->name('orders.complete');
+    Route::post('/orders/{order}/review', [OrderController::class, 'review'])->name('orders.review');
+});
+
+/*
+|--------------------------------------------------------------------------
+| kyreadSeller (panel penjual)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/open-store', [Seller\StoreController::class, 'create'])->name('store.create');
+    Route::post('/open-store', [Seller\StoreController::class, 'store'])->name('store.store');
+
+    Route::middleware('seller')->group(function () {
+        Route::get('/', Seller\DashboardController::class)->name('dashboard');
+        Route::resource('products', Seller\ProductController::class)->except('show');
+        Route::resource('vouchers', Seller\VoucherController::class)->except('show');
+        Route::get('/orders', [Seller\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [Seller\OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}', [Seller\OrderController::class, 'update'])->name('orders.update');
+        Route::get('/store', [Seller\StoreController::class, 'edit'])->name('store.edit');
+        Route::put('/store', [Seller\StoreController::class, 'update'])->name('store.update');
+        Route::view('/faq', 'seller.faq')->name('faq');
+    });
+});

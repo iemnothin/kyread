@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Logo kyread (dari public/img/brand.svg), diskalakan agar masuk zona aman adaptive icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1620"
+    android:viewportHeight="1620">
+    <group
+        android:translateX="270"
+        android:translateY="250">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M486.469,216.51L540.402,297.776L594.336,216.51L540.402,135L486.469,216.51Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M610.445,555.485H369.575L486.471,379.286L432.538,297.776L261.708,555.485L202.162,645.292L63.7903,854.193L4,944H112.111L171.657,854.193L310.029,645.292H629.236L640.95,652.126L858.635,777.807L909.152,854.193L968.698,944H1076.81L1017.02,854.193L921.842,710.452L809.095,645.292L747.108,609.662L706.841,586.478L721.728,571.348L737.59,555.485L786.643,506.432L735.882,430.047L648.271,297.776L594.338,379.286L670.967,494.962L610.445,555.485Z" />
+    </group>
+</vector>
